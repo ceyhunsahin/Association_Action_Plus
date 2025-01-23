@@ -1,0 +1,102 @@
+/* Ana container stil */
+.homepage {
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Hero Section stil */
+  .heroSection {
+    height: 70vh;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+  }
+  
+  .heroContent {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 2rem;
+    border-radius: 10px;
+  }
+  
+  .heroTitle {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-family: 'Poppins', sans-serif; 
+  }
+  
+  .heroSubtitle {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    font-family: 'Poppins', sans-serif; 
+  }
+  
+  .heroButton {
+    background-color: #ff5722;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1.25rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .heroButton:hover {
+    background-color: #e64a19;
+  }
+  
+  /* About Section stil */
+  .aboutSection {
+    padding: 4rem 2rem;
+    text-align: center;
+    background-color: #f9f9f9;
+  }
+  
+  .aboutTitle {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+    font-family: 'Poppins', sans-serif; 
+  }
+  
+  .aboutText {
+    font-size: 1.25rem;
+    color: #666;
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: 'Poppins', sans-serif; 
+  }
+  
+  /* Gallery Section stil */
+  .gallerySection {
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+  
+  .galleryTitle {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: #333;
+    font-family: 'Poppins', sans-serif; 
+  }
+  
+  .galleryGrid {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .galleryImage {
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+  }
+  
+  .galleryImage:hover {
+    transform: scale(1.05);
+  }

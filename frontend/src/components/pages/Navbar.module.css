@@ -1,0 +1,195 @@
+/* Google Fonts'tan yazı tipi ekleyin */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+/* Navbar ana container */
+.navbar {
+  background-color: #ffffff; /* Beyaz arka plan */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Hafif gölge */
+  padding: 1rem 2rem;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  justify-content: space-between; /* Marka ve linkleri yay */
+  align-items: center;
+  position: relative; /* Şekil için pozisyonlandırma */
+}
+
+/* Büyük ekranlar için arka plan ve şekil */
+@media (min-width: 768px) {
+  .navbar {
+    background-color: #f0e6f6; /* Hafif pembeli-mor arka plan */
+    padding: 1.5rem 3rem; /* Daha geniş padding */
+  }
+
+  .navbar::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px; /* Şeklin genişliği */
+    height: 100px; /* Şeklin yüksekliği */
+    background-image: url('/Users/ceyhun/kultur-dernek-sitesi/frontend/assets/pngegg.png'); /* Ortadaki şekil */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain; /* Şekli orantılı olarak sığdır */
+    opacity: 0.6; /* Şeklin şeffaflığı */
+  }
+}
+
+/* Marka logosu veya adı */
+.navBrand {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.navBrand:hover {
+  color: #007bff; /* Hover durumunda mavi renk */
+}
+
+/* Navbar linkleri */
+.navLinks {
+  display: flex;
+  gap: 1.5rem; /* Linkler arası boşluğu artır */
+  align-items: center; /* Linkleri dikeyde ortala */
+}
+
+.navLink {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #555;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  background-color: rgba(0, 123, 255, 0.1); /* Şeffaf mavi arka plan */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.navLink:hover {
+  background-color: rgba(0, 123, 255, 0.2); /* Hover durumunda daha belirgin arka plan */
+  color: #007bff; /* Hover durumunda mavi renk */
+}
+
+/* Kullanıcı bilgileri (oturum açmışsa) */
+.profileButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer; /* Tıklanabilir olduğunu göster */
+  position: relative; /* Açılır menü için pozisyonlandırma */
+}
+
+/* Profil bağlantısı */
+.profileLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Profil baş harfi */
+.profileInitial {
+  width: 40px;
+  height: 40px;
+  background-color: #007bff; /* Mavi renk */
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Profil adı */
+.profileName {
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap; /* Metnin alt satıra sarkmasını engeller */
+}
+
+/* Açılır menü */
+/* Açılır menü */
+.dropdownMenu {
+  position: absolute;
+  top: 50px; /* Profil butonunun altında */
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  min-width: 200px; /* Menü genişliği */
+}
+
+.dropdownItem {
+  padding: 0.75rem 1rem;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+}
+
+.dropdownItem:hover {
+  background-color: #f1f1f1; /* Hover durumunda arka plan rengi */
+}
+
+/* Créer un événement bağlantısı */
+.createEventLink {
+  color: #007bff; /* Mavi renk */
+  font-weight: bold;
+}
+
+/* Déconnexion butonu */
+.logoutButton {
+  background-color: #ff4d4d; /* Kırmızı renk */
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logoutButton:hover {
+  background-color: #cc0000; /* Hover durumunda daha koyu kırmızı */
+}
+
+/* Responsive Tasarım */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column; /* Mobilde marka ve linkler alt alta */
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .navLinks {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .navLink {
+    width: 100%; /* Linklerin genişliğini tam yap */
+  }
+
+  .navbar::before {
+    display: none; /* Mobilde şekli gizle */
+  }
+
+  .dropdownMenu {
+    top: 40px; /* Mobilde menüyü biraz daha aşağıda göster */
+    right: 50%;
+    transform: translateX(50%); /* Mobilde menüyü ortala */
+  }
+}

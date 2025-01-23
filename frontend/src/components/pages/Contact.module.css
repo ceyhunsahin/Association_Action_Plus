@@ -1,0 +1,121 @@
+/* Google Fonts'tan yazı tipi ekleyin */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+/* Ana sayfa stil */
+.contactPage {
+  background-color: #f8f9fa;
+  padding: 2rem 1rem; /* Mobil için padding azaltıldı */
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* İçerik container */
+.contactContent {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 2rem; /* Mobil için padding azaltıldı */
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Başlık stil */
+.title {
+  font-size: 2rem; /* Mobil için başlık boyutu küçültüldü */
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Alt başlık stil */
+.subtitle {
+  font-size: 1rem; /* Mobil için yazı boyutu küçültüldü */
+  color: #666;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* İletişim bilgileri stil */
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Bilgi öğesi stil */
+.infoItem {
+  text-align: center;
+}
+
+/* Bilgi başlığı stil */
+.infoTitle {
+  font-size: 1.5rem; /* Mobil için başlık boyutu küçültüldü */
+  font-weight: 600;
+  color: #007bff;
+  margin-bottom: 0.5rem;
+}
+
+/* Bilgi metni stil */
+.infoText {
+  font-size: 1rem; /* Mobil için yazı boyutu küçültüldü */
+  color: #555;
+  line-height: 1.6;
+}
+
+/* Harita container stil */
+.mapContainer {
+  margin-top: 2rem;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Tablet ve mobil için media query'ler */
+@media (max-width: 768px) {
+  .contactContent {
+    padding: 1.5rem; /* Tablet için padding azaltıldı */
+  }
+
+  .title {
+    font-size: 1.75rem; /* Tablet için başlık boyutu küçültüldü */
+  }
+
+  .subtitle {
+    font-size: 0.95rem; /* Tablet için yazı boyutu küçültüldü */
+  }
+
+  .infoTitle {
+    font-size: 1.25rem; /* Tablet için başlık boyutu küçültüldü */
+  }
+
+  .infoText {
+    font-size: 0.95rem; /* Tablet için yazı boyutu küçültüldü */
+  }
+}
+
+@media (max-width: 480px) {
+  .contactContent {
+    padding: 1rem; /* Mobil için padding azaltıldı */
+  }
+
+  .title {
+    font-size: 1.5rem; /* Mobil için başlık boyutu küçültüldü */
+  }
+
+  .subtitle {
+    font-size: 0.9rem; /* Mobil için yazı boyutu küçültüldü */
+  }
+
+  .infoTitle {
+    font-size: 1.1rem; /* Mobil için başlık boyutu küçültüldü */
+  }
+
+  .infoText {
+    font-size: 0.9rem; /* Mobil için yazı boyutu küçültüldü */
+  }
+}

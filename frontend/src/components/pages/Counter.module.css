@@ -1,0 +1,22 @@
+.counterContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Sağa dayalı */
+  margin-top: 2rem; /* Resimlerin hemen altında */
+}
+
+.counter {
+  background-color: black; /* Siyah zemin */
+  color: white; /* Beyaz yazı */
+  font-size: 3rem;
+  font-weight: bold;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.ipText {
+  font-size: 1rem;
+  color: #666;
+  margin-top: 0.5rem;
+}

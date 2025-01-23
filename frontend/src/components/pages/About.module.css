@@ -1,0 +1,153 @@
+/* Google Fonts'tan yazı tipi ekleyin */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+/* Ana sayfa stil */
+.aboutPage {
+  background-color: #f8f9fa;
+  padding: 2rem 1rem; /* Mobil için padding azaltıldı */
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* İçerik container */
+.aboutContent {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 2rem; /* Mobil için padding azaltıldı */
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Başlık stil */
+.title {
+  font-size: 2rem; /* Mobil için başlık boyutu küçültüldü */
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Giriş metni stil */
+.intro {
+  font-size: 1rem; /* Mobil için yazı boyutu küçültüldü */
+  color: #555;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Bölüm stil */
+.section {
+  margin-bottom: 2rem;
+}
+
+/* Bölüm başlığı stil */
+.sectionTitle {
+  font-size: 1.5rem; /* Mobil için başlık boyutu küçültüldü */
+  font-weight: 600;
+  color: #007bff;
+  margin-bottom: 1rem;
+  text-decoration: underline;
+}
+
+/* Bölüm metni stil */
+.sectionText {
+  font-size: 1rem; /* Mobil için yazı boyutu küçültüldü */
+  color: #555;
+  line-height: 1.8;
+}
+
+/* Rejoignez-nous link stil */
+.joinLink {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #007bff;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 1rem; /* Mobil için yazı boyutu küçültüldü */
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.joinLink:hover {
+  background-color: #0056b3;
+}
+
+/* Kapanış metni stil */
+.closing {
+  font-size: 1rem; /* Mobil için yazı boyutu küçültüldü */
+  color: #333;
+  font-weight: 500;
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: rgba(0, 123, 255, 0.1);
+  border-radius: 5px;
+}
+
+/* Tablet ve mobil için media query'ler */
+@media (max-width: 768px) {
+  .aboutContent {
+    padding: 1.5rem; /* Tablet için padding azaltıldı */
+  }
+
+  .title {
+    font-size: 1.75rem; /* Tablet için başlık boyutu küçültüldü */
+  }
+
+  .intro {
+    font-size: 0.95rem; /* Tablet için yazı boyutu küçültüldü */
+  }
+
+  .sectionTitle {
+    font-size: 1.25rem; /* Tablet için başlık boyutu küçültüldü */
+  }
+
+  .sectionText {
+    font-size: 0.95rem; /* Tablet için yazı boyutu küçültüldü */
+  }
+
+  .joinLink {
+    font-size: 0.95rem; /* Tablet için yazı boyutu küçültüldü */
+  }
+
+  .closing {
+    font-size: 0.95rem; /* Tablet için yazı boyutu küçültüldü */
+  }
+}
+
+@media (max-width: 480px) {
+  .aboutContent {
+    padding: 1rem; /* Mobil için padding azaltıldı */
+  }
+
+  .title {
+    font-size: 1.5rem; /* Mobil için başlık boyutu küçültüldü */
+  }
+
+  .intro {
+    font-size: 0.9rem; /* Mobil için yazı boyutu küçültüldü */
+  }
+
+  .sectionTitle {
+    font-size: 1.1rem; /* Mobil için başlık boyutu küçültüldü */
+  }
+
+  .sectionText {
+    font-size: 0.9rem; /* Mobil için yazı boyutu küçültüldü */
+  }
+
+  .joinLink {
+    font-size: 0.9rem; /* Mobil için yazı boyutu küçültüldü */
+  }
+
+  .closing {
+    font-size: 0.9rem; /* Mobil için yazı boyutu küçültüldü */
+  }
+}

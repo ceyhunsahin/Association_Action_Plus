@@ -1,0 +1,114 @@
+.container {
+  padding: 20px;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.subtitle {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.eventsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Kartlar arası boşluk */
+  justify-content: center; /* Kartları yatayda ortala */
+  align-items: center; /* Kartları dikeyde ortala */
+}
+
+/* 1 veya 2 etkinlik varsa */
+.eventsGrid:has(.eventCard:only-child),
+.eventsGrid:has(.eventCard:nth-child(1):nth-last-child(2)),
+.eventsGrid:has(.eventCard:nth-child(2):nth-last-child(1)) {
+  justify-content: center; /* Kartları yatayda ortala */
+}
+
+/* 1 etkinlik varsa */
+.eventsGrid:has(.eventCard:only-child) .eventCard {
+  width: 15cm; /* Kartpostal boyutu */
+  height: 12cm;
+}
+
+/* 2 etkinlik varsa */
+.eventsGrid:has(.eventCard:nth-child(1):nth-last-child(2)) .eventCard,
+.eventsGrid:has(.eventCard:nth-child(2):nth-last-child(1)) .eventCard {
+  width: 15cm; /* Kartpostal boyutu */
+  height: 12cm;
+}
+
+/* 3 veya daha fazla etkinlik varsa */
+.eventsGrid:has(.eventCard:nth-child(3)) {
+  justify-content: flex-start; /* Standart düzen */
+}
+
+.eventCard {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+  position: relative; /* Supprimer butonu için */
+}
+
+.eventCard:hover {
+  transform: translateY(-5px); /* Kartlara hover efekti */
+}
+
+.eventImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.eventContent {
+  padding: 15px;
+  text-align: center; /* İçerikleri ortala */
+}
+
+.eventTitle {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.eventDate {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.deleteButton {
+  background-color: #ff4d4d; /* Kırmızı renk */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 100%;
+  font-size: 1rem;
+  position: absolute; /* Butonu kartın ortasına yerleştir */
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%; /* Buton genişliği */
+}
+
+.deleteButton:hover {
+  background-color: #ff1a1a; /* Hover rengi */
+}
+
+.loading {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.error {
+  text-align: center;
+  font-size: 1.2rem;
+  color: red;
+}

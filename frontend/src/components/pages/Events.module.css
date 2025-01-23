@@ -1,0 +1,252 @@
+/* Ana container stil */
+.container {
+    max-width: 1200px; /* Container'ın maksimum genişliği */
+    margin: 0 auto; /* Ortala */
+    padding: 1rem; /* İç boşluk */
+  }
+  
+  /* Etkinlik kartları container stil */
+  .eventsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Her satırda 3 kart */
+    gap: 1rem; /* Kartlar arası boşluk */
+  }
+  
+  /* Etkinlik kartı stil */
+  .eventCard {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 3 / 4; /* En-boy oranını sabitle (örneğin 3:4) */
+  }
+  
+  .eventCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Etkinlik resmi stil */
+  .eventImage {
+    width: 100%;
+    height: 70%; /* Resim yüksekliği kartın %70'i kadar */
+    object-fit: cover; /* Resmi kartın boyutuna sığdır */
+  }
+  
+  /* Etkinlik içerik stil */
+  .eventContent {
+    padding: 1rem;
+    flex-grow: 1; /* İçeriği kartın alt kısmına yasla */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: rgba(245, 245, 245, 0.9); /* Hafif gri ve şeffaf arka plan */
+    border-top: 1px solid rgba(0, 0, 0, 0.1); /* Üst kısma ince bir çizgi ekleyin */
+  }
+  
+  /* Etkinlik başlığı stil */
+  .eventTitle {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-family: 'Poppins', sans-serif; 
+  }
+  
+  /* Etkinlik tarihi stil */
+  .eventDate {
+    font-size: 1rem;
+    color: #666;
+    font-family: 'Poppins', sans-serif; 
+  }
+  
+  /* Link stil */
+  .eventLink {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+  }
+  
+  /* Yükleniyor mesajı stil */
+  .loading {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #333;
+    margin-top: 2rem;
+  }
+  
+  /* Hata mesajı stil */
+  .error {
+    text-align: center;
+    font-size: 1.5rem;
+    color: red;
+    margin-top: 2rem;
+    font-family: 'Poppins', sans-serif; 
+  }
+
+  /* Google Fonts'tan yazı tipi ekleyin */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+/* Ana container stil */
+.container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Etkinlik kartları container stil */
+.eventsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Her satırda 3 kart */
+  gap: 2rem; /* Kartlar arası boşluk */
+}
+
+/* Etkinlik kartı stil */
+.eventCard {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.eventCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Etkinlik resmi stil */
+.eventImage {
+  width: 100%;
+  height: 70%;
+  object-fit: cover;
+}
+
+/* Etkinlik içerik stil */
+.eventContent {
+  padding: 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Etkinlik başlığı stil */
+.eventTitle {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-family: 'Poppins', sans-serif; 
+}
+
+/* Etkinlik tarihi stil */
+.eventDate {
+  font-size: 1rem;
+  color: #6F6F6F;
+  font-family: 'Poppins', sans-serif; 
+}
+
+/* Link stil */
+.eventLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+}
+
+/* Yükleniyor mesajı stil */
+.loading {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #333;
+  margin-top: 2rem;
+}
+
+/* Hata mesajı stil */
+.error {
+  text-align: center;
+  font-size: 1.5rem;
+  color: red;
+  margin-top: 2rem;
+}
+
+.joinButtonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: auto; /* Butonu kartın altına yerleştir */
+}
+
+.joinButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.joinButton:hover {
+  background-color: #0056b3;
+}
+.deleteButton {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #ff4d4d; /* Kırmızı renk */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  background-color: #cc0000; /* Daha koyu kırmızı */
+}
+/* Mobil ve tablet için media query'ler */
+@media (max-width: 768px) {
+  .eventsGrid {
+    grid-template-columns: repeat(2, 1fr); /* Tablet boyutunda her satırda 2 kart */
+  }
+}
+
+@media (max-width: 480px) {
+  .eventsGrid {
+    grid-template-columns: 1fr; /* Mobil boyutunda her satırda 1 kart */
+  }
+
+  .eventCard {
+    margin-bottom: 1rem; /* Kartlar arası boşluk */
+  }
+
+  .eventTitle {
+    font-size: 1.1rem; /* Başlık boyutunu küçült */
+  }
+
+  .eventDate {
+    font-size: 0.9rem; /* Tarih boyutunu küçült */
+  }
+  .joinButtonContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: auto; /* Butonu kartın altına yerleştir */
+  }
+
+  .joinButton {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .joinButton:hover {
+    background-color: #0056b3;
+  }
+}
