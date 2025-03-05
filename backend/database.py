@@ -1,16 +1,19 @@
 import sqlite3
+import os
 from passlib.context import CryptContext
 
 # Şifre hash'leme ve doğrulama için CryptContext örneği
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_db():
-    conn = sqlite3.connect('database.db')
+    db_path = os.path.join(os.path.dirname(__file__), 'your_database.db')
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
 def initialize_db():
-    conn = sqlite3.connect('database.db')
+    db_path = os.path.join(os.path.dirname(__file__), 'your_database.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     # users tablosunu oluştur veya güncelle
@@ -34,25 +37,25 @@ def initialize_db():
     if 'role' not in column_names:
         cursor.execute('ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT "user"')
 
-    # events tablosunu oluştur veya güncelle
+    # Events tablosu
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         date TEXT NOT NULL,
-        description TEXT NOT NULL,
-        image TEXT NOT NULL
+        description TEXT,
+        image TEXT
     )
     ''')
 
-    # user_events tablosunu oluştur veya güncelle
+    # User_events tablosu - user_email yerine user_id kullanacak şekilde güncellendi
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS user_events (
-        user_email TEXT NOT NULL,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
         event_id INTEGER NOT NULL,
-        PRIMARY KEY (user_email, event_id),
-        FOREIGN KEY (user_email) REFERENCES users(email),
-        FOREIGN KEY (event_id) REFERENCES events(id)
+        FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+        UNIQUE(user_id, event_id)
     )
     ''')
 

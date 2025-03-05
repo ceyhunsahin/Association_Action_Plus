@@ -6,21 +6,23 @@ import styles from './Events.module.css';
 
 const Events = () => {
     const [events, setEvents] = useState([]);
-    const [userEvents, setUserEvents] = useState([]); // Kullanıcının katıldığı etkinlikler
+    const [userEvents, setUserEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { accessToken, user } = useAuth(); // Access token'ı ve kullanıcı bilgilerini al
+    const { accessToken, user } = useAuth();
     const navigate = useNavigate();
 
-    // Tüm etkinlikleri çek
+    // Tüm etkinlikleri çek - Component mount olduğunda çalışır
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/events');
+                const response = await axios.get('http://localhost:8000/api/events');
+                console.log('Events data:', response.data);
                 setEvents(response.data);
                 setLoading(false);
             } catch (err) {
-                setError(err.message);
+                console.error('Events fetch error:', err);
+                setError(err.response?.data?.detail || err.message);
                 setLoading(false);
             }
         };
@@ -28,52 +30,54 @@ const Events = () => {
         fetchEvents();
     }, []);
 
-    // Kullanıcının katıldığı etkinlikleri çek
-    const fetchUserEvents = async () => {
-        if (!accessToken || !user) return; // Eğer kullanıcı oturum açmamışsa işlemi durdur
-
-        try {
-            const response = await axios.get('http://localhost:8000/users/me/events', {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-            setUserEvents(response.data.events); // userEvents state'ini güncelle
-        } catch (error) {
-            console.error('Error fetching user events:', error);
-            setError('Erreur lors de la récupération des événements');
-        }
-    };
-
-    // Bileşen yüklendiğinde kullanıcının etkinliklerini çek
+    // Kullanıcının katıldığı etkinlikleri çek - User veya token değiştiğinde çalışır
     useEffect(() => {
-        if (accessToken) {
+        const fetchUserEvents = async () => {
+            if (!accessToken || !user) return;
+
+            try {
+                const response = await axios.get('http://localhost:8000/api/users/me/events', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                console.log('User events response:', response.data);
+                setUserEvents(response.data.events || []);
+            } catch (error) {
+                console.error('Fetch user events error:', error.response || error);
+            }
+        };
+
+        if (accessToken && user) {
             fetchUserEvents();
         }
-    }, [accessToken]);
+    }, [accessToken, user]);
 
     // Etkinliğe katılma işlemi
     const handleJoinEvent = async (eventId) => {
         if (!accessToken || !user) {
             alert('Vous devez vous connecter pour rejoindre un événement!');
-            navigate('/login'); // Kullanıcı oturum açmamışsa login sayfasına yönlendir
+            navigate('/login');
             return;
         }
 
         try {
             const response = await axios.post(
-                `http://localhost:8000/events/${eventId}/join`,
-                {}, // Boş body
+                `http://localhost:8000/api/events/${eventId}/join`,
+                {},
                 {
                     headers: {
-                        Authorization: `Bearer ${accessToken}`,
+                        'Authorization': `Bearer ${accessToken}`,
                     },
                 }
             );
             alert(response.data.message);
-
-            // Kullanıcının katıldığı etkinlikleri yeniden yükle
-            await fetchUserEvents();
+            
+            // Kullanıcının etkinliklerini güncelle
+            const updatedUserEvents = [...userEvents, events.find(e => e.id === eventId)];
+            setUserEvents(updatedUserEvents);
         } catch (error) {
             console.error('Katılım hatası:', error);
             alert(error.response?.data?.detail || 'Erreur lors de la participation à l\'événement');
@@ -83,17 +87,17 @@ const Events = () => {
     // Etkinliği silme işlemi
     const handleDeleteEvent = async (eventId) => {
         const isConfirmed = window.confirm("Êtes-vous sûr de vouloir supprimer cet événement ?");
-        if (!isConfirmed) return; // Kullanıcı iptal ederse işlemi durdur
+        if (!isConfirmed) return;
 
         try {
-            const response = await axios.delete(`http://localhost:8000/events/${eventId}`, {
+            const response = await axios.delete(`http://localhost:8000/api/events/${eventId}`, {
                 headers: {
-                    Authorization: `Bearer ${accessToken}`,
+                    'Authorization': `Bearer ${accessToken}`,
                 },
             });
             alert(response.data.message);
 
-            // Etkinlikleri yeniden yükle
+            // Etkinlikleri güncelle
             const updatedEvents = events.filter(event => event.id !== eventId);
             setEvents(updatedEvents);
         } catch (error) {
@@ -107,7 +111,17 @@ const Events = () => {
     }
 
     if (error) {
-        return <div className={styles.error}>Erreur: {error}</div>;
+        return (
+            <div className={styles.error}>
+                <p>Erreur: {error}</p>
+                <button 
+                    onClick={() => window.location.reload()} 
+                    className={styles.retryButton}
+                >
+                    Réessayer
+                </button>
+            </div>
+        );
     }
 
     return (
@@ -125,29 +139,29 @@ const Events = () => {
                             <div className={styles.eventContent}>
                                 <h3 className={styles.eventTitle}>{event.title}</h3>
                                 <p className={styles.eventDate}>Date: {event.date}</p>
-                                {userEvents.some(e => e.id === event.id) && ( // Kullanıcı bu etkinliğe katıldıysa
+                                {userEvents.some(e => e.id === event.id) && (
                                     <p className={styles.joinedMessage}>Vous avez rejoint cet événement</p>
                                 )}
                             </div>
                         </Link>
-                        {user && ( // Sadece oturum açmış kullanıcılar için "Rejoindre" butonu göster
+                        {user && (
                             <div className={styles.joinButtonContainer}>
                                 <button
                                     onClick={(e) => {
-                                        e.preventDefault(); // Link'in tetiklenmesini engelle
+                                        e.preventDefault();
                                         handleJoinEvent(event.id);
                                     }}
                                     className={styles.joinButton}
-                                    disabled={userEvents.some(e => e.id === event.id)} // Katıldıysa butonu devre dışı bırak
+                                    disabled={userEvents.some(e => e.id === event.id)}
                                 >
                                     {userEvents.some(e => e.id === event.id) ? "Déjà rejoint" : "Rejoindre"}
                                 </button>
                             </div>
                         )}
-                        {user?.role === 'admin' && ( // Sadece adminler için silme butonu göster
+                        {user?.role === 'admin' && (
                             <button
                                 onClick={(e) => {
-                                    e.preventDefault(); // Link'in tetiklenmesini engelle
+                                    e.preventDefault();
                                     handleDeleteEvent(event.id);
                                 }}
                                 className={styles.deleteButton}

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useLoaderData, useLocation, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import styles from './EventDetail.module.css';
 
 // Loader fonksiyonu
@@ -15,17 +16,32 @@ export async function loader({ params }) {
 
 const EventDetail = () => {
   const { id } = useParams(); // id'yi kullan
-  const event = useLoaderData();  // Loader'dan gelen veriyi al
+  const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const location = useLocation();
-  const [showAllDetails, setShowAllDetails] = useState(false);
+  const { accessToken } = useAuth();
 
-  const handleShowAllDetails = () => {
-    setShowAllDetails(!showAllDetails);
-  };
+  useEffect(() => {
+    const fetchEventDetail = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/events/${id}`);
+        console.log('Event detail:', response.data);
+        setEvent(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Event detail error:', err);
+        setError(err.response?.data?.detail || 'Erreur lors du chargement de l\'événement');
+        setLoading(false);
+      }
+    };
 
-  if (!event) {
-    return <div className={styles.error}>Événement non trouvé</div>;
-  }
+    fetchEventDetail();
+  }, [id]);
+
+  if (loading) return <div className={styles.loading}>Chargement...</div>;
+  if (error) return <div className={styles.error}>{error}</div>;
+  if (!event) return <div className={styles.error}>Événement non trouvé</div>;
 
   return (
     <div className={styles.container}>
@@ -40,20 +56,13 @@ const EventDetail = () => {
           className={styles.eventImage}
         />
       </div>
-      <p className={styles.description}>
-        {showAllDetails ? event.description : `${event.description.slice(0, 100)}...`}
-      </p>
-      {!showAllDetails && (
-        <button onClick={handleShowAllDetails} className={styles.moreButton}>
-          Voir plus
-        </button>
-      )}
-      {showAllDetails && (
-        <button onClick={handleShowAllDetails} className={styles.moreButton}>
-          Voir moins
-        </button>
-      )}
-      <p className={styles.date}>Date: {event.date}</p>
+      <div className={styles.info}>
+        <p className={styles.date}>Date: {event.date}</p>
+        <p className={styles.description}>{event.description}</p>
+        <p className={styles.participants}>
+          Nombre de participants: {event.participant_count}
+        </p>
+      </div>
     </div>
   );
 };

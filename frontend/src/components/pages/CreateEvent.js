@@ -25,11 +25,11 @@ const EventCreate = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:8000/eventcreate', {
+            const response = await fetch('http://localhost:8000/api/events/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}`,
+                    'Authorization': `Bearer ${accessToken}`,
                 },
                 body: JSON.stringify(eventData),
             });
@@ -42,11 +42,9 @@ const EventCreate = () => {
             const data = await response.json();
             console.log('Événement créé:', data);
 
-            // Modal'ı göster ve mesajı ayarla
             setModalMessage('Événement créé avec succès!');
             setShowModal(true);
 
-            // 2 saniye sonra modal'ı kapat ve events sayfasına yönlendir
             setTimeout(() => {
                 setShowModal(false);
                 navigate('/events');

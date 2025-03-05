@@ -1,195 +1,177 @@
 /* Google Fonts'tan yazı tipi ekleyin */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Poppins:wght@300;400;500;600&display=swap');
 
 /* Navbar ana container */
 .navbar {
-  background-color: #ffffff; /* Beyaz arka plan */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Hafif gölge */
-  padding: 1rem 2rem;
+  background-color: #f8f4e9; /* Krem rengi arka plan */
+  background-image: linear-gradient(to right, #f8f4e9, #f0e6d2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 15px 30px;
   font-family: 'Poppins', sans-serif;
   display: flex;
-  justify-content: space-between; /* Marka ve linkleri yay */
+  justify-content: space-between;
   align-items: center;
-  position: relative; /* Şekil için pozisyonlandırma */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 3px solid #c8a97e; /* Altın rengi çizgi */
 }
 
-/* Büyük ekranlar için arka plan ve şekil */
-@media (min-width: 768px) {
-  .navbar {
-    background-color: #f0e6f6; /* Hafif pembeli-mor arka plan */
-    padding: 1.5rem 3rem; /* Daha geniş padding */
-  }
-
-  .navbar::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 200px; /* Şeklin genişliği */
-    height: 100px; /* Şeklin yüksekliği */
-    background-image: url('/Users/ceyhun/kultur-dernek-sitesi/frontend/assets/pngegg.png'); /* Ortadaki şekil */
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain; /* Şekli orantılı olarak sığdır */
-    opacity: 0.6; /* Şeklin şeffaflığı */
-  }
+/* Navbar marka alanı */
+.navbarBrand {
+  display: flex;
+  align-items: center;
 }
 
-/* Marka logosu veya adı */
-.navBrand {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #333;
-  text-decoration: none;
-  transition: color 0.3s ease;
+/* Logo */
+.logo {
+  height: 60px;
+  width: auto;
+  border-radius: 5px;
+  transition: transform 0.3s ease;
 }
 
-.navBrand:hover {
-  color: #007bff; /* Hover durumunda mavi renk */
+.logo:hover {
+  transform: scale(1.05);
 }
 
 /* Navbar linkleri */
 .navLinks {
   display: flex;
-  gap: 1.5rem; /* Linkler arası boşluğu artır */
-  align-items: center; /* Linkleri dikeyde ortala */
+  gap: 20px;
+  align-items: center;
+}
+
+.navLink, .activeLink {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; /* Yazı boyutunu artırdık */
+  font-weight: 600; /* Yazı kalınlığını artırdık */
+  text-decoration: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+  letter-spacing: 0.5px; /* Harfler arası mesafeyi artırdık */
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); /* Hafif gölge ekledik */
 }
 
 .navLink {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #555;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  background-color: rgba(0, 123, 255, 0.1); /* Şeffaf mavi arka plan */
-  transition: background-color 0.3s ease, color 0.3s ease;
+  color: #5d4037; /* Kahverengi */
+}
+
+.activeLink {
+  color: #c8a97e; /* Altın rengi */
+  font-weight: 700;
+}
+
+.navLink::after, .activeLink::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 3px; /* Çizgi kalınlığını artırdık */
+  bottom: 0;
+  left: 50%;
+  background-color: #c8a97e; /* Altın rengi çizgi */
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.navLink:hover::after {
+  width: 70%;
+}
+
+.activeLink::after {
+  width: 70%;
 }
 
 .navLink:hover {
-  background-color: rgba(0, 123, 255, 0.2); /* Hover durumunda daha belirgin arka plan */
-  color: #007bff; /* Hover durumunda mavi renk */
+  color: #c8a97e; /* Altın rengi */
+  background-color: rgba(200, 169, 126, 0.1); /* Hafif altın rengi arka plan */
+  transform: translateY(-2px); /* Hover durumunda hafif yukarı kaldır */
 }
 
-/* Kullanıcı bilgileri (oturum açmışsa) */
-.profileButton {
+/* Kullanıcı bağlantıları */
+.authLinks {
   display: flex;
+  gap: 15px;
   align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer; /* Tıklanabilir olduğunu göster */
-  position: relative; /* Açılır menü için pozisyonlandırma */
 }
 
 /* Profil bağlantısı */
-.profileLink {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  color: inherit;
-}
-
-/* Profil baş harfi */
-.profileInitial {
-  width: 40px;
-  height: 40px;
-  background-color: #007bff; /* Mavi renk */
-  color: white;
-  border-radius: 50%;
+.authLinks .navLink, .authLinks .activeLink {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+}
+
+/* Profil harfi */
+.authLinks .activeLink:first-child {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #c8a97e; /* Altın rengi */
+  color: white;
   font-weight: bold;
-}
-
-/* Profil adı */
-.profileName {
-  font-size: 16px;
-  font-weight: 500;
-  white-space: nowrap; /* Metnin alt satıra sarkmasını engeller */
-}
-
-/* Açılır menü */
-/* Açılır menü */
-.dropdownMenu {
-  position: absolute;
-  top: 50px; /* Profil butonunun altında */
-  right: 0;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  padding: 0;
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-  min-width: 200px; /* Menü genişliği */
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Gölge ekledik */
 }
 
-.dropdownItem {
-  padding: 0.75rem 1rem;
-  color: #333;
-  text-decoration: none;
-  transition: background-color 0.3s ease;
-  cursor: pointer;
-  text-align: center;
-}
-
-.dropdownItem:hover {
-  background-color: #f1f1f1; /* Hover durumunda arka plan rengi */
-}
-
-/* Créer un événement bağlantısı */
-.createEventLink {
-  color: #007bff; /* Mavi renk */
-  font-weight: bold;
-}
-
-/* Déconnexion butonu */
+/* Çıkış butonu */
 .logoutButton {
-  background-color: #ff4d4d; /* Kırmızı renk */
+  background-color: #5d4037; /* Kahverengi */
   color: white;
   border: none;
-  padding: 0.75rem 1rem;
-  border-radius: 5px;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px; /* Yazı boyutunu artırdık */
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Gölge ekledik */
 }
 
 .logoutButton:hover {
-  background-color: #cc0000; /* Hover durumunda daha koyu kırmızı */
+  background-color: #4e342e; /* Daha koyu kahverengi */
+  transform: translateY(-2px); /* Hover durumunda hafif yukarı kaldır */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Gölgeyi artır */
 }
 
-/* Responsive Tasarım */
+/* Responsive tasarım */
 @media (max-width: 768px) {
   .navbar {
-    flex-direction: column; /* Mobilde marka ve linkler alt alta */
-    padding: 1rem;
-    text-align: center;
-  }
-
-  .navLinks {
     flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 1rem;
+    padding: 15px;
   }
+  
+  .navbarBrand {
+    margin-bottom: 15px;
+  }
+  
+  .navLinks {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 15px;
+  }
+  
+  .authLinks {
+    justify-content: center;
+  }
+}
 
-  .navLink {
-    width: 100%; /* Linklerin genişliğini tam yap */
-  }
+.brandText {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #5d4037;
+  text-decoration: none;
+  letter-spacing: 1px;
+  transition: color 0.3s ease;
+}
 
-  .navbar::before {
-    display: none; /* Mobilde şekli gizle */
-  }
-
-  .dropdownMenu {
-    top: 40px; /* Mobilde menüyü biraz daha aşağıda göster */
-    right: 50%;
-    transform: translateX(50%); /* Mobilde menüyü ortala */
-  }
+.brandText:hover {
+  color: #c8a97e;
 }

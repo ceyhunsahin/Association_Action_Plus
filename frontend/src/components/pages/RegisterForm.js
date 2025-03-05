@@ -1,149 +1,154 @@
 import React, { useState } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import { Button, Container, Card, Form as BootstrapForm, Alert } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import styles from './RegisterForm.module.css';
 
 const RegisterForm = () => {
-    const { login } = useAuth();
-    const navigate = useNavigate();
-    const [successMessage, setSuccessMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-    const initialValues = {
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-    };
-
-    const validationSchema = Yup.object({
-        firstName: Yup.string().required('Requis'),
-        lastName: Yup.string().required('Requis'),
-        email: Yup.string().email('Email invalide').required('Requis'),
-        password: Yup.string().min(6, 'Au moins 6 caractères').required('Requis'),
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
     });
+  };
 
-    const onSubmit = async (values) => {
-        try {
-            const response = await fetch('http://localhost:8000/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    firstName: values.firstName,
-                    lastName: values.lastName,
-                    username: `${values.firstName} ${values.lastName}`,
-                    email: values.email,
-                    password: values.password,
-                }),
-            });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || 'Kayıt başarısız');
-            }
+    // Şifre kontrolü
+    if (formData.password !== formData.confirmPassword) {
+      setError('Les mots de passe ne correspondent pas');
+      return;
+    }
 
-            const data = await response.json();
-            console.log('Backend response:', data); // Response'u konsola yazdır
+    setLoading(true);
 
-            // Kullanıcıyı oturum açık olarak işaretle ve token'ları kaydet
-            login(data);
+    try {
+      const response = await axios.post('http://localhost:8000/api/users/register', {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        username: formData.username,
+        email: formData.email,
+        password: formData.password
+      });
 
-            // Başarılı kayıt mesajını göster
-            setSuccessMessage(data.message);
-            setErrorMessage('');
+      console.log('Registration successful:', response.data);
+      navigate('/login', { state: { message: 'Inscription réussie! Veuillez vous connecter.' } });
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(err.response?.data?.detail || 'Erreur lors de l\'inscription');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            // 2 saniye sonra profil sayfasına yönlendir
-            setTimeout(() => {
-                navigate('/profile');
-            }, 2000);
-        } catch (error) {
-            console.error('Kayıt hatası:', error);
-            setErrorMessage(error.message);
-            setSuccessMessage('');
-        }
-    };
-
-    return (
-        <Container className={`mt-5 ${styles.container}`}>
-            <Card className={styles.card}>
-                <Card.Body>
-                    <h2 className={`text-center ${styles.title}`}>S'inscrire</h2>
-                    {successMessage && (
-                        <Alert variant="success" className={styles.alert}>
-                            {successMessage}
-                        </Alert>
-                    )}
-                    {errorMessage && (
-                        <Alert variant="danger" className={styles.alert}>
-                            {errorMessage}
-                        </Alert>
-                    )}
-                    <Formik
-                        initialValues={initialValues}
-                        validationSchema={validationSchema}
-                        onSubmit={onSubmit}
-                    >
-                        {({ isSubmitting }) => (
-                            <Form>
-                                <BootstrapForm.Group className={styles.formGroup}>
-                                    <BootstrapForm.Label className={styles.label}>Prénom</BootstrapForm.Label>
-                                    <Field
-                                        as={BootstrapForm.Control}
-                                        type="text"
-                                        name="firstName"
-                                        className={styles.input}
-                                    />
-                                    <ErrorMessage name="firstName" component="div" className={styles.error} />
-                                </BootstrapForm.Group>
-                                <BootstrapForm.Group className={styles.formGroup}>
-                                    <BootstrapForm.Label className={styles.label}>Nom</BootstrapForm.Label>
-                                    <Field
-                                        as={BootstrapForm.Control}
-                                        type="text"
-                                        name="lastName"
-                                        className={styles.input}
-                                    />
-                                    <ErrorMessage name="lastName" component="div" className={styles.error} />
-                                </BootstrapForm.Group>
-                                <BootstrapForm.Group className={styles.formGroup}>
-                                    <BootstrapForm.Label className={styles.label}>Email</BootstrapForm.Label>
-                                    <Field
-                                        as={BootstrapForm.Control}
-                                        type="email"
-                                        name="email"
-                                        className={styles.input}
-                                    />
-                                    <ErrorMessage name="email" component="div" className={styles.error} />
-                                </BootstrapForm.Group>
-                                <BootstrapForm.Group className={styles.formGroup}>
-                                    <BootstrapForm.Label className={styles.label}>Mot de passe</BootstrapForm.Label>
-                                    <Field
-                                        as={BootstrapForm.Control}
-                                        type="password"
-                                        name="password"
-                                        className={styles.input}
-                                    />
-                                    <ErrorMessage name="password" component="div" className={styles.error} />
-                                </BootstrapForm.Group>
-                                <Button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className={`w-100 mt-3 ${styles.button}`}
-                                >
-                                    S'inscrire
-                                </Button>
-                            </Form>
-                        )}
-                    </Formik>
-                </Card.Body>
-            </Card>
-        </Container>
-    );
+  return (
+    <div className={styles.registerContainer}>
+      <div className={styles.registerForm}>
+        <h2 className={styles.title}>Inscription</h2>
+        {error && <div className={styles.error}>{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label htmlFor="firstName">Prénom</label>
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+                className={styles.input}
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="lastName">Nom</label>
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+                className={styles.input}
+              />
+            </div>
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="username">Nom d'utilisateur</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="password">Mot de passe</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className={styles.input}
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              className={styles.input}
+            />
+          </div>
+          <button 
+            type="submit" 
+            className={styles.registerButton}
+            disabled={loading}
+          >
+            {loading ? 'Inscription...' : 'S\'inscrire'}
+          </button>
+        </form>
+        <div className={styles.loginLink}>
+          Vous avez déjà un compte? <Link to="/login">Se connecter</Link>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default RegisterForm;
