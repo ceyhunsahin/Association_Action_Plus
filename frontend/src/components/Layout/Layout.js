@@ -4,7 +4,6 @@ import { useAuth } from '../../context/AuthContext';
 import styles from './Layout.module.css';
 import Navbar from '../pages/navbar';
 import Footer from '../pages/footer';
-
 const Layout = ({ children }) => {
   const { user } = useAuth();
 

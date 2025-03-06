@@ -40,16 +40,19 @@ const CreateEvent = () => {
     setError(null);
 
     try {
-      const response = await axios.post(
-        'http://localhost:8000/api/events',
-        formData,
-        {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          }
+      console.log("Sending event data:", formData);
+      console.log("Using token:", accessToken);
+      
+      // Doğrudan URL'yi belirtelim
+      const response = await axios({
+        method: 'post',
+        url: 'http://localhost:8000/api/events',
+        data: formData,
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
         }
-      );
+      });
 
       console.log('Event created:', response.data);
       setLoading(false);
@@ -61,6 +64,8 @@ const CreateEvent = () => {
       navigate(`/events/${response.data.id}`);
     } catch (err) {
       console.error('Error creating event:', err);
+      console.error('Error response:', err.response);
+      console.error('Error details:', err.response?.data);
       setError(err.response?.data?.detail || 'Une erreur est survenue lors de la création de l\'événement');
       setLoading(false);
     }

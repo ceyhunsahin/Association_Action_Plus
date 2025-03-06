@@ -1,13 +1,45 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from typing import List, Dict
 from database import get_db
-from auth import get_current_user, get_current_admin
+from auth import get_current_user, get_current_admin, oauth2_scheme
 from models import Event, EventCreate, EventUpdate
 import sqlite3
+from jose import JWTError, jwt
 
 router = APIRouter(
     tags=["events"]
 )
+
+# SECRET_KEY ve ALGORITHM değerlerini auth.py'den alın
+SECRET_KEY = 'ceyhunsahin'
+ALGORITHM = "HS256"
+
+# Admin kontrolü için özel bir fonksiyon
+def check_admin_token(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Yetkilendirme başarısız",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        role: str = payload.get("role")
+        
+        if email is None:
+            raise credentials_exception
+        
+        # Admin kontrolü - doğrudan token'dan kontrol edelim
+        if role == "admin":
+            return True
+        
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bu işlem için admin yetkisi gerekiyor"
+        )
+    except JWTError:
+        raise credentials_exception
 
 # Tüm etkinlikleri getir
 @router.get("", response_model=List[Dict])
@@ -41,71 +73,104 @@ async def get_user_events(current_user: dict = Depends(get_current_user)):
         conn = get_db()
         cursor = conn.cursor()
         
-        # Önce user_id'nin mevcut olduğundan emin olalım
-        print("Current user:", current_user)  # Debug için
+        # Debug için
+        print(f"Getting events for user: {current_user['id']}")
         
+        # Kullanıcının katıldığı etkinlikleri getir
         cursor.execute('''
             SELECT e.* FROM events e
             JOIN event_participants ep ON e.id = ep.event_id
             WHERE ep.user_id = ?
-        ''', (current_user.get("id"),))  # get() kullanarak güvenli erişim
+        ''', (current_user["id"],))
         
         events = cursor.fetchall()
-        conn.close()
-
+        print(f"Found {len(events)} events for user {current_user['id']}")
+        
+        # Sonuçları kontrol et
+        if not events:
+            print("No events found for user")
+            return {"events": []}
+        
         # SQLite row'larını dict'e çevir
         events_list = []
         for event in events:
-            events_list.append({
-                "id": event[0],
-                "title": event[1],
-                "date": event[2],
-                "description": event[3],
-                "image": event[4]
-            })
+            event_dict = dict(event)
+            events_list.append(event_dict)
+            print(f"Added event: {event_dict['id']} - {event_dict['title']}")
+        
         return {"events": events_list}
     except Exception as e:
-        print("Error in get_user_events:", str(e))  # Debug için
+        print(f"Error in get_user_events: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
+    finally:
+        if 'conn' in locals():
+            conn.close()
 
 # Yeni etkinlik oluştur (sadece admin)
-@router.post("", status_code=status.HTTP_201_CREATED)
-async def create_event(event: EventCreate, current_admin: dict = Depends(get_current_admin)):
+@router.post("")
+async def create_event(event: dict, token: str = Depends(oauth2_scheme)):
     try:
+        # Token'ı doğrula
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        role = payload.get("role")
+        
+        print(f"Token payload: {payload}")  # Debug için
+        print(f"Role: {role}")  # Debug için
+        
+        # Admin kontrolü
+        if role != "admin":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Bu işlem için admin yetkisi gerekiyor"
+            )
+        
+        # Veritabanı bağlantısı
         conn = get_db()
         cursor = conn.cursor()
         
+        # Etkinlik bilgilerini al
+        title = event.get("title")
+        description = event.get("description")
+        date = event.get("date")
+        location = event.get("location")
+        image = event.get("image")
+        max_participants = event.get("max_participants", 50)
+        
+        print(f"Creating event: {title}, {date}, {location}")  # Debug için
+        
         # Etkinliği veritabanına ekle
         cursor.execute('''
-        INSERT INTO events (title, description, date, location, image, max_participants, created_by)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            event.title,
-            event.description,
-            event.date,
-            event.location,
-            event.image,
-            event.max_participants,
-            current_admin["id"]
-        ))
-        
-        # Eklenen etkinliğin ID'sini al
-        event_id = cursor.lastrowid
+        INSERT INTO events (title, description, date, location, image, max_participants)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ''', (title, description, date, location, image, max_participants))
         
         conn.commit()
         
-        # Eklenen etkinliği getir
+        # Yeni eklenen etkinliğin ID'sini al
+        event_id = cursor.lastrowid
+        
+        # Etkinlik bilgilerini döndür
         cursor.execute("SELECT * FROM events WHERE id = ?", (event_id,))
-        new_event = cursor.fetchone()
+        event = cursor.fetchone()
         
-        conn.close()
+        event_dict = dict(event)
+        print("Created event:", event_dict)  # Debug için
         
-        return dict(new_event)
+        return event_dict
+    except JWTError as e:
+        print(f"JWT error: {e}")  # Debug için
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Geçersiz token"
+        )
+    except sqlite3.Error as e:
+        print(f"SQLite error: {e}")  # Debug için
+        raise HTTPException(status_code=500, detail=f"Veritabanı hatası: {str(e)}")
     except Exception as e:
-        print(f"Error creating event: {e}")  # Hata mesajını logla
+        print(f"Unexpected error: {e}")  # Debug için
         raise HTTPException(status_code=500, detail=str(e))
 
 # Etkinliği güncelle (sadece admin)
@@ -241,6 +306,9 @@ async def get_event(event_id: int):
 # Etkinliğe katıl
 @router.post("/{event_id}/join")
 async def join_event(event_id: int, current_user: dict = Depends(get_current_user)):
+    print(f"Join event request received for event {event_id}")
+    print(f"Current user: {current_user}")
+    
     conn = get_db()
     cursor = conn.cursor()
     
@@ -275,7 +343,7 @@ async def join_event(event_id: int, current_user: dict = Depends(get_current_use
         # Etkinliğin katılımcı sayısını güncelle
         cursor.execute('''
         UPDATE events
-        SET participant_count = participant_count + 1
+        SET participant_count = COALESCE(participant_count, 0) + 1
         WHERE id = ?
         ''', (event_id,))
         
@@ -283,14 +351,12 @@ async def join_event(event_id: int, current_user: dict = Depends(get_current_use
         return {"message": "Inscription à l'événement réussie"}
     except sqlite3.IntegrityError as e:
         conn.rollback()
-        print(f"SQLite error: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Erreur d'intégrité de la base de données"
         )
     except Exception as e:
         conn.rollback()
-        print(f"Error in join_event: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)

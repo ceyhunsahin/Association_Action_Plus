@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from database import get_db
 from models import User, LoginRequest
-from auth import get_current_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+from auth import get_current_user, get_current_admin, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from datetime import timedelta
 import sqlite3  # sqlite3'ü import etmeyi unutmayın
 from passlib.context import CryptContext
@@ -165,33 +165,59 @@ async def auth_register(user: User):
         conn.close()
 
 # Kullanıcının etkinliklerini getir
-@router.get("/me/events", response_model=Dict)
+@router.get("/me/events")
 async def get_user_events(current_user: dict = Depends(get_current_user)):
     try:
+        print(f"Getting events for user: {current_user['id']}")
         conn = get_db()
         cursor = conn.cursor()
         
         # Kullanıcının katıldığı etkinlikleri getir
         cursor.execute('''
-            SELECT e.* FROM events e
-            JOIN event_participants ep ON e.id = ep.event_id
-            WHERE ep.user_id = ?
+        SELECT e.* FROM events e
+        JOIN event_participants ep ON e.id = ep.event_id
+        WHERE ep.user_id = ?
         ''', (current_user["id"],))
         
         events = cursor.fetchall()
+        conn.close()
         
-        # SQLite row'larını dict'e çevir
+        # SQLite Row'ları dictionary'e çevir
         events_list = []
         for event in events:
-            event_dict = dict(event)
-            events_list.append(event_dict)
+            events_list.append(dict(event))
         
         return {"events": events_list}
     except Exception as e:
-        print(f"Error in get_user_events: {str(e)}")
+        print(f"Error getting user events: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
-    finally:
+
+# Admin kullanıcısı için tüm etkinlikleri getir
+@router.get("/admin/events")
+async def get_admin_events(current_user: dict = Depends(get_current_admin)):
+    try:
+        print(f"Getting all events for admin: {current_user['id']}")
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Tüm etkinlikleri getir
+        cursor.execute('SELECT * FROM events')
+        
+        events = cursor.fetchall()
         conn.close()
+        
+        # SQLite Row'ları dictionary'e çevir
+        events_list = []
+        for event in events:
+            events_list.append(dict(event))
+        
+        return {"events": events_list}
+    except Exception as e:
+        print(f"Error getting admin events: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )

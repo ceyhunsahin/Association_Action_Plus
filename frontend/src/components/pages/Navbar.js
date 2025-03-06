@@ -2,10 +2,10 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Navbar.module.css';
-import { FaUser, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaCalendarPlus } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
 
 const Navbar = () => {
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -31,11 +31,6 @@ const Navbar = () => {
         <Link to="/events" className={location.pathname === '/events' ? styles.activeLink : styles.navLink}>
           Événements
         </Link>
-        {isAdmin && (
-          <Link to="/events/create" className={location.pathname === '/events/create' ? styles.activeLink : styles.navLink}>
-            <FaCalendarPlus /> Créer un événement
-          </Link>
-        )}
       </div>
       <div className={styles.authLinks}>
         {user ? (

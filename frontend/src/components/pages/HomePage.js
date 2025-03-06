@@ -72,7 +72,7 @@ const HomePage = () => {
                 Découvrir nos activités
               </Link>
               <Link
-                to="/donate"
+                to="/donation"
                 className={styles.heroDonateButton}
               >
                 Faire un don

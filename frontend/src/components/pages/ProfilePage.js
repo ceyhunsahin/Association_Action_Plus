@@ -10,6 +10,7 @@ const ProfilePage = () => {
   const [userEvents, setUserEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,17 +28,48 @@ const ProfilePage = () => {
     if (!accessToken) return;
     
     try {
-      const response = await axios.get('http://localhost:8000/api/users/me/events', {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        }
-      });
+      setLoading(true);
       
-      setUserEvents(response.data.events || []);
-      setLoading(false);
+      // Admin kullanıcısı için tüm etkinlikleri getir
+      if (user && user.role === 'admin') {
+        try {
+          const response = await axios.get('http://localhost:8000/api/events', {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            }
+          });
+          
+          console.log('Admin events response:', response.data);
+          setUserEvents(response.data || []);
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching admin events:', error);
+          setError('Erreur lors du chargement des événements');
+          setLoading(false);
+        }
+        return;
+      }
+      
+      // Normal kullanıcılar için kendi etkinliklerini getir
+      try {
+        const response = await axios.get('http://localhost:8000/api/users/me/events', {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        console.log('User events response:', response.data);
+        setUserEvents(response.data.events || []);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching user events:', error);
+        setError('Erreur lors du chargement des événements');
+        setLoading(false);
+      }
     } catch (err) {
-      console.error('Error fetching user events:', err);
+      console.error('Error in fetchUserEvents:', err);
       setError('Erreur lors du chargement des événements');
       setLoading(false);
     }
@@ -66,10 +98,10 @@ const ProfilePage = () => {
       // Etkinlik listesini güncelle
       await fetchUserEvents();
       
-      alert('Désinscription réussie!');
+      setSuccessMessage('Désinscription réussie!');
     } catch (err) {
       console.error('Error unregistering from event:', err.response?.data || err.message);
-      alert(`Erreur lors de la désinscription: ${err.response?.data?.detail || err.message}`);
+      setError(`Erreur lors de la désinscription: ${err.response?.data?.detail || err.message}`);
     }
   };
 
@@ -85,54 +117,32 @@ const ProfilePage = () => {
 
   return (
     <div className={styles.profileContainer}>
+      {successMessage && (
+        <div className={styles.successMessage}>{successMessage}</div>
+      )}
+      
       <div className={styles.profileHeader}>
-        <div className={styles.profileAvatar}>
-          {user.firstName ? user.firstName.charAt(0).toUpperCase() : 'U'}
-        </div>
-        <h1 className={styles.profileName}>
-          {user.firstName} {user.lastName}
+        <h1 className={styles.profileTitle}>
+          {user.role === 'admin' ? 'Panneau d\'administration' : 'Mon Profil'}
         </h1>
-        <p className={styles.profileEmail}>{user.email}</p>
-        {user.role === 'admin' && (
-          <span className={styles.adminBadge}>Administrateur</span>
-        )}
       </div>
-
+      
       <div className={styles.profileContent}>
-        <div className={styles.profileSection}>
-          <h2 className={styles.sectionTitle}>Informations personnelles</h2>
-          <div className={styles.infoGrid}>
-            <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Nom d'utilisateur:</span>
-              <span className={styles.infoValue}>{user.username}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Email:</span>
-              <span className={styles.infoValue}>{user.email}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Prénom:</span>
-              <span className={styles.infoValue}>{user.firstName}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Nom:</span>
-              <span className={styles.infoValue}>{user.lastName}</span>
-            </div>
-            <div className={styles.infoItem}>
-              <span className={styles.infoLabel}>Rôle:</span>
-              <span className={styles.infoValue}>{user.role === 'admin' ? 'Administrateur' : 'Membre'}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.profileSection}>
-          <h2 className={styles.sectionTitle}>Mes événements</h2>
+        <div className={styles.eventsSection}>
+          <h2 className={styles.sectionTitle}>
+            {user.role === 'admin' ? 'Tous les Événements' : 'Mes Événements'}
+          </h2>
+          
           {loading ? (
-            <p className={styles.loading}>Chargement des événements...</p>
+            <div className={styles.loading}>Chargement des événements...</div>
           ) : error ? (
-            <p className={styles.error}>{error}</p>
+            <div className={styles.error}>{error}</div>
           ) : userEvents.length === 0 ? (
-            <p className={styles.noEvents}>Vous n'avez pas encore rejoint d'événements.</p>
+            <div className={styles.noEvents}>
+              {user.role === 'admin' 
+                ? 'Aucun événement n\'est disponible pour le moment.' 
+                : 'Vous n\'êtes inscrit à aucun événement pour le moment.'}
+            </div>
           ) : (
             <div className={styles.eventsGrid}>
               {userEvents.map(event => (
@@ -154,12 +164,14 @@ const ProfilePage = () => {
                       >
                         <FaEye /> Voir détails
                       </button>
-                      <button 
-                        className={styles.unregisterButton}
-                        onClick={(e) => handleUnregisterFromEvent(event.id, e)}
-                      >
-                        <FaSignOutAlt /> Se désinscrire
-                      </button>
+                      {user.role !== 'admin' && (
+                        <button 
+                          className={styles.unregisterButton}
+                          onClick={(e) => handleUnregisterFromEvent(event.id, e)}
+                        >
+                          <FaSignOutAlt /> Se désinscrire
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

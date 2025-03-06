@@ -30,14 +30,27 @@ const LoginForm = () => {
         setError('');
         setLoading(true);
 
+        console.log("Form submitted with:", { email, password });
+
         try {
             console.log("Attempting login with:", email, password);
             await login(email, password);
+            console.log("Login successful, navigating to profile");
             navigate('/profile');
         } catch (err) {
             console.error('Login error:', err);
+            
             // Hata mesajını daha detaylı gösterelim
-            const errorMessage = err.response?.data?.detail || 'Erreur lors de la connexion';
+            let errorMessage = 'Erreur lors de la connexion';
+            
+            if (err.response) {
+                console.error('Error response:', err.response);
+                console.error('Error data:', err.response.data);
+                errorMessage = err.response.data?.detail || errorMessage;
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+            
             console.error('Error details:', errorMessage);
             setError(errorMessage);
         } finally {
@@ -65,9 +78,9 @@ const LoginForm = () => {
                 
                 <form onSubmit={handleSubmit}>
                     <div className={styles.formGroup}>
-                        <label htmlFor="email">Email</label>
+                        <label htmlFor="email">Email veya Kullanıcı Adı</label>
                         <input
-                            type="email"
+                            type="text"
                             id="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}

@@ -28,30 +28,32 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [accessToken, setAccessToken] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   // Kullanılmayan error state'ini kaldıralım veya kullanılır hale getirelim
   // const [error, setError] = useState(null);
-
-  // Kullanıcının admin olup olmadığını kontrol et
-  const isAdmin = user && user.role === 'admin';
 
   // Kullanıcı oturum durumunu izle
   useEffect(() => {
     const checkUserLoggedIn = async () => {
       try {
-        const storedToken = localStorage.getItem('accessToken');
+        const storedToken = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
         
         if (storedToken && storedUser) {
           // Token ve kullanıcı bilgilerini state'e yükle
           setAccessToken(storedToken);
-          setUser(JSON.parse(storedUser));
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+          setIsAdmin(parsedUser.role === 'admin');
+          setIsAuthenticated(true);
           
           // API istekleri için default header'ı ayarla
           axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
         }
       } catch (error) {
         console.error('Error checking authentication:', error);
-        localStorage.removeItem('accessToken');
+        localStorage.removeItem('token');
         localStorage.removeItem('user');
         delete axios.defaults.headers.common['Authorization'];
       } finally {
@@ -74,37 +76,34 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Normal giriş
-  const login = async (emailOrUsername, password) => {
+  const login = async (email, password) => {
     try {
-      console.log("Login attempt with:", emailOrUsername, password);
+      console.log('Login attempt with:', { email, password });
       const response = await axios.post('http://localhost:8000/api/auth/login', {
-        email: emailOrUsername,  // email alanını hem email hem de username için kullanıyoruz
+        email,
         password
       });
       
-      console.log("Login response:", response.data);
+      console.log('Login response:', response.data);
       
       const { access_token, user } = response.data;
       
-      // Kullanıcı bilgilerini doğru şekilde saklayalım
-      // profileImage alanını ekleyelim
-      const userWithDefaults = {
-        ...user,
-        profileImage: user.profileImage || null
-      };
+      // Token'ı localStorage'a kaydet
+      localStorage.setItem('token', access_token);
+      localStorage.setItem('user', JSON.stringify(user));
       
-      setUser(userWithDefaults);
+      // Context state'ini güncelle
+      setUser(user);
       setAccessToken(access_token);
-      localStorage.setItem('accessToken', access_token);
-      localStorage.setItem('user', JSON.stringify(userWithDefaults));
+      setIsAuthenticated(true);
+      setIsAdmin(user.role === 'admin');
       
       // API istekleri için default header'ı ayarla
       axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
       
-      return true;
+      return response.data;
     } catch (error) {
-      console.error('Login error:', error);
-      console.error('Error response:', error.response?.data);
+      console.error('Login error in context:', error);
       throw error;
     }
   };
@@ -124,11 +123,13 @@ export const AuthProvider = ({ children }) => {
 
   // Çıkış
   const logout = () => {
-    localStorage.removeItem('accessToken');
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
     delete axios.defaults.headers.common['Authorization'];
     setUser(null);
     setAccessToken(null);
+    setIsAdmin(false);
+    setIsAuthenticated(false);
   };
 
   const value = {
@@ -139,7 +140,8 @@ export const AuthProvider = ({ children }) => {
     login,
     loginWithGoogle,
     logout,
-    isAdmin
+    isAdmin,
+    isAuthenticated
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

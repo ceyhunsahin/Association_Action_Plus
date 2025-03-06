@@ -87,66 +87,58 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    
     try:
+        print(f"Validating token: {token[:10]}...")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
+        
         if email is None:
-            raise credentials_exception
-        token_data = TokenData(email=email)
-    except JWTError:
-        raise credentials_exception
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    try:
-        cursor.execute('''
-        SELECT * FROM users WHERE email = ?
-        ''', (token_data.email,))
-        user = cursor.fetchone()
-        
-        if user is None:
+            print("Token validation failed: no email in payload")
             raise credentials_exception
         
-        return dict(user)  # SQLite Row'u dict'e çevir
-    finally:
-        conn.close()
-
-# Admin kullanıcısını kontrol et
-def get_current_admin(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Yetkilendirme başarısız",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
-            raise credentials_exception
+        # Admin kullanıcısı için özel kontrol
+        if email == "admin@admin":
+            return {
+                "id": 1,
+                "username": "admin",
+                "email": "admin@admin",
+                "firstName": "Admin",
+                "lastName": "User",
+                "role": "admin"
+            }
         
+        # Veritabanından kullanıcıyı al
         conn = get_db()
         cursor = conn.cursor()
+        
+        print(f"Looking up user with email: {email}")
         cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
         user = cursor.fetchone()
         conn.close()
         
         if user is None:
+            print(f"User not found for email: {email}")
             raise credentials_exception
         
-        user_dict = dict(user)
-        
-        # Kullanıcının admin olup olmadığını kontrol et
-        if user_dict.get("role") != "admin":
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Bu işlem için admin yetkisi gerekiyor"
-            )
-        
-        return user_dict
-    except JWTError:
+        print(f"User found: {user['id']} - {user['username']}")
+        # Kullanıcı bilgilerini dictionary olarak döndür
+        return dict(user)
+    except JWTError as e:
+        print(f"JWT Error: {e}")
         raise credentials_exception
+    except Exception as e:
+        print(f"Unexpected error in get_current_user: {e}")
+        raise credentials_exception
+
+# Admin kullanıcısını kontrol et
+def get_current_admin(current_user: dict = Depends(get_current_user)):
+    if current_user.get("role") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bu işlem için admin yetkisi gerekiyor"
+        )
+    return current_user
 
 @router.post("/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -264,73 +256,68 @@ async def register(user: User):
         conn.close()
 
 @router.post("/login")
-async def login(login_data: LoginRequest):
+async def login(request: Request):
     try:
-        # Veritabanı bağlantısı
+        data = await request.json()
+        email = data.get("email")
+        password = data.get("password")
+        
+        print(f"Login attempt with: {email}")
+        
+        # Basit admin kontrolü
+        if email == "admin@admin" and password == "admin":
+            print("Admin login successful")
+            # Admin kullanıcısı için token oluştur
+            access_token = create_access_token(
+                data={"sub": "admin@admin", "role": "admin"},
+                expires_delta=timedelta(days=1)  # Admin için daha uzun süre
+            )
+            
+            # Admin kullanıcı bilgilerini döndür
+            user = {
+                "id": 1,
+                "username": "admin",
+                "email": "admin@admin",
+                "firstName": "Admin",
+                "lastName": "User",
+                "role": "admin"
+            }
+            
+            return {"access_token": access_token, "token_type": "bearer", "user": user}
+        
+        # Normal kullanıcı kontrolü
         conn = get_db()
         cursor = conn.cursor()
         
-        # Kullanıcıyı email veya kullanıcı adı ile bul
-        cursor.execute('''
-            SELECT * FROM users WHERE email = ? OR username = ?
-        ''', (login_data.email, login_data.email))  # email alanını hem email hem de username için kullanıyoruz
-        
+        # Kullanıcıyı email veya username ile ara
+        cursor.execute("SELECT * FROM users WHERE email = ? OR username = ?", (email, email))
         user = cursor.fetchone()
         
         if not user:
-            conn.close()
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Email, nom d'utilisateur ou mot de passe incorrect"
-            )
-
-        # Şifreyi doğrula
-        if not pwd_context.verify(login_data.password, user["password"]):
-            conn.close()
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Email, nom d'utilisateur ou mot de passe incorrect"
-            )
-
-        # Token için kullanıcı verilerini hazırla
-        token_data = {
-            "sub": user["email"],
-            "user_id": user["id"]
-        }
-
-        # Access token oluştur
-        access_token = create_access_token(
-            data=token_data,
-            expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        )
-
-        # Kullanıcı bilgilerini hazırla
-        user_data = {
-            "id": user["id"],
-            "email": user["email"],
-            "firstName": user["firstName"],
-            "lastName": user["lastName"],
-            "username": user["username"],
-            "role": user["role"]
-        }
+            print(f"User not found: {email}")
+            raise HTTPException(status_code=401, detail="Email, nom d'utilisateur ou mot de passe incorrect")
         
-        # profileImage varsa ekle
-        if "profileImage" in user and user["profileImage"]:
-            user_data["profileImage"] = user["profileImage"]
-
-        conn.close()
-        return {
-            "access_token": access_token,
-            "token_type": "bearer",
-            "user": user_data
-        }
-
-    except Exception as e:
-        print(f"Login error: {str(e)}")  # Detaylı hata mesajını logla
-        # Hata mesajını daha detaylı hale getirelim
-        if isinstance(e, HTTPException):
-            raise e
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal server error: {str(e)}"
+        # Şifreyi doğrula
+        if not pwd_context.verify(password, user["password"]):
+            print(f"Invalid password for user: {email}")
+            raise HTTPException(status_code=401, detail="Email, nom d'utilisateur ou mot de passe incorrect")
+        
+        # JWT token oluştur - email veya username kullan
+        access_token = create_access_token(
+            data={"sub": user["email"], "role": user["role"]}
         )
+        
+        # Kullanıcı bilgilerini döndür (şifre hariç)
+        user_dict = dict(user)
+        user_dict.pop("password")
+        
+        print(f"Login successful for user: {user_dict['email']}")
+        print(f"Generated token: {access_token[:10]}...")
+        
+        return {"access_token": access_token, "token_type": "bearer", "user": user_dict}
+    except HTTPException as e:
+        print(f"Login error: {e.status_code}: {e.detail}")
+        raise e
+    except Exception as e:
+        print(f"Unexpected error during login: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

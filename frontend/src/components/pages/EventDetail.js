@@ -25,6 +25,8 @@ const EventDetail = () => {
   const [isRegistered, setIsRegistered] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const carouselRef = useRef(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   // Örnek resim galerisi - gerçek uygulamada bu verileri API'den alabilirsiniz
   const eventImages = [
@@ -79,35 +81,75 @@ const EventDetail = () => {
   }, [id, user, accessToken]);
 
   const handleRegister = async () => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
     try {
-      const response = await axios.post(
-        `http://localhost:8000/api/events/${id}/join`,
-        {},
-        {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          }
+      setLoading(true);
+      console.log(`Registering for event ${id}`);
+      
+      // Kullanıcı giriş yapmış mı kontrol et
+      if (!user || !accessToken) {
+        console.error('No user or access token available');
+        setErrorMessage('Veuillez vous connecter pour vous inscrire à cet événement');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+        return;
+      }
+      
+      // Token'ı kontrol et
+      console.log('Using access token:', accessToken);
+      console.log('User from context:', user);
+      
+      // localStorage'dan token'ı al
+      const localToken = localStorage.getItem('token');
+      console.log('Token from localStorage:', localToken);
+      
+      // Etkinliğe katıl - localStorage'dan token'ı kullan
+      const response = await axios({
+        method: 'post',
+        url: `http://localhost:8000/api/events/${id}/join`,
+        headers: {
+          'Authorization': `Bearer ${localToken}`,
+          'Content-Type': 'application/json'
         }
-      );
-      console.log('Join event response:', response.data);
+      });
+      
+      console.log('Registration response:', response.data);
       setIsRegistered(true);
-      // Etkinlik detaylarını yeniden yükle
-      await fetchEventDetails();
-      alert('Inscription réussie!');
-    } catch (err) {
-      console.error('Error registering for event:', err);
-      alert('Erreur lors de l\'inscription');
+      setSuccessMessage('Vous êtes inscrit à cet événement!');
+      
+      // Katılımcı sayısını güncelle
+      setEvent(prev => ({
+        ...prev,
+        participant_count: (prev.participant_count || 0) + 1
+      }));
+      
+      // Kayıt durumunu kontrol et
+      await checkRegistration();
+    } catch (error) {
+      console.error('Error registering for event:', error);
+      console.error('Error response:', error.response);
+      
+      if (error.response && error.response.status === 401) {
+        setErrorMessage('Veuillez vous connecter pour vous inscrire à cet événement');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      } else {
+        setErrorMessage(
+          error.response?.data?.detail || 
+          'Une erreur est survenue lors de l\'inscription à l\'événement'
+        );
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleUnregister = async () => {
     try {
+      setLoading(true);
+      console.log(`Unregistering from event ${id}`);
+      
       const response = await axios.delete(
         `http://localhost:8000/api/events/${id}/register`,
         {
@@ -116,30 +158,38 @@ const EventDetail = () => {
           }
         }
       );
+      
       console.log('Unregister response:', response.data);
       setIsRegistered(false);
-      // Etkinlik detaylarını yeniden yükle
-      await fetchEventDetails();
-      alert('Désinscription réussie!');
-    } catch (err) {
-      console.error('Error unregistering from event:', err);
-      alert('Erreur lors de la désinscription');
+      setSuccessMessage('Vous êtes désinscrit de cet événement!');
+      
+      // Katılımcı sayısını güncelle
+      setEvent(prev => ({
+        ...prev,
+        participant_count: Math.max((prev.participant_count || 0) - 1, 0)
+      }));
+    } catch (error) {
+      console.error('Error unregistering from event:', error);
+      setErrorMessage(
+        error.response?.data?.detail || 
+        'Une erreur est survenue lors de la désinscription de l\'événement'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
-  const nextImage = () => {
-    setCurrentImageIndex((prevIndex) => 
-      prevIndex === eventImages.length - 1 ? 0 : prevIndex + 1
-    );
-  };
-
+  // Carousel için önceki resme git
   const prevImage = () => {
-    setCurrentImageIndex((prevIndex) => 
-      prevIndex === 0 ? eventImages.length - 1 : prevIndex - 1
-    );
+    setCurrentImageIndex((currentImageIndex - 1 + eventImages.length) % eventImages.length);
   };
 
-  // Carousel'deki resimlerin indekslerini hesapla
+  // Carousel için sonraki resme git
+  const nextImage = () => {
+    setCurrentImageIndex((currentImageIndex + 1) % eventImages.length);
+  };
+
+  // Carousel için görüntülenecek resimlerin indekslerini hesapla
   const getImageIndexes = () => {
     const indexes = [];
     const totalImages = eventImages.length;

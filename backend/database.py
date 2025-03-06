@@ -7,8 +7,22 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_db():
     try:
-        # Doğru veritabanı dosyasını kullandığımızdan emin olalım
+        # Veritabanı dosyasının konumunu düzeltelim
         db_path = 'database.db'
+        if not os.path.exists(db_path):
+            # Bir üst dizine çıkalım
+            db_path = os.path.join('..', 'database.db')
+        
+        print(f"Connecting to database at: {os.path.abspath(db_path)}")
+        
+        if not os.path.exists(db_path):
+            print(f"Database file not found at: {os.path.abspath(db_path)}")
+            # Veritabanı dosyası yoksa oluşturalım
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            create_tables(conn)
+            return conn
+        
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         return conn
@@ -79,8 +93,7 @@ def initialize_db():
     conn.commit()
     conn.close()
 
-def create_tables():
-    conn = sqlite3.connect('database.db')
+def create_tables(conn):
     cursor = conn.cursor()
     
     # Users tablosu
@@ -127,4 +140,4 @@ def create_tables():
     ''')
     
     conn.commit()
-    conn.close()
+    print("Database tables created successfully")
