@@ -4,20 +4,24 @@ import { AuthProvider } from './context/AuthContext';
 
 // Doğru dosya yollarını kullanarak bileşenleri import edelim
 // Dosya adlarını tam olarak dosya sistemindeki gibi yazalım
-import Navbar from './components/pages/navbar';  // küçük harf 'n'
-import HomePage from './components/pages/homePage';
-import About from './components/pages/about';
-import LoginForm from './components/pages/loginForm';
-import RegisterForm from './components/pages/registerForm';
-import ProfilePage from './components/pages/profilePage';
-import Events from './components/pages/events';
-import EventDetail from './components/pages/eventDetail';
-import CreateEvent from './components/pages/createEvent';  // küçük harf 'c'
-import ProtectedRoute from './components/protectedRoute';  // küçük harf 'p'
-import AdminRoute from './components/adminRoute';  // büyük harf 'A'
+import Navbar from './components/pages/Navbar';
+import HomePage from './components/pages/HomePage';
+import About from './components/pages/About'; 
+import LoginForm from './components/pages/LoginForm';
+import RegisterForm from './components/pages/RegisterForm';
+import ProfilePage from './components/pages/ProfilePage';
+import Events from './components/pages/Events';
+import EventDetail from './components/pages/EventDetail';
+import CreateEvent from './components/pages/CreateEvent';
+import ProtectedRoute from './components/protectedRoute';
+import AdminRoute from './components/adminRoute';
 import Layout from './components/Layout/layout';
 import NotFoundPage from './components/pages/notFoundPage';
 import Donate from './components/pages/donate';
+import Confidentialite from './components/pages/Confidentialite';
+import Conditions from './components/pages/Conditions';
+import MentionsLegales from './components/pages/MentionsLegales';
+import Contact from './components/pages/Contact';
 import './App.css';
 
 function App() {
@@ -52,6 +56,14 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            
+            {/* Yasal sayfalar */}
+            <Route path="/confidentialite" element={<Confidentialite />} />
+            <Route path="/conditions" element={<Conditions />} />
+            <Route path="/mentions-legales" element={<MentionsLegales />} />
+            
+            {/* Contact sayfası */}
+            <Route path="/contact" element={<Contact />} />
             
             {/* 404 sayfası */}
             <Route path="*" element={<NotFoundPage />} />

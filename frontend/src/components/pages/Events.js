@@ -69,13 +69,15 @@ const Events = () => {
     // Slider kontrolleri
     const scrollLeft = () => {
         if (sliderRef.current) {
-            sliderRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+            // Tam bir kart genişliği kadar kaydır (kart genişliği + boşluk)
+            sliderRef.current.scrollBy({ left: -340, behavior: 'smooth' });
         }
     };
 
     const scrollRight = () => {
         if (sliderRef.current) {
-            sliderRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+            // Tam bir kart genişliği kadar kaydır (kart genişliği + boşluk)
+            sliderRef.current.scrollBy({ left: 340, behavior: 'smooth' });
         }
     };
 

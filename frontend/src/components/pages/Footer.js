@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaMapMarkerAlt, FaPhone, FaEnvelope } from 'react-icons/fa';
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaMapMarkerAlt, FaPhone, FaEnvelope, FaHeart } from 'react-icons/fa';
 import styles from './Footer.module.css';
 
 const Footer = () => {
@@ -8,6 +8,12 @@ const Footer = () => {
   
   return (
     <footer className={styles.footer}>
+      <div className={styles.footerWave}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+          <path fill="#5d4037" fillOpacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+      </div>
+      
       <div className={styles.footerContent}>
         <div className={styles.footerSection}>
           <h3>Association Culturelle</h3>
@@ -34,9 +40,8 @@ const Footer = () => {
             <li><Link to="/">Accueil</Link></li>
             <li><Link to="/about">À propos</Link></li>
             <li><Link to="/events">Événements</Link></li>
-            <li><Link to="/donate">Faire un don</Link></li>
-            <li><Link to="/login">Connexion</Link></li>
-            <li><Link to="/register">Inscription</Link></li>
+            <li><Link to="/donation">Faire un don</Link></li>
+            <li><Link to="/contact">Contact</Link></li>
           </ul>
         </div>
         
@@ -64,10 +69,14 @@ const Footer = () => {
           &copy; {currentYear} Association Culturelle. Tous droits réservés.
         </div>
         <div className={styles.footerBottomLinks}>
-          <Link to="/privacy-policy">Politique de confidentialité</Link>
-          <Link to="/terms-of-service">Conditions d'utilisation</Link>
-          <Link to="/sitemap">Plan du site</Link>
+          <Link to="/confidentialite">Politique de confidentialité</Link>
+          <Link to="/conditions">Conditions d'utilisation</Link>
+          <Link to="/mentions-legales">Mentions légales</Link>
         </div>
+      </div>
+      
+      <div className={styles.footerCredit}>
+        <p>Créé avec <FaHeart className={styles.heartIcon} /> pour la communauté</p>
       </div>
     </footer>
   );

@@ -14,13 +14,19 @@
   
   /* Etkinlik kartı stil */
   .eventCard {
-    border: 1px solid #ddd;
-    border-radius: 10px;
+    flex: 0 0 auto;
+    width: 350px; /* Kart genişliğini artır - Tous les événements kartlarıyla aynı genişlikte */
+    min-width: 350px; /* Minimum genişliği de artır */
+    max-width: 100%; /* Mobil görünümde taşmayı önle */
+    border-radius: 8px;
     overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    background-color: white;
+    margin: 0.5rem 0;
+    height: 450px; /* Sabit bir yükseklik belirle */
     display: flex;
     flex-direction: column;
-    aspect-ratio: 3 / 4; /* En-boy oranını sabitle (örneğin 3:4) */
   }
   
   .eventCard:hover {
@@ -37,8 +43,8 @@
   
   /* Etkinlik içerik stil */
   .eventContent {
-    padding: 1rem;
-    flex-grow: 1; /* İçeriği kartın alt kısmına yasla */
+    padding: 1.5rem;
+    flex-grow: 1; /* İçeriğin kartın geri kalanını doldurmasını sağla */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -102,21 +108,6 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* Her satırda 3 kart */
   gap: 2rem; /* Kartlar arası boşluk */
-}
-
-/* Etkinlik kartı stil */
-.eventCard {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-.eventCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Etkinlik resmi stil */
@@ -304,76 +295,100 @@
   margin: 3rem 0;
 }
 
-/* Carousel Styles */
+/* Carousel Styles - Yaratıcı tasarım */
 .carouselContainer {
   position: relative;
   margin: 2rem 0 4rem;
+  padding: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
+/* Carousel içindeki kartlar için stil */
 .carousel {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(380px, calc(33.333% - 1rem)); /* Daha geniş kartlar */
   overflow-x: auto;
+  scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   gap: 1.5rem;
-  padding: 1rem 0.5rem;
+  padding: 1.5rem 5%;
 }
 
-.carousel::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
+/* Oklar için yeni tasarım - Sayfanın kenarlarında */
 .carouselButton {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(255, 255, 255, 0.8);
+  top: 0;
+  bottom: 0;
+  width: 5%; /* Sayfanın kenarlarında geniş tıklama alanı */
+  background: linear-gradient(to right, rgba(200, 169, 126, 0.2), transparent); /* Gradient arka plan */
+  color: white;
   border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.4s;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s;
+}
+
+.carouselButton::after {
+  content: '';
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #c8a97e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.4s;
+}
+
+.carouselButton svg {
+  position: relative;
+  z-index: 2;
+  font-size: 1.4rem;
 }
 
 .carouselButton:hover {
-  background-color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(to right, rgba(200, 169, 126, 0.4), transparent);
+}
+
+.carouselButton:hover::after {
+  background-color: #5d4037;
+  transform: scale(1.15);
 }
 
 .prevButton {
-  left: -20px;
+  left: 0;
+  background: linear-gradient(to right, rgba(200, 169, 126, 0.2), transparent);
+  justify-content: flex-start;
+  padding-left: 10px;
 }
 
 .nextButton {
-  right: -20px;
+  right: 0;
+  background: linear-gradient(to left, rgba(200, 169, 126, 0.2), transparent);
+  justify-content: flex-end;
+  padding-right: 10px;
 }
 
-.eventCard {
-  flex: 0 0 auto;
-  width: 380px;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  background-color: white;
-  transition: transform 0.3s, box-shadow 0.3s;
-  margin-right: 20px;
+.prevButton::after {
+  left: 10px;
 }
 
-.eventCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+.nextButton::after {
+  right: 10px;
 }
 
 .eventImageContainer {
   position: relative;
-  height: 220px;
+  height: 200px; /* Resim yüksekliğini ayarla */
   overflow: hidden;
 }
 
@@ -422,6 +437,9 @@
 
 .eventContent {
   padding: 1.5rem;
+  flex-grow: 1; /* İçeriğin kartın geri kalanını doldurmasını sağla */
+  display: flex;
+  flex-direction: column;
 }
 
 .eventTitle {
@@ -448,16 +466,12 @@
 }
 
 .eventDescription {
-  color: #555;
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
+  flex-grow: 1; /* Açıklama metninin mevcut alanı doldurmasını sağla */
+  margin-bottom: 1rem;
 }
 
 .eventActions {
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 1.5rem;
-  justify-content: space-between;
+  margin-top: auto; /* Butonları kartın altına yerleştir */
 }
 
 /* Butonlar için ortak stiller */
@@ -640,30 +654,19 @@
 }
 
 /* Responsive Adjustments */
+@media (max-width: 1200px) {
+  .carousel {
+    grid-auto-columns: calc(50% - 1rem); /* 2 kart için */
+  }
+}
+
 @media (max-width: 768px) {
   .carousel {
-    padding: 0.5rem;
+    grid-auto-columns: 100%; /* 1 kart için */
   }
   
-  .carouselButton {
-    width: 35px;
-    height: 35px;
-  }
-  
-  .prevButton {
-    left: -10px;
-  }
-  
-  .nextButton {
-    right: -10px;
-  }
-  
-  .eventCard {
-    width: 280px;
-  }
-  
-  .eventsList {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  .carouselContainer {
+    padding: 0 50px;
   }
 }
 
@@ -673,7 +676,9 @@
   }
   
   .eventCard {
-    width: 260px;
+    width: 280px; /* Daha küçük ekranlarda kart genişliğini daha da azalt */
+    min-width: 280px;
+    height: 400px; /* Daha küçük ekranlarda yüksekliği daha da azalt */
   }
   
   .eventsList {

@@ -36,3 +36,74 @@
     transform: rotate(360deg);
   }
 }
+
+/* Google Fonts'tan Montserrat yazı tipini ekleyin */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+/* Tüm site için temel yazı tipi ayarları */
+body, html {
+  font-family: 'Montserrat', sans-serif;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Başlıklar için */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  color: #5d4037;
+  margin-bottom: 1rem;
+}
+
+/* Paragraflar için */
+p {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  margin-bottom: 1rem;
+}
+
+/* Butonlar için */
+button, .btn {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+}
+
+/* Linkler için */
+a {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Form elemanları için */
+input, textarea, select {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Özel sınıflar */
+.title {
+  font-weight: 700;
+}
+
+.subtitle {
+  font-weight: 500;
+}
+
+.light-text {
+  font-weight: 300;
+}
+
+/* Özel renkler */
+.primary-color {
+  color: #5d4037;
+}
+
+.secondary-color {
+  color: #c8a97e;
+}
+
+.light-color {
+  color: #f5f5f5;
+}
+
+.dark-color {
+  color: #333;
+}
