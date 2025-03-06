@@ -298,390 +298,370 @@
 /* Carousel Styles - Yaratıcı tasarım */
 .carouselContainer {
   position: relative;
-  margin: 2rem 0 4rem;
-  padding: 0;
-  max-width: 100%;
+  margin: 2rem 0;
+  padding: 0 60px;
   overflow: hidden;
 }
 
-/* Carousel içindeki kartlar için stil */
 .carousel {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(380px, calc(33.333% - 1rem)); /* Daha geniş kartlar */
+  display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: none; /* Firefox için scrollbar'ı gizle */
+  -ms-overflow-style: none; /* IE ve Edge için scrollbar'ı gizle */
   gap: 1.5rem;
-  padding: 1.5rem 5%;
+  padding: 1rem 0;
 }
 
-/* Oklar için yeni tasarım - Sayfanın kenarlarında */
-.carouselButton {
+.carousel::-webkit-scrollbar {
+  display: none; /* Chrome, Safari ve Opera için scrollbar'ı gizle */
+}
+
+/* Yaratıcı ok butonları */
+.navButton {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 5%; /* Sayfanın kenarlarında geniş tıklama alanı */
-  background: linear-gradient(to right, rgba(200, 169, 126, 0.2), transparent); /* Gradient arka plan */
-  color: white;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
   border: none;
+  color: white;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   z-index: 10;
-  transition: all 0.4s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: 0 5px 15px rgba(93, 64, 55, 0.3);
+  overflow: hidden;
 }
 
-.carouselButton::after {
+.navButton::before {
   content: '';
   position: absolute;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: #c8a97e;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transition: all 0.4s;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.carouselButton svg {
-  position: relative;
-  z-index: 2;
-  font-size: 1.4rem;
+.navButton:hover {
+  transform: translateY(-50%) scale(1.1) rotate(5deg);
+  box-shadow: 0 8px 20px rgba(93, 64, 55, 0.4);
 }
 
-.carouselButton:hover {
-  background: linear-gradient(to right, rgba(200, 169, 126, 0.4), transparent);
+.navButton:hover::before {
+  opacity: 1;
 }
 
-.carouselButton:hover::after {
-  background-color: #5d4037;
-  transform: scale(1.15);
+.navButton:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.navButton svg {
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+  transition: transform 0.3s ease;
 }
 
 .prevButton {
-  left: 0;
-  background: linear-gradient(to right, rgba(200, 169, 126, 0.2), transparent);
-  justify-content: flex-start;
-  padding-left: 10px;
-}
-
-.nextButton {
-  right: 0;
-  background: linear-gradient(to left, rgba(200, 169, 126, 0.2), transparent);
-  justify-content: flex-end;
-  padding-right: 10px;
-}
-
-.prevButton::after {
   left: 10px;
 }
 
-.nextButton::after {
+.prevButton:hover svg {
+  transform: translateX(-3px);
+}
+
+.nextButton {
   right: 10px;
 }
 
+.nextButton:hover svg {
+  transform: translateX(3px);
+}
+
+.navButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #d1d1d1 0%, #9e9e9e 100%);
+  transform: translateY(-50%) scale(0.9);
+}
+
+.navButton:disabled:hover {
+  transform: translateY(-50%) scale(0.9);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Carousel göstergeleri */
+.carouselIndicators {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+  overflow: hidden;
+}
+
+.indicator::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 50%;
+}
+
+.indicator:hover {
+  transform: scale(1.2);
+}
+
+.indicator:hover::after {
+  opacity: 0.5;
+}
+
+.activeIndicator {
+  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
+  transform: scale(1.3);
+  box-shadow: 0 2px 5px rgba(93, 64, 55, 0.3);
+}
+
+.activeIndicator::after {
+  opacity: 1;
+}
+
+.moreIndicator {
+  color: #999;
+  font-size: 1.2rem;
+  line-height: 0.5;
+  margin: 0 5px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+}
+
+/* Carousel arka planı */
+.carouselBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, 
+    rgba(200, 169, 126, 0.1), 
+    rgba(200, 169, 126, 0.05), 
+    rgba(200, 169, 126, 0.1)
+  );
+  z-index: -1;
+  border-radius: 15px;
+}
+
+/* Etkinlik kartları için gelişmiş stil */
+.eventCard {
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.eventCard:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(93, 64, 55, 0.2);
+}
+
+.eventCard::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, #c8a97e, #5d4037);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.eventCard:hover::after {
+  transform: scaleX(1);
+}
+
+/* Etkinlik resmi container */
 .eventImageContainer {
   position: relative;
-  height: 200px; /* Resim yüksekliğini ayarla */
   overflow: hidden;
 }
 
 .eventImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s;
+  transition: transform 0.5s ease;
 }
 
 .eventCard:hover .eventImage {
   transform: scale(1.05);
 }
 
-.eventOverlay {
+/* Etkinlik tarihi stil */
+.eventDate {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
+  color: white;
+  border-radius: 8px;
+  padding: 8px 12px;
+  text-align: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  z-index: 2;
+}
+
+.eventCard:hover .eventDate {
+  transform: scale(1.1) rotate(-3deg);
+}
+
+.day {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.month {
+  display: block;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+/* Geçmiş etkinlik rozeti */
+.pastEventBadge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  z-index: 2;
+  transform: rotate(3deg);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.eventCard:hover .pastEventBadge {
+  transform: rotate(0deg) scale(1.1);
+}
+
+/* Etkinlik buton stil */
+.eventButton {
+  display: inline-block;
+  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(93, 64, 55, 0.2);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.eventButton::before {
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #5d4037 0%, #c8a97e 100%);
+  z-index: -1;
+  transition: opacity 0.3s ease;
   opacity: 0;
-  transition: opacity 0.3s;
 }
 
-.eventCard:hover .eventOverlay {
+.eventButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(93, 64, 55, 0.3);
+}
+
+.eventButton:hover::before {
   opacity: 1;
 }
 
-.overlayButton {
-  background-color: #007bff;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: background-color 0.3s;
+.eventButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(93, 64, 55, 0.2);
 }
 
-.overlayButton:hover {
-  background-color: #0056b3;
-}
-
-.eventContent {
-  padding: 1.5rem;
-  flex-grow: 1; /* İçeriğin kartın geri kalanını doldurmasını sağla */
-  display: flex;
-  flex-direction: column;
-}
-
-.eventTitle {
-  font-size: 1.25rem;
-  margin: 0 0 0.75rem;
-  color: #333;
-}
-
-.eventMeta {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  color: #6c757d;
-  font-size: 0.9rem;
-}
-
-.eventDate, .participants {
-  display: flex;
-  align-items: center;
-}
-
-.icon {
-  margin-right: 0.5rem;
-}
-
-.eventDescription {
-  flex-grow: 1; /* Açıklama metninin mevcut alanı doldurmasını sağla */
-  margin-bottom: 1rem;
-}
-
-.eventActions {
-  margin-top: auto; /* Butonları kartın altına yerleştir */
-}
-
-/* Butonlar için ortak stiller */
-.joinButton, .deleteButton {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 5px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Katılma butonu */
-.joinButton {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.joinButton:hover {
-  background-color: #45a049;
-  transform: translateY(-2px);
-}
-
-.joinButton:disabled {
-  background-color: #cccccc;
-  color: #666666;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Silme butonu */
-.deleteButton {
-  background-color: #f44336;
-  color: white;
-}
-
-.deleteButton:hover {
-  background-color: #d32f2f;
-  transform: translateY(-2px);
-}
-
-/* Buton içindeki ikonlar için stil */
-.joinButton svg, .deleteButton svg {
-  margin-right: 5px;
-}
-
-/* Buton grupları için stil */
-.eventActions {
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
-/* Upcoming Events List */
-.upcomingEvents {
-  margin-top: 4rem;
-}
-
-.sectionTitle {
-  font-size: 1.75rem;
-  color: #333;
-  margin-bottom: 1.5rem;
-  position: relative;
-}
-
-.sectionTitle::after {
-  content: '';
-  display: block;
-  width: 70px;
-  height: 3px;
-  background-color: #007bff;
-  margin-top: 0.5rem;
-  border-radius: 2px;
-}
-
-.eventsList {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
-}
-
-.eventListItem {
-  display: flex;
-  flex-direction: column;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
-  height: 100%;
-}
-
-.eventListItem:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-}
-
-.eventThumbnail {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-.eventListContent {
-  padding: 1.5rem;
-  background-color: white;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.eventListTitle {
-  font-size: 1.25rem;
-  margin: 0 0 1rem;
-  color: #333;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-.eventListDate, .eventListParticipants {
-  display: flex;
-  align-items: center;
-  color: #6c757d;
-  font-size: 0.9rem;
-  margin-bottom: 0.75rem;
-}
-
-.detailsLink {
-  color: #007bff;
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.3s;
-  padding: 8px 16px;
-  border-radius: 5px;
-  background-color: #e7f1ff;
-  display: inline-flex;
-  align-items: center;
-}
-
-.detailsLink:hover {
-  color: #0056b3;
-  background-color: #d0e5ff;
-}
-
-/* Loading and Error States */
-.loading, .error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-  text-align: center;
-}
-
-.loading {
-  font-size: 1.2rem;
-  color: #6c757d;
-}
-
-.error {
-  color: #dc3545;
-}
-
-.retryButton {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.retryButton:hover {
-  background-color: #0056b3;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 1200px) {
-  .carousel {
-    grid-auto-columns: calc(50% - 1rem); /* 2 kart için */
-  }
-}
-
+/* Responsive ayarlamalar */
 @media (max-width: 768px) {
-  .carousel {
-    grid-auto-columns: 100%; /* 1 kart için */
+  .navButton {
+    width: 50px;
+    height: 50px;
+    font-size: 1rem;
   }
   
   .carouselContainer {
-    padding: 0 50px;
+    padding: 0 40px;
+  }
+  
+  .eventDate {
+    padding: 6px 10px;
+  }
+  
+  .day {
+    font-size: 1.2rem;
+  }
+  
+  .month {
+    font-size: 0.8rem;
   }
 }
 
 @media (max-width: 480px) {
-  .title {
-    font-size: 2rem;
+  .navButton {
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
   }
   
-  .eventCard {
-    width: 280px; /* Daha küçük ekranlarda kart genişliğini daha da azalt */
-    min-width: 280px;
-    height: 400px; /* Daha küçük ekranlarda yüksekliği daha da azalt */
-  }
-  
-  .eventsList {
-    grid-template-columns: 1fr;
+  .carouselContainer {
+    padding: 0 30px;
   }
 }
