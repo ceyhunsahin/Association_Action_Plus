@@ -138,3 +138,22 @@
 .links a:hover {
   text-decoration: underline;
 }
+
+/* Mobil görünüm için responsive tasarım */
+@media (max-width: 576px) {
+  .loginForm {
+    padding: 20px;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+  }
+  
+  .formGroup {
+    margin-bottom: 15px;
+  }
+  
+  .submitButton, .googleButton {
+    width: 100%;
+  }
+}

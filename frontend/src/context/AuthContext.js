@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   // Kullanılmayan error state'ini kaldıralım veya kullanılır hale getirelim
   // const [error, setError] = useState(null);
 
@@ -131,6 +132,108 @@ export const AuthProvider = ({ children }) => {
     setIsAdmin(false);
     setIsAuthenticated(false);
   };
+
+  // Token yenileme fonksiyonu
+  const refreshToken = async () => {
+    try {
+      // Eğer zaten token yenileme işlemi yapılıyorsa, tekrar yapma
+      if (isRefreshing) return null;
+      
+      setIsRefreshing(true);
+      
+      const response = await axios.post(
+        'http://localhost:8000/api/auth/refresh-token',
+        {},
+        { withCredentials: true }
+      );
+      
+      if (response.data && response.data.access_token) {
+        setAccessToken(response.data.access_token);
+        
+        // Kullanıcı bilgilerini güncelle
+        const userResponse = await axios.get(
+          'http://localhost:8000/api/users/me',
+          {
+            headers: {
+              Authorization: `Bearer ${response.data.access_token}`
+            }
+          }
+        );
+        
+        if (userResponse.data) {
+          setUser(userResponse.data);
+          setIsAdmin(userResponse.data.role === 'admin');
+        }
+        
+        setIsRefreshing(false);
+        return response.data.access_token;
+      }
+      
+      setIsRefreshing(false);
+    } catch (error) {
+      console.error('Token yenileme hatası:', error);
+      // Token yenilenemezse kullanıcıyı çıkış yaptır
+      setUser(null);
+      setAccessToken(null);
+      setIsAdmin(false);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      setIsRefreshing(false);
+    }
+    return null;
+  };
+
+  // Axios interceptor'ları
+  useEffect(() => {
+    // İstek sayacı
+    let failedRequestCount = 0;
+    const MAX_FAILED_REQUESTS = 3;
+    
+    // Request interceptor
+    const requestInterceptor = axios.interceptors.request.use(
+      async (config) => {
+        // Eğer token varsa ve auth isteği değilse token ekle
+        if (accessToken && !config.url.includes('/auth/')) {
+          config.headers.Authorization = `Bearer ${accessToken}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // Response interceptor
+    const responseInterceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+        
+        // Token süresi dolmuşsa ve bu istek daha önce yenilenmemişse
+        // ve başarısız istek sayısı limiti aşmamışsa
+        if (error.response?.status === 401 && 
+            !originalRequest._retry && 
+            failedRequestCount < MAX_FAILED_REQUESTS) {
+          
+          originalRequest._retry = true;
+          failedRequestCount++;
+          
+          const newToken = await refreshToken();
+          if (newToken) {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            failedRequestCount = 0; // Başarılı olursa sayacı sıfırla
+            return axios(originalRequest);
+          }
+        }
+        
+        return Promise.reject(error);
+      }
+    );
+
+    // Cleanup
+    return () => {
+      axios.interceptors.request.eject(requestInterceptor);
+      axios.interceptors.response.eject(responseInterceptor);
+    };
+  }, [accessToken]);
 
   const value = {
     user,

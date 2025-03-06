@@ -493,33 +493,37 @@
   
   /* Responsive */
   @media (max-width: 768px) {
+    .heroSection {
+      height: 400px;
+      padding: 20px;
+    }
+    
+    .heroContent {
+      width: 100%;
+    }
+    
     .heroTitle {
-      font-size: 36px;
+      font-size: 2rem;
     }
     
     .heroSubtitle {
-      font-size: 16px;
+      font-size: 1rem;
     }
     
-    .statsContainer {
-      flex-direction: column;
-      align-items: center;
+    .featuredSection, .aboutSection, .statsSection, .testimonialsSection, .newsletterSection {
+      padding: 40px 20px;
+    }
+    
+    .featuredEvents {
+      grid-template-columns: 1fr;
     }
     
     .statItem {
       width: 100%;
-      max-width: 300px;
+      margin-bottom: 20px;
     }
     
     .testimonials {
       grid-template-columns: 1fr;
-    }
-    
-    .newsletterForm {
-      flex-direction: column;
-    }
-    
-    .newsletterForm button {
-      width: 100%;
     }
   }

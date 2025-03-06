@@ -225,7 +225,30 @@
 
 /* Responsive tasarım */
 @media (max-width: 768px) {
-  .eventActions {
+  .profileContainer {
+    padding: 20px;
+  }
+  
+  .profileHeader {
     flex-direction: column;
+  }
+  
+  .profileInfo {
+    margin-left: 0;
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .profileTabs {
+    flex-direction: column;
+  }
+  
+  .profileTab {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .eventGrid {
+    grid-template-columns: 1fr;
   }
 }

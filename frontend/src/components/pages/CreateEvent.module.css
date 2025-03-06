@@ -119,8 +119,20 @@
 }
 
 @media (max-width: 768px) {
+  .createEventContainer {
+    padding: 20px;
+  }
+  
   .formRow {
     flex-direction: column;
-    gap: 0;
+  }
+  
+  .formGroup {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  .submitButton {
+    width: 100%;
   }
 } 

@@ -58,7 +58,7 @@ const HomePage = () => {
         >
           <div className={styles.heroContent}>
             <div className={styles.logoWrapper}>
-              <img src="/logo.jpeg" alt="Action Plus Logo" className={styles.heroLogo} />
+              <img src="/logo.svg" alt="Action Plus Logo" className={styles.heroLogo} />
             </div>
             <h1 className={styles.heroTitle}>ACTION PLUS</h1>
             <p className={styles.heroSubtitle}>

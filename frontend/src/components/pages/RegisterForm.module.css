@@ -264,3 +264,27 @@
     font-size: 24px;
   }
 }
+
+/* Mobil görünüm için responsive tasarım */
+@media (max-width: 576px) {
+  .registerForm {
+    padding: 20px;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+  }
+  
+  .formRow {
+    flex-direction: column;
+  }
+  
+  .formGroup {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  .submitButton, .googleButton {
+    width: 100%;
+  }
+}

@@ -458,3 +458,358 @@
     max-width: 300px;
   }
 }
+
+/* Mobil görünüm için responsive tasarım */
+@media (max-width: 768px) {
+  .aboutHero {
+    padding: 40px 20px;
+  }
+  
+  .aboutHeroTitle {
+    font-size: 2rem;
+  }
+  
+  .aboutSection, .missionSection, .teamSection, .joinSection {
+    padding: 40px 20px;
+  }
+  
+  .twoColumns {
+    flex-direction: column;
+  }
+  
+  .column {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+  
+  .teamGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.aboutContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.aboutHero {
+  background-color: #f9f9f9;
+  padding: 80px 20px;
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.aboutHeroTitle {
+  font-size: 3rem;
+  color: #5d4037;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.aboutHeroSubtitle {
+  font-size: 1.2rem;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.aboutSection {
+  padding: 60px 0;
+}
+
+.sectionTitle {
+  font-size: 2.2rem;
+  color: #5d4037;
+  margin-bottom: 30px;
+  text-align: center;
+  position: relative;
+}
+
+.sectionTitle::after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 3px;
+  background-color: #c8a97e;
+  margin: 15px auto 0;
+}
+
+.twoColumns {
+  display: flex;
+  gap: 40px;
+  margin-top: 40px;
+}
+
+.column {
+  flex: 1;
+}
+
+.aboutImage {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.aboutText {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #555;
+}
+
+.aboutText p {
+  margin-bottom: 20px;
+}
+
+.missionSection {
+  background-color: #f9f9f9;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.missionText {
+  font-size: 1.3rem;
+  line-height: 1.8;
+  color: #555;
+  max-width: 800px;
+  margin: 0 auto 40px;
+}
+
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.valueCard {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.valueCard:hover {
+  transform: translateY(-10px);
+}
+
+.valueIcon {
+  font-size: 40px;
+  color: #c8a97e;
+  margin-bottom: 20px;
+}
+
+.valueTitle {
+  font-size: 1.3rem;
+  color: #5d4037;
+  margin-bottom: 15px;
+}
+
+.valueDescription {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.teamSection {
+  padding: 80px 20px;
+}
+
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.teamMember {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.teamMember:hover {
+  transform: translateY(-10px);
+}
+
+.memberPhoto {
+  height: 280px;
+  background-size: cover;
+  background-position: center;
+}
+
+.memberInfo {
+  padding: 20px;
+}
+
+.memberName {
+  font-size: 1.3rem;
+  color: #5d4037;
+  margin-bottom: 5px;
+}
+
+.memberRole {
+  font-size: 1rem;
+  color: #c8a97e;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.memberBio {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.joinSection {
+  background-color: #5d4037;
+  color: white;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.joinTitle {
+  font-size: 2.2rem;
+  margin-bottom: 20px;
+}
+
+.joinText {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  max-width: 800px;
+  margin: 0 auto 40px;
+  opacity: 0.9;
+}
+
+.joinButtons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.primaryButton, .secondaryButton {
+  display: inline-block;
+  padding: 15px 30px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.primaryButton {
+  background-color: #c8a97e;
+  color: white;
+}
+
+.primaryButton:hover {
+  background-color: #b89669;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.secondaryButton {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.secondaryButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive tasarım */
+@media (max-width: 992px) {
+  .aboutHeroTitle {
+    font-size: 2.5rem;
+  }
+  
+  .sectionTitle {
+    font-size: 2rem;
+  }
+  
+  .missionText {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .aboutHero {
+    padding: 60px 20px;
+  }
+  
+  .aboutHeroTitle {
+    font-size: 2rem;
+  }
+  
+  .aboutHeroSubtitle {
+    font-size: 1rem;
+  }
+  
+  .aboutSection, .missionSection, .teamSection, .joinSection {
+    padding: 50px 20px;
+  }
+  
+  .sectionTitle {
+    font-size: 1.8rem;
+  }
+  
+  .twoColumns {
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  .missionText {
+    font-size: 1.1rem;
+  }
+  
+  .joinTitle {
+    font-size: 1.8rem;
+  }
+  
+  .joinText {
+    font-size: 1rem;
+  }
+  
+  .primaryButton, .secondaryButton {
+    width: 100%;
+    max-width: 300px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .aboutHero {
+    padding: 40px 20px;
+  }
+  
+  .aboutHeroTitle {
+    font-size: 1.8rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.6rem;
+  }
+  
+  .aboutText {
+    font-size: 1rem;
+  }
+  
+  .valuesGrid, .teamGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .joinButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+}

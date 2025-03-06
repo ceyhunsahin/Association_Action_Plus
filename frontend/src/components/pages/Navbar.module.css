@@ -1,169 +1,211 @@
 /* Google Fonts'tan yazı tipi ekleyin */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Poppins:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Poppins:wght@300;400;500;600&family=Montserrat:wght@400;500;600;700&display=swap');
 
 /* Navbar ana container */
 .navbar {
-  background-color: #f8f4e9; /* Krem rengi arka plan */
-  background-image: linear-gradient(to right, #f8f4e9, #f0e6d2);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 15px 30px;
-  font-family: 'Poppins', sans-serif;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0.8rem 2.5rem;
+  background: linear-gradient(to right, #5d4037, #6d4c41);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  height: 75px;
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 3px solid #c8a97e; /* Altın rengi çizgi */
-}
-
-/* Navbar marka alanı */
-.navbarBrand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  border-bottom: 3px solid #4e342e;
 }
 
 /* Logo */
 .logo {
-  height: 60px; /* Boyutu artırdık */
-  width: auto;
-  border-radius: 8px; /* Köşeleri biraz daha yuvarladık */
-  transition: transform 0.3s ease;
-  background-color: white; /* Beyaz arka plan ekledik */
-  padding: 5px; /* İçeride biraz boşluk bıraktık */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Belirginleştirmek için gölge ekledik */
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.logo span {
+  color: #c8a97e;
+  font-style: italic;
 }
 
 .logo:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Hover durumunda gölgeyi artırdık */
+  transform: translateY(-2px);
+  color: #f5f5f5;
 }
 
 /* Navbar linkleri */
 .navLinks {
   display: flex;
-  gap: 20px;
-  align-items: center;
+  gap: 1.8rem;
 }
 
 .navLink, .activeLink {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px; /* Yazı boyutunu artırdık */
-  font-weight: 600; /* Yazı kalınlığını artırdık */
+  font-family: 'Montserrat', sans-serif;
+  color: #f5f5f5;
   text-decoration: none;
-  padding: 8px 15px;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.6rem 0.9rem;
   border-radius: 4px;
   transition: all 0.3s ease;
-  position: relative;
-  letter-spacing: 0.5px; /* Harfler arası mesafeyi artırdık */
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); /* Hafif gölge ekledik */
-}
-
-.navLink {
-  color: #5d4037; /* Kahverengi */
-}
-
-.activeLink {
-  color: #c8a97e; /* Altın rengi */
-  font-weight: 700;
-}
-
-.navLink::after, .activeLink::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 3px; /* Çizgi kalınlığını artırdık */
-  bottom: 0;
-  left: 50%;
-  background-color: #c8a97e; /* Altın rengi çizgi */
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
-}
-
-.navLink:hover::after {
-  width: 70%;
-}
-
-.activeLink::after {
-  width: 70%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  letter-spacing: 0.5px;
 }
 
 .navLink:hover {
-  color: #c8a97e; /* Altın rengi */
-  background-color: rgba(200, 169, 126, 0.1); /* Hafif altın rengi arka plan */
-  transform: translateY(-2px); /* Hover durumunda hafif yukarı kaldır */
+  color: #c8a97e;
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.activeLink {
+  color: #c8a97e;
+  background-color: rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  border-bottom: 2px solid #c8a97e;
 }
 
 /* Kullanıcı bağlantıları */
 .authLinks {
   display: flex;
-  gap: 15px;
-  align-items: center;
-}
-
-/* Profil bağlantısı */
-.authLinks .navLink, .authLinks .activeLink {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Profil harfi */
-.authLinks .activeLink:first-child {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #c8a97e; /* Altın rengi */
-  color: white;
-  font-weight: bold;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Gölge ekledik */
+  gap: 1.2rem;
 }
 
 /* Çıkış butonu */
 .logoutButton {
-  background-color: #5d4037; /* Kahverengi */
-  color: white;
+  background-color: #c8a97e;
+  color: #5d4037;
   border: none;
-  padding: 8px 15px;
+  padding: 0.6rem 1.2rem;
   border-radius: 4px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 16px; /* Yazı boyutunu artırdık */
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Gölge ekledik */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .logoutButton:hover {
-  background-color: #4e342e; /* Daha koyu kahverengi */
-  transform: translateY(-2px); /* Hover durumunda hafif yukarı kaldır */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Gölgeyi artır */
+  background-color: #d6ba8e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Hamburger menü butonu */
+.menuToggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #ffffff;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.menuToggle:hover {
+  color: #c8a97e;
 }
 
 /* Responsive tasarım */
 @media (max-width: 768px) {
   .navbar {
+    padding: 0 1.2rem;
+  }
+  
+  .menuToggle {
+    display: block;
+  }
+  
+  .navLinks, .authLinks {
+    display: none;
+  }
+  
+  .navbarMobile {
+    position: absolute;
+    top: 75px;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to bottom, #5d4037, #6d4c41);
     flex-direction: column;
-    padding: 15px;
+    padding: 1.2rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-bottom: 3px solid #4e342e;
   }
   
+  .navLinksMobile, .authLinksMobile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    width: 100%;
+  }
+  
+  .navLinksMobile {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1rem;
+  }
+  
+  .navLinkMobile, .activeLinkMobile {
+    padding: 0.8rem;
+    width: 100%;
+    color: #f5f5f5;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.5px;
+  }
+  
+  .navLinkMobile:hover {
+    color: #c8a97e;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .activeLinkMobile {
+    color: #c8a97e;
+    background-color: rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+    border-left: 3px solid #c8a97e;
+  }
+  
+  .logoutButtonMobile {
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (min-width: 993px) {
   .navbarBrand {
-    margin-bottom: 15px;
+    width: auto;
   }
   
-  .navLinks {
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-bottom: 15px;
-  }
-  
-  .authLinks {
-    justify-content: center;
+  .navbarContent {
+    display: flex !important;
+    opacity: 1 !important;
+    transform: none !important;
+    position: static;
+    box-shadow: none;
+    padding: 0;
+    height: auto;
+    flex-direction: row;
   }
 }
 
