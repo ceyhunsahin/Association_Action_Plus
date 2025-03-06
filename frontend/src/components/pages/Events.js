@@ -4,15 +4,18 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from './Events.module.css';
 import { FaChevronLeft, FaChevronRight, FaCalendarAlt, FaUsers } from 'react-icons/fa';
+import ConfirmModal from '../Modal/ConfirmModal';
 
 const Events = () => {
     const [events, setEvents] = useState([]);
     const [userEvents, setUserEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { accessToken, user } = useAuth();
+    const { accessToken, user, isAdmin } = useAuth();
     const navigate = useNavigate();
     const sliderRef = useRef(null);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [eventToDelete, setEventToDelete] = useState(null);
 
     // Tüm etkinlikleri çek - Component mount olduğunda çalışır
     useEffect(() => {
@@ -115,24 +118,33 @@ const Events = () => {
     };
 
     // Etkinliği silme işlemi
-    const handleDeleteEvent = async (eventId) => {
-        const isConfirmed = window.confirm("Êtes-vous sûr de vouloir supprimer cet événement ?");
-        if (!isConfirmed) return;
+    const handleDeleteEvent = (eventId) => {
+        setEventToDelete(eventId);
+        setShowConfirmModal(true);
+    };
 
+    // Etkinliği silme onayı
+    const confirmDeleteEvent = async () => {
         try {
-            const response = await axios.delete(`http://localhost:8000/api/events/${eventId}`, {
+            await axios.delete(`http://localhost:8000/api/events/${eventToDelete}`, {
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                },
+                    Authorization: `Bearer ${accessToken}`
+                }
             });
-            alert(response.data.message);
-
-            // Etkinlikleri güncelle
-            const updatedEvents = events.filter(event => event.id !== eventId);
+            
+            // Etkinlik listesini güncelle
+            const updatedEvents = events.filter(event => event.id !== eventToDelete);
             setEvents(updatedEvents);
-        } catch (error) {
-            console.error('Silme hatası:', error);
-            alert(error.response?.data?.detail || 'Erreur lors de la suppression de l\'événement');
+            
+            setShowConfirmModal(false);
+            setEventToDelete(null);
+            
+            alert('Événement supprimé avec succès!');
+        } catch (err) {
+            console.error('Error deleting event:', err);
+            alert('Erreur lors de la suppression de l\'événement');
+            setShowConfirmModal(false);
+            setEventToDelete(null);
         }
     };
 
@@ -220,8 +232,8 @@ const Events = () => {
                                                     : "S'inscrire"}
                                             </button>
                                         )}
-                                        {user?.role === 'admin' && (
-                                            <button
+                                        {isAdmin && (
+                                            <button 
                                                 onClick={() => handleDeleteEvent(event.id)}
                                                 className={styles.deleteButton}
                                             >
@@ -262,14 +274,37 @@ const Events = () => {
                                 <p className={styles.eventListParticipants}>
                                     <FaUsers className={styles.icon} /> {event.participant_count} participants
                                 </p>
-                                <Link to={`/events/${event.id}`} className={styles.detailsLink}>
-                                    Voir les détails
-                                </Link>
+                                <div className={styles.eventActions}>
+                                    <Link to={`/events/${event.id}`} className={styles.detailsLink}>
+                                        Voir les détails
+                                    </Link>
+                                    {isAdmin && (
+                                        <button 
+                                            onClick={() => handleDeleteEvent(event.id)}
+                                            className={styles.deleteButton}
+                                        >
+                                            Supprimer
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
+
+            {showConfirmModal && (
+                <ConfirmModal 
+                    message="Êtes-vous sûr de vouloir supprimer cet événement ? Cette action est irréversible."
+                    onConfirm={confirmDeleteEvent}
+                    onCancel={() => {
+                        setShowConfirmModal(false);
+                        setEventToDelete(null);
+                    }}
+                    confirmText="Supprimer"
+                    cancelText="Annuler"
+                />
+            )}
         </div>
     );
 };
