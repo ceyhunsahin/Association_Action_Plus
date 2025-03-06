@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import styles from './LoginForm.module.css';
 
@@ -8,8 +8,22 @@ const LoginForm = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const [message, setMessage] = useState('');
+    const { login, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        // URL'den gelen mesajı kontrol et
+        if (location.state && location.state.message) {
+            setMessage(location.state.message);
+            
+            // Kayıt başarılıysa, kullanıcı bilgilerini otomatik doldur
+            if (location.state.user) {
+                setEmail(location.state.user.email || '');
+            }
+        }
+    }, [location]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,13 +31,27 @@ const LoginForm = () => {
         setLoading(true);
 
         try {
+            console.log("Attempting login with:", email, password);
             await login(email, password);
-            navigate('/');
+            navigate('/profile');
         } catch (err) {
             console.error('Login error:', err);
-            setError(err.response?.data?.detail || 'Erreur lors de la connexion');
+            // Hata mesajını daha detaylı gösterelim
+            const errorMessage = err.response?.data?.detail || 'Erreur lors de la connexion';
+            console.error('Error details:', errorMessage);
+            setError(errorMessage);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        try {
+            await loginWithGoogle();
+            navigate('/');
+        } catch (err) {
+            console.error('Google login error:', err);
+            setError('Erreur lors de la connexion avec Google');
         }
     };
 
@@ -31,7 +59,10 @@ const LoginForm = () => {
         <div className={styles.loginContainer}>
             <div className={styles.loginForm}>
                 <h2 className={styles.title}>Connexion</h2>
+                
+                {message && <div className={styles.message}>{message}</div>}
                 {error && <div className={styles.error}>{error}</div>}
+                
                 <form onSubmit={handleSubmit}>
                     <div className={styles.formGroup}>
                         <label htmlFor="email">Email</label>
@@ -41,9 +72,9 @@ const LoginForm = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            className={styles.input}
                         />
                     </div>
+                    
                     <div className={styles.formGroup}>
                         <label htmlFor="password">Mot de passe</label>
                         <input
@@ -52,19 +83,36 @@ const LoginForm = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            className={styles.input}
                         />
                     </div>
+                    
                     <button 
                         type="submit" 
-                        className={styles.loginButton}
+                        className={styles.submitButton}
                         disabled={loading}
                     >
                         {loading ? 'Connexion...' : 'Se connecter'}
                     </button>
                 </form>
-                <div className={styles.registerLink}>
-                    Vous n'avez pas de compte? <Link to="/register">S'inscrire</Link>
+                
+                <div className={styles.divider}>
+                    <span>ou</span>
+                </div>
+                
+                <button 
+                    onClick={handleGoogleLogin}
+                    className={styles.googleButton}
+                >
+                    Se connecter avec Google
+                </button>
+                
+                <div className={styles.links}>
+                    <p>
+                        Vous n'avez pas de compte? <Link to="/register">S'inscrire</Link>
+                    </p>
+                    <p>
+                        <Link to="/forgot-password">Mot de passe oublié?</Link>
+                    </p>
                 </div>
             </div>
         </div>

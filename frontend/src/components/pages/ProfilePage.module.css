@@ -179,3 +179,53 @@
   color: #666;
   font-style: italic;
 }
+
+/* Etkinlik kartları için stiller */
+.eventActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.viewButton, .unregisterButton {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex: 1;
+}
+
+.viewButton {
+  background-color: #007bff;
+  color: white;
+}
+
+.viewButton:hover {
+  background-color: #0056b3;
+}
+
+.unregisterButton {
+  background-color: #dc3545;
+  color: white;
+}
+
+.unregisterButton:hover {
+  background-color: #c82333;
+}
+
+.eventIcon {
+  margin-right: 5px;
+}
+
+/* Responsive tasarım */
+@media (max-width: 768px) {
+  .eventActions {
+    flex-direction: column;
+  }
+}

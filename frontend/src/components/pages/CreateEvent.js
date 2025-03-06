@@ -1,134 +1,193 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import styles from './EventCreate.module.css';
-import Modal from '../Modal/modal'; // Modal bileşenini içe aktar
+import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
+import styles from './CreateEvent.module.css';
+import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaImage, FaCheck } from 'react-icons/fa';
 
-const EventCreate = () => {
-    const [eventData, setEventData] = useState({
-        title: '',
-        date: '',
-        description: '',
-        image: '',
+const CreateEvent = () => {
+  const { accessToken, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    date: '',
+    location: '',
+    image: '',
+    max_participants: 50
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Admin değilse, ana sayfaya yönlendir
+  React.useEffect(() => {
+    if (!isAdmin) {
+      navigate('/');
+    }
+  }, [isAdmin, navigate]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
     });
-    const { user, accessToken } = useAuth(); // user ve accessToken'ı al
-    const navigate = useNavigate();
-    const [showModal, setShowModal] = useState(false); // Modal'ın görünürlüğünü kontrol et
-    const [modalMessage, setModalMessage] = useState(''); // Modal'da gösterilecek mesaj
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-        if (!user || !accessToken) {
-            alert('Vous devez vous connecter pour créer un événement!');
-            return;
+    try {
+      const response = await axios.post(
+        'http://localhost:8000/api/events',
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
         }
+      );
 
-        try {
-            const response = await fetch('http://localhost:8000/api/events/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify(eventData),
-            });
+      console.log('Event created:', response.data);
+      setLoading(false);
+      
+      // Başarılı mesajı göster
+      alert('Événement créé avec succès!');
+      
+      // Etkinlik detay sayfasına yönlendir
+      navigate(`/events/${response.data.id}`);
+    } catch (err) {
+      console.error('Error creating event:', err);
+      setError(err.response?.data?.detail || 'Une erreur est survenue lors de la création de l\'événement');
+      setLoading(false);
+    }
+  };
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || 'Erreur lors de la création de l\'événement');
-            }
+  if (!isAdmin) {
+    return <div className={styles.loading}>Redirection vers la page d'accueil...</div>;
+  }
 
-            const data = await response.json();
-            console.log('Événement créé:', data);
-
-            setModalMessage('Événement créé avec succès!');
-            setShowModal(true);
-
-            setTimeout(() => {
-                setShowModal(false);
-                navigate('/events');
-            }, 2000);
-        } catch (error) {
-            console.error('Erreur:', error);
-            setModalMessage(error.message || 'Erreur lors de la création de l\'événement');
-            setShowModal(true);
-        }
-    };
-
-    return (
-        <div className={styles.container}>
-            <h1 className={styles.title}>Créer un nouvel événement</h1>
-            <form onSubmit={handleSubmit} className={styles.form}>
-                <div className={styles.formGroup}>
-                    <label htmlFor="title" className={styles.label}>
-                        Titre de l'événement:
-                    </label>
-                    <input
-                        type="text"
-                        id="title"
-                        value={eventData.title}
-                        onChange={(e) => setEventData({ ...eventData, title: e.target.value })}
-                        className={styles.input}
-                        required
-                    />
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label htmlFor="date" className={styles.label}>
-                        Date de l'événement:
-                    </label>
-                    <input
-                        type="date"
-                        id="date"
-                        value={eventData.date}
-                        onChange={(e) => setEventData({ ...eventData, date: e.target.value })}
-                        className={styles.input}
-                        required
-                    />
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label htmlFor="description" className={styles.label}>
-                        Description de l'événement:
-                    </label>
-                    <textarea
-                        id="description"
-                        value={eventData.description}
-                        onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
-                        className={styles.textarea}
-                        required
-                    />
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label htmlFor="image" className={styles.label}>
-                        URL de l'image:
-                    </label>
-                    <input
-                        type="text"
-                        id="image"
-                        value={eventData.image}
-                        onChange={(e) => setEventData({ ...eventData, image: e.target.value })}
-                        className={styles.input}
-                        required
-                    />
-                </div>
-
-                <button type="submit" className={styles.button}>
-                    Créer l'événement
-                </button>
-            </form>
-
-            {/* Modal'ı göster */}
-            {showModal && (
-                <Modal
-                    message={modalMessage}
-                    onClose={() => setShowModal(false)}
-                />
-            )}
+  return (
+    <div className={styles.createEventContainer}>
+      <h1 className={styles.pageTitle}>Créer un nouvel événement</h1>
+      
+      {error && <div className={styles.errorMessage}>{error}</div>}
+      
+      <form onSubmit={handleSubmit} className={styles.eventForm}>
+        <div className={styles.formGroup}>
+          <label htmlFor="title">Titre de l'événement *</label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            value={formData.title}
+            onChange={handleInputChange}
+            required
+            placeholder="Entrez le titre de l'événement"
+          />
         </div>
-    );
+        
+        <div className={styles.formGroup}>
+          <label htmlFor="description">Description *</label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+            required
+            placeholder="Décrivez l'événement"
+            rows={5}
+          />
+        </div>
+        
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
+            <label htmlFor="date">
+              <FaCalendarAlt className={styles.inputIcon} /> Date *
+            </label>
+            <input
+              type="date"
+              id="date"
+              name="date"
+              value={formData.date}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          
+          <div className={styles.formGroup}>
+            <label htmlFor="location">
+              <FaMapMarkerAlt className={styles.inputIcon} /> Lieu *
+            </label>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleInputChange}
+              required
+              placeholder="Lieu de l'événement"
+            />
+          </div>
+        </div>
+        
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
+            <label htmlFor="image">
+              <FaImage className={styles.inputIcon} /> URL de l'image
+            </label>
+            <input
+              type="url"
+              id="image"
+              name="image"
+              value={formData.image}
+              onChange={handleInputChange}
+              placeholder="URL de l'image (optionnel)"
+            />
+          </div>
+          
+          <div className={styles.formGroup}>
+            <label htmlFor="max_participants">
+              <FaUsers className={styles.inputIcon} /> Nombre maximum de participants
+            </label>
+            <input
+              type="number"
+              id="max_participants"
+              name="max_participants"
+              value={formData.max_participants}
+              onChange={handleInputChange}
+              min="1"
+              max="1000"
+            />
+          </div>
+        </div>
+        
+        <div className={styles.formActions}>
+          <button 
+            type="button" 
+            className={styles.cancelButton}
+            onClick={() => navigate('/events')}
+          >
+            Annuler
+          </button>
+          <button 
+            type="submit" 
+            className={styles.submitButton}
+            disabled={loading}
+          >
+            {loading ? 'Création...' : (
+              <>
+                <FaCheck /> Créer l'événement
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 };
 
-export default EventCreate;
+export default CreateEvent;

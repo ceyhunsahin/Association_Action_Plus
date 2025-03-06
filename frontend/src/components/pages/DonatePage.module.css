@@ -1,0 +1,299 @@
+.donatePage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.donateHeader {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.donateHeader h1 {
+  font-size: 36px;
+  color: #5d4037;
+  margin-bottom: 15px;
+}
+
+.donateHeader p {
+  font-size: 18px;
+  color: #666;
+}
+
+.donateContent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+
+.donateOptions {
+  flex: 1;
+  min-width: 300px;
+  background-color: #f8f4e9;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.donateOptions h2 {
+  font-size: 24px;
+  color: #5d4037;
+  margin-bottom: 25px;
+}
+
+.donateAmounts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.donateAmount {
+  background-color: white;
+  border: 2px solid #c8a97e;
+  color: #5d4037;
+  padding: 12px;
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.donateAmount:hover, .donateAmount.active {
+  background-color: #c8a97e;
+  color: white;
+}
+
+.customAmount {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.customAmount label {
+  font-size: 16px;
+  color: #5d4037;
+}
+
+.customAmount input {
+  padding: 12px;
+  border: 2px solid #c8a97e;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.donateFrequency, .paymentMethods {
+  margin-bottom: 30px;
+}
+
+.donateFrequency h3, .paymentMethods h3 {
+  font-size: 18px;
+  color: #5d4037;
+  margin-bottom: 15px;
+}
+
+.frequencyOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.frequencyOptions label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.frequencyOptions input {
+  cursor: pointer;
+}
+
+.paymentOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.paymentOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: white;
+  border: 2px solid #c8a97e;
+  color: #5d4037;
+  padding: 12px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.paymentOption:hover, .paymentOption.active {
+  background-color: #c8a97e;
+  color: white;
+}
+
+.paymentOption svg {
+  font-size: 20px;
+}
+
+.bankDetails {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+.bankDetails h3 {
+  font-size: 18px;
+  color: #5d4037;
+  margin-bottom: 15px;
+}
+
+.bankInfo p {
+  margin-bottom: 10px;
+}
+
+.bankNote {
+  margin-top: 15px;
+  font-style: italic;
+  color: #666;
+}
+
+.donateButton {
+  width: 100%;
+  background-color: #c8a97e;
+  color: white;
+  padding: 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.donateButton:hover {
+  background-color: #b89669;
+}
+
+.donateInfo {
+  flex: 1;
+  min-width: 300px;
+}
+
+.donateInfo h2 {
+  font-size: 24px;
+  color: #5d4037;
+  margin-bottom: 20px;
+}
+
+.donateInfo p {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.donateInfo ul {
+  margin-bottom: 30px;
+  padding-left: 20px;
+}
+
+.donateInfo li {
+  margin-bottom: 10px;
+  color: #666;
+  line-height: 1.6;
+}
+
+.impactSection {
+  margin-bottom: 30px;
+}
+
+.impactItems {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.impactItem {
+  background-color: #f8f4e9;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.impactIcon {
+  font-size: 30px;
+  color: #c8a97e;
+  margin-bottom: 15px;
+}
+
+.impactItem h3 {
+  font-size: 22px;
+  color: #5d4037;
+  margin-bottom: 10px;
+}
+
+.impactItem p {
+  font-size: 14px;
+  margin-bottom: 0;
+}
+
+.taxInfo {
+  background-color: #f8f4e9;
+  padding: 20px;
+  border-radius: 10px;
+  border-left: 4px solid #c8a97e;
+  margin-bottom: 30px;
+}
+
+.taxInfo h3 {
+  font-size: 18px;
+  color: #5d4037;
+  margin-bottom: 10px;
+}
+
+.taxInfo p {
+  margin-bottom: 10px;
+}
+
+.testimonial {
+  background-color: #f8f4e9;
+  padding: 20px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.testimonial blockquote {
+  font-style: italic;
+  color: #5d4037;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0 0 15px 0;
+}
+
+.testimonial cite {
+  font-style: normal;
+  font-weight: 500;
+  color: #8d6e63;
+}
+
+@media (max-width: 768px) {
+  .donateContent {
+    flex-direction: column;
+  }
+  
+  .donateOptions, .donateInfo {
+    width: 100%;
+  }
+  
+  .impactItems {
+    grid-template-columns: 1fr;
+  }
+} 

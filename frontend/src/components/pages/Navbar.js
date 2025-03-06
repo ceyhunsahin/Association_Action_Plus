@@ -1,17 +1,24 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Navbar.module.css';
+import { FaUser, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaCalendarPlus } from 'react-icons/fa';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <nav className={styles.navbar}>
       <div className={styles.navbarBrand}>
-        <Link to="/" className={styles.brandText}>
-          ACTION PLUS
+        <Link to="/" className={styles.brandLogo}>
+          ACTION<span>PLUS</span>
         </Link>
       </div>
       <div className={styles.navLinks}>
@@ -24,9 +31,9 @@ const Navbar = () => {
         <Link to="/events" className={location.pathname === '/events' ? styles.activeLink : styles.navLink}>
           Événements
         </Link>
-        {user && user.role === 'admin' && (
-          <Link to="/create-event" className={location.pathname === '/create-event' ? styles.activeLink : styles.navLink}>
-            Créer un événement
+        {isAdmin && (
+          <Link to="/events/create" className={location.pathname === '/events/create' ? styles.activeLink : styles.navLink}>
+            <FaCalendarPlus /> Créer un événement
           </Link>
         )}
       </div>
@@ -34,19 +41,19 @@ const Navbar = () => {
         {user ? (
           <>
             <Link to="/profile" className={location.pathname === '/profile' ? styles.activeLink : styles.navLink}>
-              {user.firstName ? user.firstName.charAt(0) : 'P'}
+              <FaUser /> {user.username || 'Profil'}
             </Link>
-            <button onClick={logout} className={styles.logoutButton}>
-              Déconnexion
+            <button onClick={handleLogout} className={styles.logoutButton}>
+              <FaSignOutAlt /> Déconnexion
             </button>
           </>
         ) : (
           <>
             <Link to="/login" className={location.pathname === '/login' ? styles.activeLink : styles.navLink}>
-              Connexion
+              <FaSignInAlt /> Connexion
             </Link>
             <Link to="/register" className={location.pathname === '/register' ? styles.activeLink : styles.navLink}>
-              Inscription
+              <FaUserPlus /> Inscription
             </Link>
           </>
         )}

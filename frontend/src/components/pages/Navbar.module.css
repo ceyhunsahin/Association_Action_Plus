@@ -21,18 +21,23 @@
 .navbarBrand {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 /* Logo */
 .logo {
-  height: 60px;
+  height: 60px; /* Boyutu artırdık */
   width: auto;
-  border-radius: 5px;
+  border-radius: 8px; /* Köşeleri biraz daha yuvarladık */
   transition: transform 0.3s ease;
+  background-color: white; /* Beyaz arka plan ekledik */
+  padding: 5px; /* İçeride biraz boşluk bıraktık */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Belirginleştirmek için gölge ekledik */
 }
 
 .logo:hover {
   transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Hover durumunda gölgeyi artırdık */
 }
 
 /* Navbar linkleri */
@@ -174,4 +179,57 @@
 
 .brandText:hover {
   color: #c8a97e;
+}
+
+.logoEmoji {
+  font-size: 32px;
+  margin-right: 10px;
+  text-decoration: none;
+}
+
+.brandLogo {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #5d4037;
+  text-decoration: none;
+  letter-spacing: 1px;
+  transition: color 0.3s ease;
+  background-color: white;
+  padding: 5px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.brandLogo span {
+  color: #c8a97e;
+}
+
+.brandLogo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  margin-right: 15px;
+}
+
+.logoImage {
+  height: 50px;
+  max-width: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+  background-color: white;
+  padding: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.logoImage:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }

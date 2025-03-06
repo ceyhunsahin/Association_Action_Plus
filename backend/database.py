@@ -6,93 +6,125 @@ from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_db():
-    db_path = os.path.join(os.path.dirname(__file__), 'your_database.db')
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    return conn
+    try:
+        # Doğru veritabanı dosyasını kullandığımızdan emin olalım
+        db_path = 'database.db'
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        return conn
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        raise e
 
 def initialize_db():
-    db_path = os.path.join(os.path.dirname(__file__), 'your_database.db')
-    conn = sqlite3.connect(db_path)
+    conn = get_db()
     cursor = conn.cursor()
-
-    # users tablosunu oluştur veya güncelle
+    
+    # Tabloları temizle
+    cursor.execute("DROP TABLE IF EXISTS event_participants")
+    cursor.execute("DROP TABLE IF EXISTS events")
+    
+    # Users tablosu
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         firstName TEXT NOT NULL,
         lastName TEXT NOT NULL,
-        username TEXT NOT NULL,
-        email TEXT NOT NULL UNIQUE,
+        username TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
-        role TEXT NOT NULL DEFAULT 'user'  -- Varsayılan değer: 'user'
+        profileImage TEXT,
+        role TEXT DEFAULT 'user'
     )
     ''')
-
-    # Eğer users tablosu varsa ve role sütunu yoksa, ekle
-    cursor.execute("PRAGMA table_info(users)")
-    columns = cursor.fetchall()
-    column_names = [column[1] for column in columns]  # Sütun adlarını al
-
-    if 'role' not in column_names:
-        cursor.execute('ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT "user"')
-
+    
     # Events tablosu
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
-        date TEXT NOT NULL,
         description TEXT,
-        image TEXT
+        date TEXT NOT NULL,
+        location TEXT,
+        image TEXT,
+        max_participants INTEGER DEFAULT 50,
+        participant_count INTEGER DEFAULT 0,
+        created_by INTEGER,
+        FOREIGN KEY (created_by) REFERENCES users (id)
     )
     ''')
-
-    # User_events tablosu - user_email yerine user_id kullanacak şekilde güncellendi
+    
+    # Event participants tablosu
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS user_events (
+    CREATE TABLE IF NOT EXISTS event_participants (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
         event_id INTEGER NOT NULL,
-        FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
-        UNIQUE(user_id, event_id)
+        user_id INTEGER NOT NULL,
+        registration_date TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (event_id) REFERENCES events (id),
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        UNIQUE(event_id, user_id)
     )
     ''')
-
-    # Örnek etkinlikleri ekle
+    
+    # Örnek etkinlikler ekleyelim
     cursor.execute('''
     INSERT OR IGNORE INTO events (id, title, date, description, image)
     VALUES 
-        (1, 'Concert de musique traditionnelle', '2023-10-15', 'Un concert de musique traditionnelle avec des artistes locaux.', 'https://picsum.photos/1280/720'),
-        (2, 'Exposition d''art', '2023-11-01', 'Une exposition d''art contemporain.', 'https://picsum.photos/1280/720'),
-        (3, 'Atelier de peinture', '2023-12-10', 'Un atelier de peinture pour débutants.', 'https://picsum.photos/1280/720')
+        (1, 'Concert de musique traditionnelle', '2023-10-15', 'Un concert de musique traditionnelle avec des artistes locaux.', 'https://picsum.photos/800/400'),
+        (2, 'Exposition d''art', '2023-11-01', 'Une exposition d''art contemporain.', 'https://picsum.photos/800/400?random=1'),
+        (3, 'Atelier de peinture', '2023-12-10', 'Un atelier de peinture pour débutants.', 'https://picsum.photos/800/400?random=2')
     ''')
+    
+    conn.commit()
+    conn.close()
 
-    # Örnek admin kullanıcılarını ekle
-    admin_users = [
-        {
-            "firstName": "Admin",
-            "lastName": "User1",
-            "username": "admin1",
-            "email": "admin1@admin1",
-            "password": pwd_context.hash("admin"),  # Şifre hash'lendi
-            "role": "admin"  # Admin rolü belirtildi
-        },
-        {
-            "firstName": "Admin",
-            "lastName": "User2",
-            "username": "admin2",
-            "email": "admin2@admin2",
-            "password": pwd_context.hash("admin"),  # Şifre hash'lendi
-            "role": "admin"  # Admin rolü belirtildi
-        }
-    ]
-
-    for user in admin_users:
-        cursor.execute('''
-        INSERT OR IGNORE INTO users (firstName, lastName, username, email, password, role)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ''', (user["firstName"], user["lastName"], user["username"], user["email"], user["password"], user["role"]))
-
+def create_tables():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    
+    # Users tablosu
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        firstName TEXT NOT NULL,
+        lastName TEXT NOT NULL,
+        username TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        profileImage TEXT,
+        role TEXT DEFAULT 'user'
+    )
+    ''')
+    
+    # Events tablosu
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        date TEXT NOT NULL,
+        location TEXT,
+        image TEXT,
+        max_participants INTEGER DEFAULT 50,
+        participant_count INTEGER DEFAULT 0,
+        created_by INTEGER,
+        FOREIGN KEY (created_by) REFERENCES users (id)
+    )
+    ''')
+    
+    # Event participants tablosu
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS event_participants (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        registration_date TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (event_id) REFERENCES events (id),
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        UNIQUE(event_id, user_id)
+    )
+    ''')
+    
     conn.commit()
     conn.close()

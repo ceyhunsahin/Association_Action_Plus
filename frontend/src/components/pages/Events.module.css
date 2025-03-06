@@ -250,3 +250,401 @@
     background-color: #0056b3;
   }
 }
+
+.eventsContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 2rem;
+  text-align: center;
+  position: relative;
+}
+
+.title::after {
+  content: '';
+  display: block;
+  width: 100px;
+  height: 4px;
+  background-color: #007bff;
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}
+
+.adminActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 2rem;
+}
+
+.createButton {
+  background-color: #28a745;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.3s;
+  display: inline-flex;
+  align-items: center;
+}
+
+.createButton:hover {
+  background-color: #218838;
+}
+
+.noEvents {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #6c757d;
+  margin: 3rem 0;
+}
+
+/* Carousel Styles */
+.carouselContainer {
+  position: relative;
+  margin: 2rem 0 4rem;
+}
+
+.carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  gap: 1.5rem;
+  padding: 1rem 0.5rem;
+}
+
+.carousel::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.carouselButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+}
+
+.carouselButton:hover {
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.prevButton {
+  left: -20px;
+}
+
+.nextButton {
+  right: -20px;
+}
+
+.eventCard {
+  flex: 0 0 auto;
+  width: 350px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.eventCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.eventImageContainer {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.eventImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s;
+}
+
+.eventCard:hover .eventImage {
+  transform: scale(1.05);
+}
+
+.eventOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.eventCard:hover .eventOverlay {
+  opacity: 1;
+}
+
+.overlayButton {
+  background-color: #007bff;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.overlayButton:hover {
+  background-color: #0056b3;
+}
+
+.eventContent {
+  padding: 1.5rem;
+}
+
+.eventTitle {
+  font-size: 1.25rem;
+  margin: 0 0 0.75rem;
+  color: #333;
+}
+
+.eventMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.eventDate, .participants {
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  margin-right: 0.5rem;
+}
+
+.eventDescription {
+  color: #555;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.eventActions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.joinButton, .deleteButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.joinButton {
+  background-color: #28a745;
+  color: white;
+}
+
+.joinButton:hover {
+  background-color: #218838;
+}
+
+.joinButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.deleteButton {
+  background-color: #dc3545;
+  color: white;
+}
+
+.deleteButton:hover {
+  background-color: #c82333;
+}
+
+/* Upcoming Events List */
+.upcomingEvents {
+  margin-top: 4rem;
+}
+
+.sectionTitle {
+  font-size: 1.75rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.sectionTitle::after {
+  content: '';
+  display: block;
+  width: 70px;
+  height: 3px;
+  background-color: #007bff;
+  margin-top: 0.5rem;
+  border-radius: 2px;
+}
+
+.eventsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.eventListItem {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.eventListItem:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.eventThumbnail {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.eventListContent {
+  padding: 1rem;
+  background-color: white;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.eventListTitle {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+  color: #333;
+}
+
+.eventListDate, .eventListParticipants {
+  display: flex;
+  align-items: center;
+  color: #6c757d;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.detailsLink {
+  margin-top: auto;
+  align-self: flex-start;
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.detailsLink:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* Loading and Error States */
+.loading, .error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+}
+
+.loading {
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+.error {
+  color: #dc3545;
+}
+
+.retryButton {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.retryButton:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .carousel {
+    padding: 0.5rem;
+  }
+  
+  .carouselButton {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .prevButton {
+    left: -10px;
+  }
+  
+  .nextButton {
+    right: -10px;
+  }
+  
+  .eventCard {
+    width: 280px;
+  }
+  
+  .eventsList {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 2rem;
+  }
+  
+  .eventCard {
+    width: 260px;
+  }
+  
+  .eventsList {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,28 @@
+.footerLogo {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.footerLogoImage {
+  width: 120px;
+  height: auto;
+  margin-bottom: 10px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.footerTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #f8f4e9;
+  margin: 0;
+}
+
+.footerTagline {
+  color: #c8a97e;
+  font-style: italic;
+  margin-top: 5px;
+} 

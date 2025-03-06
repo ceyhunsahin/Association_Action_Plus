@@ -123,93 +123,144 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 80vh;
-  padding: 20px;
+  min-height: calc(100vh - 80px);
+  padding: 40px 20px;
+  background-color: #f9f9f9;
 }
 
 .registerForm {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 30px;
   width: 100%;
   max-width: 500px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  padding: 40px;
 }
 
 .title {
+  font-size: 28px;
+  color: #5d4037;
   text-align: center;
-  margin-bottom: 24px;
-  color: #333;
-  font-size: 24px;
-}
-
-.formRow {
-  display: flex;
-  gap: 15px;
-}
-
-.formGroup {
-  margin-bottom: 20px;
-  flex: 1;
-}
-
-.formGroup label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #555;
-}
-
-.input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
-}
-
-.registerButton {
-  width: 100%;
-  padding: 12px;
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.registerButton:hover {
-  background-color: #357abD;
-}
-
-.registerButton:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
+  margin-bottom: 30px;
 }
 
 .error {
   background-color: #ffebee;
   color: #c62828;
-  padding: 10px;
-  border-radius: 4px;
+  padding: 12px;
+  border-radius: 5px;
   margin-bottom: 20px;
-  text-align: center;
+  font-size: 14px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 16px;
+  color: #5d4037;
+  margin-bottom: 8px;
+}
+
+.formGroup input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.formGroup input:focus {
+  border-color: #c8a97e;
+  outline: none;
+}
+
+.submitButton {
+  width: 100%;
+  background-color: #c8a97e;
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submitButton:hover {
+  background-color: #b89669;
+}
+
+.submitButton:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #ddd;
+}
+
+.divider span {
+  padding: 0 10px;
+  color: #666;
+  font-size: 14px;
+}
+
+.googleButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  color: #333;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.googleButton:hover {
+  background-color: #f5f5f5;
 }
 
 .loginLink {
   text-align: center;
   margin-top: 20px;
+  font-size: 14px;
   color: #666;
 }
 
 .loginLink a {
-  color: #4a90e2;
+  color: #c8a97e;
   text-decoration: none;
   font-weight: 500;
 }
 
 .loginLink a:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .registerForm {
+    padding: 30px 20px;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
 }
