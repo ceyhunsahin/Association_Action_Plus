@@ -45,7 +45,7 @@ export const eventService = {
   joinEvent: (id) => api.post(`/events/${id}/join`),
   
   // Etkinlikten ayrıl
-  leaveEvent: (id) => api.post(`/events/${id}/leave`),
+  leaveEvent: (id) => api.post(`/events/${id}/register`),
 };
 
 // Kullanıcı profili için API fonksiyonları

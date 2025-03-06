@@ -87,7 +87,13 @@ def initialize_db():
     VALUES 
         (1, 'Concert de musique traditionnelle', '2023-10-15', 'Un concert de musique traditionnelle avec des artistes locaux.', 'https://picsum.photos/800/400'),
         (2, 'Exposition d''art', '2023-11-01', 'Une exposition d''art contemporain.', 'https://picsum.photos/800/400?random=1'),
-        (3, 'Atelier de peinture', '2023-12-10', 'Un atelier de peinture pour débutants.', 'https://picsum.photos/800/400?random=2')
+        (3, 'Atelier de peinture', '2023-12-10', 'Un atelier de peinture pour débutants.', 'https://picsum.photos/800/400?random=2'),
+        (4, 'Soirée littéraire', '2024-01-20', 'Une soirée dédiée à la littérature avec lectures de poèmes et discussions.', 'https://images.unsplash.com/photo-1505236858219-8359eb29e329'),
+        (5, 'Festival de danse folklorique', '2025-07-15', 'Un festival coloré célébrant les danses traditionnelles.', 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3'),
+        (6, 'Conférence culturelle', '2025-03-05', 'Une conférence sur l''histoire et l''évolution de notre patrimoine culturel.', 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622'),
+        (7, 'Atelier de cuisine traditionnelle', '2024-04-12', 'Apprenez à préparer des plats traditionnels avec nos chefs.', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819'),
+        (8, 'Projection de film documentaire', '2025-05-20', 'Projection d''un documentaire sur les traditions et l''héritage culturel.', 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4')
+        
     ''')
     
     conn.commit()
@@ -141,3 +147,7 @@ def create_tables(conn):
     
     conn.commit()
     print("Database tables created successfully")
+
+#if __name__ == "__main__":
+ #   initialize_db()
+#    print("Database initialized successfully")

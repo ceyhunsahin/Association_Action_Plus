@@ -211,79 +211,66 @@ const Events = () => {
         }
     };
 
-    // Etkinliğe katılma işlemi
-    const handleJoinEvent = async (eventId) => {
+    // Etkinliğe katılma veya ayrılma işlemi
+    const handleJoinEvent = async (event) => {
         if (!user) {
             navigate('/login');
             return;
         }
 
         try {
-            const response = await axios.post(
-                `http://localhost:8000/api/events/${eventId}/join`,
-                {},
-                {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
+            const eventId = event._id || event.id;
+            
+            // Kullanıcının zaten kayıtlı olup olmadığını kontrol et
+            const isRegistered = userEvents.some(e => 
+                String(e._id || e.id) === String(eventId)
+            );
+            
+            if (isRegistered) {
+                // Etkinlikten ayrıl
+                const response = await axios.delete(
+                    `http://localhost:8000/api/events/${eventId}/register`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        }
                     }
-                }
-            );
-            
-            console.log('Join event response:', response.data);
-            
-            // Etkinlik listesini ve kullanıcının etkinliklerini güncelle
-            fetchUserEvents();
-            
-            // Etkinlik listesini güncelle
-            setEvents(prevEvents => 
-                prevEvents.map(event => 
-                    event._id === eventId 
-                        ? { ...event, participants: [...(event.participants || []), user._id] } 
-                        : event
-                )
-            );
-            
-        } catch (error) {
-            console.error('Join event error:', error.response || error);
-        }
-    };
-
-    // Etkinlikten ayrılma işlemi
-    const handleLeaveEvent = async (eventId) => {
-        if (!user) return;
-
-        try {
-            const response = await axios.post(
-                `http://localhost:8000/api/events/${eventId}/leave`,
-                {},
-                {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
+                );
+                
+                console.log('Leave event response:', response.data);
+                
+                // Kullanıcının etkinliklerini güncelle
+                fetchUserEvents();
+                
+                alert('Vous vous êtes désinscrit de cet événement avec succès!');
+            } else {
+                // Etkinliğe katıl
+                const response = await axios.post(
+                    `http://localhost:8000/api/events/${eventId}/join`,
+                    {},
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json',
+                        }
                     }
-                }
-            );
-            
-            console.log('Leave event response:', response.data);
-            
-            // Etkinlik listesini ve kullanıcının etkinliklerini güncelle
-            fetchUserEvents();
-            
-            // Etkinlik listesini güncelle
-            setEvents(prevEvents => 
-                prevEvents.map(event => 
-                    event._id === eventId 
-                        ? { 
-                            ...event, 
-                            participants: (event.participants || []).filter(id => id !== user._id) 
-                          } 
-                        : event
-                )
-            );
-            
+                );
+                
+                console.log('Join event response:', response.data);
+                
+                // Kullanıcının etkinliklerini güncelle
+                fetchUserEvents();
+                
+                alert('Vous êtes inscrit à cet événement avec succès!');
+            }
         } catch (error) {
-            console.error('Leave event error:', error.response || error);
+            console.error('Event action error:', error.response || error);
+            
+            if (error.response && error.response.status === 400) {
+                alert('Vous êtes déjà inscrit à cet événement.');
+            } else {
+                alert('Erreur lors de l\'action sur l\'événement. Veuillez réessayer.');
+            }
         }
     };
 
@@ -335,6 +322,36 @@ const Events = () => {
         console.log("Tıklanan etkinlik:", event);
         console.log("Yönlendirme URL'i:", `/events/${event._id || event.id}`);
         // navigate(`/events/${event._id || event.id}`);
+    };
+
+    // Etkinlik kartlarında kullanılacak katılma butonu
+    const EventActionButton = ({ event }) => {
+        const isRegistered = userEvents.some(e => 
+            String(e._id || e.id) === String(event._id || event.id)
+        );
+        
+        return (
+            <button 
+                className={`${styles.actionButton} ${isRegistered ? styles.registeredButton : styles.registerButton}`}
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleJoinEvent(event);
+                }}
+            >
+                <div className={styles.buttonContent}>
+                    <span className={styles.buttonIcon}>
+                        {isRegistered ? '✓' : '+'}
+                    </span>
+                    <span className={styles.buttonText}>
+                        {isRegistered ? 'Inscrit' : 'Participer'}
+                    </span>
+                </div>
+                <div className={styles.buttonHoverText}>
+                    {isRegistered ? 'Se désinscrire' : 'S\'inscrire'}
+                </div>
+            </button>
+        );
     };
 
     if (loading) {
@@ -451,23 +468,7 @@ const Events = () => {
                                                 Voir les détails
                                             </Link>
                                             
-                                            {user && (
-                                                isUserJoined(event._id) ? (
-                                                    <button 
-                                                        className={styles.leaveButton}
-                                                        onClick={() => handleLeaveEvent(event._id)}
-                                                    >
-                                                        Se désinscrire
-                                                    </button>
-                                                ) : (
-                                                    <button 
-                                                        className={styles.joinButton}
-                                                        onClick={() => handleJoinEvent(event._id)}
-                                                    >
-                                                        S'inscrire
-                                                    </button>
-                                                )
-                                            )}
+                                            <EventActionButton event={event} />
                                         </div>
                                     </div>
                                 </div>

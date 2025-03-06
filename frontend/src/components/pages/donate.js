@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaHandHoldingHeart, FaRegCreditCard, FaPaypal, FaRegCheckCircle, FaSchool, FaBook, FaUsers, FaHeart } from 'react-icons/fa';
+import { FaHandHoldingHeart, FaRegCreditCard, FaPaypal, FaRegCheckCircle, FaSchool, FaBook, FaUsers, FaHeart, FaCreditCard as FaCreditCardIcon, FaUniversity, FaInfoCircle } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import styles from './Donate.module.css';
@@ -11,9 +11,12 @@ const Donate = () => {
   const [donationSuccess, setDonationSuccess] = useState(false);
   const [donationError, setDonationError] = useState('');
   const [donationHistory, setDonationHistory] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [paypalLoaded, setPaypalLoaded] = useState(false);
-  
+  const [donationAmount, setDonationAmount] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [bankInfo, setBankInfo] = useState({});
+
   // Bağış geçmişini getir
   const fetchDonationHistory = async () => {
     if (!currentUser || !currentUser.id) return;
@@ -138,6 +141,30 @@ const Donate = () => {
     }
   }, [amount, customAmount, currentUser, paypalLoaded]);
   
+  useEffect(() => {
+    // .env dosyasından banka bilgilerini al
+    const fetchBankInfo = async () => {
+      try {
+        // Doğrudan process.env'den değerleri alalım
+        const bankInfo = {
+          bankName: process.env.REACT_APP_BANK_NAME || 'Banque Nationale',
+          accountName: process.env.REACT_APP_ACCOUNT_NAME || 'Association Culturelle',
+          iban: process.env.REACT_APP_IBAN || 'FR76 XXXX XXXX XXXX XXXX XXXX XXX',
+          bic: process.env.REACT_APP_BIC || 'BNPAFRPPXXX',
+        };
+        
+        setBankInfo(bankInfo);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching bank info:', err);
+        setDonationError('Impossible de charger les informations bancaires');
+        setLoading(false);
+      }
+    };
+
+    fetchBankInfo();
+  }, []);
+  
   const handleAmountSelect = (selectedAmount) => {
     setAmount(selectedAmount);
     setCustomAmount('');
@@ -181,12 +208,45 @@ const Donate = () => {
       }
     }, 1500);
   };
-  
+
+  const handleAmountChange = (e) => {
+    setDonationAmount(e.target.value);
+  };
+
+  const handlePaymentMethodChange = (method) => {
+    setPaymentMethod(method);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    // Bağış işlemi için gerekli kodlar
+    console.log('Donation amount:', donationAmount);
+    console.log('Payment method:', paymentMethod);
+    
+    // Burada gerçek ödeme işlemi yapılacak
+    alert(`Merci pour votre don de ${donationAmount}€ ! Votre soutien est précieux.`);
+    
+    // Formu sıfırla
+    setDonationAmount('');
+  };
+
+  if (loading) {
+    return <div className={styles.loading}>Chargement...</div>;
+  }
+
+  if (donationError) {
+    return <div className={styles.error}>{donationError}</div>;
+  }
+
   return (
-    <div className={styles.donateContainer}>
-      <div className={styles.donateHeader}>
-        <h1>Soutenez notre association</h1>
-        <p>Votre don nous aide à continuer notre mission de préservation et de promotion de la culture.</p>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <FaHandHoldingHeart className={styles.icon} />
+        <h1>Faire un don</h1>
+        <p className={styles.subtitle}>
+          Votre soutien nous aide à continuer notre mission de préservation et de promotion de notre patrimoine culturel.
+        </p>
       </div>
       
       {donationSuccess && (
@@ -201,151 +261,102 @@ const Donate = () => {
         </div>
       )}
       
-      <div className={styles.donateContent}>
-        <div className={styles.donateInfo}>
-          <h2><FaHandHoldingHeart /> Pourquoi faire un don ?</h2>
+      <div className={styles.content}>
+        <div className={styles.donationInfo}>
+          <h2>Pourquoi faire un don ?</h2>
           <p>
-            Votre soutien financier est essentiel pour nous permettre de continuer à organiser des événements culturels, 
-            des ateliers éducatifs et des programmes de sensibilisation à la culture.
+            Vos dons nous permettent de :
           </p>
-          
-          <div className={styles.impactSection}>
-            <h3>Votre impact</h3>
-            <div className={styles.impactItems}>
-              <div className={styles.impactItem}>
-                <div className={styles.impactIcon}><FaSchool /></div>
-                <h4>Éducation</h4>
-                <p>Financer des ateliers et des programmes éducatifs pour les jeunes</p>
-              </div>
-              <div className={styles.impactItem}>
-                <div className={styles.impactIcon}><FaBook /></div>
-                <h4>Préservation</h4>
-                <p>Aider à préserver et documenter notre patrimoine culturel</p>
-              </div>
-              <div className={styles.impactItem}>
-                <div className={styles.impactIcon}><FaUsers /></div>
-                <h4>Communauté</h4>
-                <p>Soutenir les événements communautaires et les célébrations culturelles</p>
-              </div>
-            </div>
-          </div>
+          <ul>
+            <li>Organiser des événements culturels pour la communauté</li>
+            <li>Soutenir les artistes et artisans locaux</li>
+            <li>Préserver notre patrimoine culturel pour les générations futures</li>
+            <li>Offrir des programmes éducatifs pour les jeunes</li>
+          </ul>
           
           <div className={styles.taxInfo}>
-            <h3>Avantages fiscaux</h3>
+            <FaInfoCircle />
             <p>
-              Votre don peut être déductible des impôts. Vous recevrez un reçu fiscal pour tout don supérieur à 20€.
+              Vos dons peuvent être déductibles d'impôts. Un reçu fiscal vous sera envoyé pour tout don supérieur à 20€.
             </p>
           </div>
         </div>
         
-        <div className={styles.donateForm}>
-          {donationSuccess ? (
-            <div className={styles.thankYouMessage}>
-              <FaRegCheckCircle size={50} />
-              <h2>Merci pour votre générosité !</h2>
-              <p>Votre don nous aidera à continuer notre mission.</p>
-              <button 
-                className={styles.newDonationButton}
-                onClick={() => setDonationSuccess(false)}
-              >
-                Faire un autre don
-              </button>
-            </div>
-          ) : (
-            <>
-              <h2><FaHeart /> Faire un don maintenant</h2>
-              
-              <div className={styles.amountSelector}>
-                <h3>Choisissez un montant</h3>
-                <div className={styles.amountOptions}>
-                  <button 
-                    className={`${styles.amountButton} ${amount === '10' ? styles.selected : ''}`}
-                    onClick={() => handleAmountSelect('10')}
-                  >
-                    10€
-                  </button>
-                  <button 
-                    className={`${styles.amountButton} ${amount === '25' ? styles.selected : ''}`}
-                    onClick={() => handleAmountSelect('25')}
-                  >
-                    25€
-                  </button>
-                  <button 
-                    className={`${styles.amountButton} ${amount === '50' ? styles.selected : ''}`}
-                    onClick={() => handleAmountSelect('50')}
-                  >
-                    50€
-                  </button>
-                  <button 
-                    className={`${styles.amountButton} ${amount === '100' ? styles.selected : ''}`}
-                    onClick={() => handleAmountSelect('100')}
-                  >
-                    100€
-                  </button>
-                  <button 
-                    className={`${styles.amountButton} ${amount === 'custom' ? styles.selected : ''}`}
-                    onClick={() => handleAmountSelect('custom')}
-                  >
-                    Autre
-                  </button>
-                </div>
-                
-                {amount === 'custom' && (
-                  <div className={styles.customAmount}>
-                    <label htmlFor="customAmount">Montant personnalisé (€)</label>
-                    <input
-                      type="text"
-                      id="customAmount"
-                      value={customAmount}
-                      onChange={handleCustomAmountChange}
-                      placeholder="Entrez un montant"
-                    />
-                  </div>
-                )}
-              </div>
-              
-              <div className={styles.paymentMethods}>
-                <h3>Choisissez votre méthode de paiement</h3>
-                
-                <div className={styles.paymentButtons}>
-                  <div className={styles.paymentOption}>
-                    <h4><FaPaypal /> PayPal</h4>
-                    <p>Sécurisé et rapide, pas besoin de compte PayPal</p>
-                    <div id="paypal-button-container">
-                      <button 
-                        className={styles.paypalButton}
-                        onClick={handleDonation}
-                      >
-                        <FaPaypal /> Payer avec PayPal
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className={styles.paymentOption}>
-                    <h4><FaRegCreditCard /> Carte bancaire</h4>
-                    <p>Paiement sécurisé par carte de crédit/débit</p>
-                    <div id="card-button-container">
-                      <button 
-                        className={styles.cardButton}
-                        onClick={handleDonation}
-                      >
-                        <FaRegCreditCard /> Payer par carte
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
+        <div className={styles.donationForm}>
+          <h2>Faire un don maintenant</h2>
           
-          <div className={styles.securityInfo}>
-            <p>
-              <small>
-                Toutes les transactions sont sécurisées et cryptées. 
-                Nous ne stockons pas vos informations de carte de crédit.
-              </small>
-            </p>
+          <div className={styles.paymentMethods}>
+            <button 
+              className={`${styles.methodButton} ${paymentMethod === 'card' ? styles.active : ''}`}
+              onClick={() => handlePaymentMethodChange('card')}
+            >
+              <FaCreditCardIcon />
+              <span>Carte bancaire</span>
+            </button>
+            <button 
+              className={`${styles.methodButton} ${paymentMethod === 'bank' ? styles.active : ''}`}
+              onClick={() => handlePaymentMethodChange('bank')}
+            >
+              <FaUniversity />
+              <span>Virement bancaire</span>
+            </button>
           </div>
+          
+          {paymentMethod === 'card' ? (
+            <form onSubmit={handleSubmit} className={styles.form}>
+              <div className={styles.formGroup}>
+                <label htmlFor="amount">Montant du don (€)</label>
+                <input 
+                  type="number" 
+                  id="amount" 
+                  value={donationAmount} 
+                  onChange={handleAmountChange}
+                  min="1"
+                  required
+                  placeholder="Entrez le montant"
+                />
+              </div>
+              
+              <div className={styles.presetAmounts}>
+                <button type="button" onClick={() => setDonationAmount('10')}>10€</button>
+                <button type="button" onClick={() => setDonationAmount('20')}>20€</button>
+                <button type="button" onClick={() => setDonationAmount('50')}>50€</button>
+                <button type="button" onClick={() => setDonationAmount('100')}>100€</button>
+              </div>
+              
+              <button type="submit" className={styles.submitButton}>
+                Faire un don
+              </button>
+            </form>
+          ) : (
+            <div className={styles.bankTransferInfo}>
+              <h3>Coordonnées bancaires</h3>
+              <p>Pour effectuer un virement bancaire, veuillez utiliser les informations suivantes :</p>
+              
+              <div className={styles.bankDetails}>
+                <div className={styles.bankDetail}>
+                  <span className={styles.label}>Banque :</span>
+                  <span className={styles.value}>{bankInfo.bankName}</span>
+                </div>
+                <div className={styles.bankDetail}>
+                  <span className={styles.label}>Titulaire du compte :</span>
+                  <span className={styles.value}>{bankInfo.accountName}</span>
+                </div>
+                <div className={styles.bankDetail}>
+                  <span className={styles.label}>IBAN :</span>
+                  <span className={styles.value}>{bankInfo.iban}</span>
+                </div>
+                <div className={styles.bankDetail}>
+                  <span className={styles.label}>BIC/SWIFT :</span>
+                  <span className={styles.value}>{bankInfo.bic}</span>
+                </div>
+              </div>
+              
+              <p className={styles.bankTransferNote}>
+                Veuillez indiquer "Don" et votre nom dans la référence du virement pour nous permettre d'identifier votre don.
+              </p>
+            </div>
+          )}
         </div>
       </div>
       

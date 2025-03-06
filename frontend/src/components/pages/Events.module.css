@@ -12,53 +12,67 @@
     gap: 1rem; /* Kartlar arası boşluk */
   }
   
-  /* Etkinlik kartı stil */
+  /* Etkinlik kartı stil - Tüm kartlar için standart boyut */
   .eventCard {
     flex: 0 0 auto;
-    width: 350px; /* Kart genişliğini artır - Tous les événements kartlarıyla aynı genişlikte */
-    min-width: 350px; /* Minimum genişliği de artır */
-    max-width: 100%; /* Mobil görünümde taşmayı önle */
-    border-radius: 8px;
+    width: 350px;
+    min-width: 350px;
+    max-width: 100%;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     background-color: white;
     margin: 0.5rem 0;
-    height: 450px; /* Sabit bir yükseklik belirle */
+    height: 520px; /* Kartın yüksekliğini biraz daha artıralım */
     display: flex;
     flex-direction: column;
   }
   
-  .eventCard:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  /* Etkinlik resmi container */
+  .eventImageContainer {
+    position: relative;
+    overflow: hidden;
+    height: 280px; /* Resim konteynerinin yüksekliğini daha da artıralım */
   }
   
   /* Etkinlik resmi stil */
   .eventImage {
     width: 100%;
-    height: 70%; /* Resim yüksekliği kartın %70'i kadar */
-    object-fit: cover; /* Resmi kartın boyutuna sığdır */
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  /* Hover efekti - resmi büyüt */
+  .eventCard:hover .eventImage {
+    transform: scale(1.05);
   }
   
   /* Etkinlik içerik stil */
   .eventContent {
     padding: 1.5rem;
-    flex-grow: 1; /* İçeriğin kartın geri kalanını doldurmasını sağla */
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background-color: rgba(245, 245, 245, 0.9); /* Hafif gri ve şeffaf arka plan */
-    border-top: 1px solid rgba(0, 0, 0, 0.1); /* Üst kısma ince bir çizgi ekleyin */
+    background-color: rgba(245, 245, 245, 0.9);
   }
   
   /* Etkinlik başlığı stil */
   .eventTitle {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     font-weight: bold;
     color: #333;
-    margin-bottom: 0.5rem;
-    font-family: 'Poppins', sans-serif; 
+    margin-bottom: 0.8rem;
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.3;
+    /* Başlık uzunluğunu sınırla */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 2.6em;
   }
   
   /* Etkinlik tarihi stil */
@@ -66,6 +80,21 @@
     font-size: 1rem;
     color: #666;
     font-family: 'Poppins', sans-serif; 
+  }
+  
+  /* Etkinlik açıklaması stil */
+  .eventDescription {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    flex-grow: 1;
+    /* Açıklama uzunluğunu sınırla */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 4.5em;
   }
   
   /* Link stil */
@@ -173,18 +202,75 @@
 }
 
 .joinButton {
-  background-color: #007bff;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  font-size: 1.2rem;
 }
 
 .joinButton:hover {
-  background-color: #0056b3;
+  transform: scale(1.15);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #5d4037 0%, #c8a97e 100%);
 }
+
+/* Kayıtlı etkinlik için farklı stil */
+.joinedButton {
+  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+}
+
+.joinedButton:hover {
+  background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+}
+
+/* Tooltip stil - düzeltilmiş */
+.joinButtonTooltip {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.joinButton:hover .joinButtonTooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Tooltip ok */
+.joinButtonTooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+}
+
 .deleteButton {
   margin-top: 1rem;
   padding: 0.5rem 1rem;
@@ -305,16 +391,20 @@
 
 .carousel {
   display: flex;
+  gap: 1.5rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none; /* Firefox için scrollbar'ı gizle */
   -ms-overflow-style: none; /* IE ve Edge için scrollbar'ı gizle */
-  gap: 1.5rem;
   padding: 1rem 0;
 }
 
 .carousel::-webkit-scrollbar {
   display: none; /* Chrome, Safari ve Opera için scrollbar'ı gizle */
+}
+
+.carousel > * {
+  scroll-snap-align: start;
 }
 
 /* Yaratıcı ok butonları */
@@ -517,20 +607,6 @@
   transform: scaleX(1);
 }
 
-/* Etkinlik resmi container */
-.eventImageContainer {
-  position: relative;
-  overflow: hidden;
-}
-
-.eventImage {
-  transition: transform 0.5s ease;
-}
-
-.eventCard:hover .eventImage {
-  transform: scale(1.05);
-}
-
 /* Etkinlik tarihi stil */
 .eventDate {
   position: absolute;
@@ -664,4 +740,117 @@
   .carouselContainer {
     padding: 0 30px;
   }
+}
+
+/* Yaratıcı Katıl/Ayrıl Butonu Stilleri */
+.actionButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 30px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+  width: 120px;
+  height: 40px;
+}
+
+.registerButton {
+  background: linear-gradient(135deg, #4a90e2, #5637d9);
+  color: white;
+}
+
+.registeredButton {
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: white;
+}
+
+.buttonContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.3s ease;
+}
+
+.buttonIcon {
+  font-size: 18px;
+}
+
+.buttonText {
+  font-size: 14px;
+}
+
+.buttonHoverText {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  font-size: 14px;
+}
+
+.actionButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15);
+}
+
+.actionButton:hover .buttonContent {
+  transform: translateY(-100%);
+}
+
+.actionButton:hover .buttonHoverText {
+  transform: translateY(0);
+}
+
+.actionButton:active {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Animasyon efekti */
+.actionButton::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.actionButton:hover::after {
+  animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(20, 20);
+    opacity: 0;
+  }
+}
+
+.eventActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
 }
