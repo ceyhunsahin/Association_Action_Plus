@@ -25,6 +25,7 @@ const Events = () => {
 
     // Tüm etkinlikleri çek - Component mount olduğunda çalışır
     useEffect(() => {
+        console.log('Events component mounted');
         const fetchEvents = async () => {
             try {
                 console.log('Fetching events...');
@@ -45,31 +46,31 @@ const Events = () => {
                 twoYearsAgo.setFullYear(today.getFullYear() - 2);
                 
                 // Etkinlikleri gelecek ve geçmiş olarak ayır
-                const upcoming = [];
-                const past = [];
-                
-                // Mock veri ekleyelim (gerçek API'dan gelen veriye ek olarak)
-                const mockEvents = generateMockEvents(15);
-                const allEvents = [...data, ...mockEvents];
-                
-                allEvents.forEach(event => {
+                const upcoming = data.filter(event => {
                     const eventDate = new Date(event.date);
-                    
-                    if (eventDate >= today) {
-                        // Gelecek etkinlikler
-                        upcoming.push(event);
-                    } else if (eventDate >= twoYearsAgo) {
-                        // Son 2 yıldaki geçmiş etkinlikler
-                        past.push(event);
-                    }
+                    return eventDate >= today;
+                });
+
+                const past = data.filter(event => {
+                    const eventDate = new Date(event.date);
+                    return eventDate < today && eventDate >= twoYearsAgo;
                 });
                 
                 // Gelecek etkinlikleri tarihe göre sırala (yakın tarihli önce)
-                upcoming.sort((a, b) => new Date(a.date) - new Date(b.date));
+                upcoming.sort((a, b) => {
+                    const dateA = new Date(a.date);
+                    const dateB = new Date(b.date);
+                    return dateA - dateB;
+                });
+                console.log('Yaklaşan etkinlikler:', upcoming);
                 
                 // Geçmiş etkinlikleri tarihe göre sırala (yakın tarihli önce)
-                past.sort((a, b) => new Date(b.date) - new Date(a.date));
-                
+                past.sort((a, b) => {
+                    const dateA = new Date(a.date);
+                    const dateB = new Date(b.date);
+                    return dateB - dateA;
+                });
+                console.log('Geçmiş etkinlikler:', past);
                 setUpcomingEvents(upcoming);
                 setPastEvents(past);
             } catch (err) {
@@ -81,68 +82,6 @@ const Events = () => {
 
         fetchEvents();
     }, []);
-
-    // Mock etkinlikler oluştur
-    const generateMockEvents = (count) => {
-        const mockEvents = [];
-        const eventTypes = [
-            'Conférence culturelle',
-            'Exposition d\'art',
-            'Concert de musique traditionnelle',
-            'Atelier de cuisine',
-            'Projection de film',
-            'Soirée littéraire',
-            'Danse folklorique',
-            'Célébration festive'
-        ];
-        
-        const locations = [
-            'Centre culturel, Paris',
-            'Salle des fêtes, Lyon',
-            'Espace communautaire, Marseille',
-            'Maison des associations, Bordeaux',
-            'Galerie d\'art, Strasbourg',
-            'Théâtre municipal, Lille',
-            'Bibliothèque centrale, Toulouse'
-        ];
-        
-        const images = [
-            'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1169&q=80',
-            'https://images.unsplash.com/photo-1523580494863-6f3031224c94?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
-            'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80',
-            'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1169&q=80',
-            'https://images.unsplash.com/photo-1505236858219-8359eb29e329?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1262&q=80',
-            'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1169&q=80'
-        ];
-        
-        for (let i = 0; i < count; i++) {
-            // Rastgele tarih oluştur (geçmiş veya gelecek)
-            const randomDate = new Date();
-            // -24 ile +24 ay arasında rastgele bir tarih
-            randomDate.setMonth(randomDate.getMonth() + Math.floor(Math.random() * 48) - 24);
-            
-            const eventType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
-            const location = locations[Math.floor(Math.random() * locations.length)];
-            const image = images[Math.floor(Math.random() * images.length)];
-            
-            mockEvents.push({
-                _id: `mock-event-${i}`,
-                id: `mock-event-${i}`,
-                title: `${eventType} #${i+1}`,
-                description: `Une expérience culturelle unique qui vous permettra de découvrir les traditions et coutumes de notre communauté. Rejoignez-nous pour un moment de partage et d'échange culturel.`,
-                date: randomDate.toISOString(),
-                time: `${Math.floor(Math.random() * 12) + 10}:${Math.random() > 0.5 ? '00' : '30'}`,
-                location: location,
-                image: image,
-                participants: Math.floor(Math.random() * 50) + 10,
-                maxParticipants: 100,
-                isFeatured: Math.random() > 0.7
-            });
-        }
-        
-        return mockEvents;
-    };
-
     // fetchUserEvents fonksiyonunu useCallback ile tanımlayalım
     const fetchUserEvents = useCallback(async () => {
         if (!accessToken || !user) return;
@@ -468,7 +407,7 @@ const Events = () => {
                                                 Voir les détails
                                             </Link>
                                             
-                                            <EventActionButton event={event} />
+                                            {(user || isAdmin) && <EventActionButton event={event} />}
                                         </div>
                                     </div>
                                 </div>

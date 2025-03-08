@@ -148,6 +148,6 @@ def create_tables(conn):
     conn.commit()
     print("Database tables created successfully")
 
-#if __name__ == "__main__":
- #   initialize_db()
+#   if __name__ == "__main__":
+#    initialize_db()
 #    print("Database initialized successfully")

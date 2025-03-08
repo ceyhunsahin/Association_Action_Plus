@@ -662,9 +662,9 @@
 
 /* Etkinlik buton stil */
 .eventButton {
-  display: inline-block;
-  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
-  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 8px 16px;
   border-radius: 30px;
   text-decoration: none;
@@ -676,6 +676,8 @@
   position: relative;
   overflow: hidden;
   z-index: 1;
+  margin: 0;
+  vertical-align: middle;
 }
 
 .eventButton::before {
@@ -744,6 +746,8 @@
 
 /* Yaratıcı Katıl/Ayrıl Butonu Stilleri */
 .actionButton {
+  margin: 0;
+  vertical-align: middle;
   position: relative;
   display: flex;
   align-items: center;
@@ -756,7 +760,6 @@
   overflow: hidden;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-top: 10px;
   width: 120px;
   height: 40px;
 }
@@ -853,4 +856,14 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 15px;
+}
+
+/* Tüm butonlar için ortak stil */
+.eventActions button,
+.eventActions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px; /* Sabit yükseklik */
+  vertical-align: middle; /* Dikey hizalama */
 }
