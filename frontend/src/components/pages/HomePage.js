@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import styles from './HomePage.module.css';
 import { Helmet } from 'react-helmet';
-import { FaCalendarAlt, FaUsers, FaGlobeAmericas } from 'react-icons/fa';
+import { FaCalendarAlt, FaUsers, FaGlobeAmericas, FaMapMarkerAlt, FaArrowRight } from 'react-icons/fa';
 
 const HomePage = () => {
   const [latestEvents, setLatestEvents] = useState([]);
@@ -48,35 +48,66 @@ const HomePage = () => {
       </Helmet>
       
       <div className={styles.homepage}>
-        {/* Hero Section */}
-        <div
-          className={styles.heroSection}
-          style={{ 
-            backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80')",
-            backgroundColor: "rgba(0, 0, 0, 0.2)"
-          }}
-        >
-          <div className={styles.heroContent}>
-            <div className={styles.logoWrapper}>
-              <img src="/logo.svg" alt="Action Plus Logo" className={styles.heroLogo} />
+        {/* Hero Section - Yeniden Tasarlandı */}
+        <div className={styles.heroSection}>
+          <div className={styles.heroBackground}>
+            <div className={styles.heroBackgroundOverlay}></div>
+            <div className={styles.heroBackgroundImage}></div>
+            <div className={styles.heroParticles}>
+              {Array(20).fill().map((_, i) => (
+                <div key={i} className={styles.particle}></div>
+              ))}
             </div>
-            <h1 className={styles.heroTitle}>ACTION PLUS</h1>
-            <p className={styles.heroSubtitle}>
-              Promouvoir le dialogue interculturel, renforcer les liens sociaux et favoriser une société inclusive.
-            </p>
-            <div className={styles.heroButtons}>
-              <Link
-                to="/events"
-                className={styles.heroButton}
-              >
-                Découvrir nos activités
+          </div>
+          
+          <div className={styles.heroContentWrapper}>
+            <div className={styles.heroContent}>
+              <div className={styles.heroLogoContainer}>
+                <img 
+                  src="logo.svg" 
+                  alt="Action Plus Logo" 
+                  className={styles.heroLogo} 
+                />
+                <div className={styles.logoGlow}></div>
+              </div>
+              
+              <h1 className={styles.heroTitle}>
+                <span className={styles.titleFirstLetter}>A</span>CTION 
+                <span className={styles.titleSpacer}></span>
+                <span className={styles.titleFirstLetter}>P</span>LUS
+              </h1>
+              
+              <div className={styles.heroTaglineContainer}>
+                <p className={styles.heroTagline}>
+                  <span className={styles.taglineWord}>Dialogue</span>
+                  <span className={styles.taglineWord}>Diversité</span>
+                  <span className={styles.taglineWord}>Inclusion</span>
+                </p>
+              </div>
+              
+              <p className={styles.heroDescription}>
+                <span className={styles.descriptionPhrase}>Promouvoir le dialogue interculturel</span>
+                <span className={styles.descriptionDivider}></span>
+                <span className={styles.descriptionPhrase}>Renforcer les liens sociaux</span>
+                <span className={styles.descriptionDivider}></span>
+                <span className={styles.descriptionPhrase}>Favoriser une société inclusive</span>
+              </p>
+            </div>
+            
+            <div className={styles.heroButtonsContainer}>
+              <Link to="/events" className={styles.primaryButton}>
+                <span className={styles.buttonText}>Découvrir nos activités</span>
+                <span className={styles.buttonIcon}>→</span>
               </Link>
-              <Link
-                to="/donation"
-                className={styles.heroDonateButton}
-              >
-                Faire un don
+              <Link to="/donation" className={styles.secondaryButton}>
+                <span className={styles.buttonText}>Faire un don</span>
+                <span className={styles.buttonGlow}></span>
               </Link>
+            </div>
+            
+            <div className={styles.heroScrollIndicator}>
+              <div className={styles.scrollArrow}></div>
+              <p className={styles.scrollText}>Découvrir</p>
             </div>
           </div>
         </div>
@@ -112,44 +143,57 @@ const HomePage = () => {
 
         {/* Prochains Événements Section */}
         <section className={styles.eventsSection}>
-          <h2 className={styles.sectionTitle}>Prochains Événements</h2>
-          <div className={styles.sectionSubtitle}>Découvrez nos activités à venir</div>
+          <div className={styles.eventsSectionHeader}>
+            <h2 className={styles.sectionTitle}>Prochains Événements</h2>
+            <div className={styles.sectionSubtitle}>Découvrez nos activités à venir</div>
+          </div>
           
           {loading ? (
             <div className={styles.loading}>Chargement des événements...</div>
           ) : error ? (
             <div className={styles.error}>{error}</div>
           ) : (
-            <div className={styles.eventCards}>
-              {latestEvents.map(event => (
-                <div key={event.id} className={styles.eventCard}>
-                  <div 
-                    className={styles.eventImage}
-                    style={{ backgroundImage: `url(${event.image || 'https://via.placeholder.com/300x200?text=Action+Plus'})` }}
-                  ></div>
-                  <div className={styles.eventContent}>
-                    <h3 className={styles.eventTitle}>{event.title}</h3>
-                    <p className={styles.eventDescription}>{event.description.substring(0, 100)}...</p>
-                    <div className={styles.eventMeta}>
-                      <div className={styles.eventDate}>
+            <div className={styles.eventsContainer}>
+              <div className={styles.eventCards}>
+                {latestEvents.map(event => (
+                  <div key={event.id} className={styles.eventCard}>
+                    <div className={styles.eventCardImageContainer}>
+                      <img 
+                        src={event.image || 'https://via.placeholder.com/300x200?text=Action+Plus'} 
+                        alt={event.title}
+                        className={styles.eventCardImage}
+                      />
+                      <div className={styles.eventCardDate}>
                         <FaCalendarAlt />
                         <span>{formatDate(event.date)}</span>
                       </div>
-                      <Link to={`/events/${event.id}`} className={styles.eventLink}>
-                        En savoir plus
-                      </Link>
+                    </div>
+                    <div className={styles.eventCardContent}>
+                      <span className={styles.eventCardCategory}>Événement culturel</span>
+                      <h3 className={styles.eventCardTitle}>{event.title}</h3>
+                      <p className={styles.eventCardDescription}>
+                        {event.description.substring(0, 100)}...
+                      </p>
+                      <div className={styles.eventCardFooter}>
+                        <div className={styles.eventCardLocation}>
+                          <FaMapMarkerAlt />
+                          <span>{event.location || 'Paris'}</span>
+                        </div>
+                        <Link to={`/events/${event.id}`} className={styles.eventCardButton}>
+                          En savoir plus
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              
+              <Link to="/events" className={styles.viewAllEventsButton}>
+                Voir tous les événements
+                <FaArrowRight />
+              </Link>
             </div>
           )}
-          
-          <div className={styles.viewAllContainer}>
-            <Link to="/events" className={styles.viewAllButton}>
-              Voir tous les événements
-            </Link>
-          </div>
         </section>
 
         {/* Témoignages Section */}

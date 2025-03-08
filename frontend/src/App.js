@@ -22,6 +22,7 @@ import Confidentialite from './components/pages/Confidentialite';
 import Conditions from './components/pages/Conditions';
 import MentionsLegales from './components/pages/MentionsLegales';
 import Contact from './components/pages/Contact';
+import ForgotPassword from './components/pages/ForgotPassword';
 import './App.css';
 
 function App() {
@@ -64,6 +65,9 @@ function App() {
             
             {/* Contact sayfası */}
             <Route path="/contact" element={<Contact />} />
+            
+            {/* Forgot Password sayfası */}
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             
             {/* 404 sayfası */}
             <Route path="*" element={<NotFoundPage />} />

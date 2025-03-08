@@ -1,293 +1,671 @@
-/* Google Fonts'tan yazı tipi ekleyin */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Poppins:wght@300;400;500;600&family=Montserrat:wght@400;500;600;700&display=swap');
+/* ACTION+ Yaratıcı Navbar Tasarımı - Yeniden Düzenlenmiş */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap');
 
-/* Navbar ana container */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.8rem 2.5rem;
-  background: linear-gradient(to right, #5d4037, #6d4c41);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-  height: 75px;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  border-bottom: 3px solid #4e342e;
+:root {
+  --primary: #c8a97e;
+  --primary-light: #e0c9a6;
+  --primary-dark: #b89669;
+  --secondary: #5d4037;
+  --secondary-light: #8d6e63;
+  --secondary-dark: #4e342e;
+  --accent: #ff9800;
+  --text-light: #ffffff;
+  --text-dark: #333333;
+  --background: rgba(93, 64, 55, 0.95);
 }
 
-/* Logo */
+/* Navbar Ana Konteyner */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(93, 64, 55, 0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(200, 169, 126, 0.3);
+  height: 80px;
+}
+
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
+  background-size: 200% 100%;
+  animation: gradientMove 3s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Navbar İçerik Konteyneri */
+.navbarContainer {
+  display: flex;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  height: 100%;
+}
+
+/* Sol Bölüm - Logo */
+.logoSection {
+  flex: 0 0 25%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100%;
+}
+
+/* Orta Bölüm - Navigasyon */
+.navSection {
+  flex: 0 0 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+/* Sağ Bölüm - Kimlik Doğrulama */
+.authSection {
+  flex: 0 0 25%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+}
+
+/* Logo Tasarımı İyileştirmesi */
 .logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 28px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 38px;
   font-weight: 700;
   color: #ffffff;
   text-decoration: none;
-  letter-spacing: 1px;
-  transition: all 0.3s ease;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  position: relative;
+  display: inline-block;
+  transition: all 0.4s ease;
+  padding: 0.3rem 0.5rem;
+  background: linear-gradient(45deg, rgba(200, 169, 126, 0.1), rgba(255, 152, 0, 0.1));
+  border-radius: 8px;
+}
+
+.logo::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(200, 169, 126, 0.1);
+  border-radius: 8px;
+  transform: skewX(-8deg);
+  z-index: -1;
+  transition: all 0.4s ease;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .logo span {
-  color: #c8a97e;
+  font-family: 'Cinzel', serif;
+  color: var(--primary);
   font-style: italic;
+  font-size: 44px;
+  position: relative;
+  display: inline-block;
+  transition: all 0.4s ease;
+  margin-left: -2px;
+  top: 2px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }
 
 .logo:hover {
-  transform: translateY(-2px);
-  color: #f5f5f5;
+  transform: translateY(-3px);
+  color: var(--primary-light);
+  text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
 }
 
-/* Navbar linkleri */
+.logo:hover::before {
+  background: rgba(200, 169, 126, 0.2);
+  transform: skewX(-12deg) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.logo:hover span {
+  color: var(--accent);
+  animation: float 1s infinite alternate;
+}
+
+@keyframes float {
+  0% { transform: translateY(0) scale(1.1); }
+  100% { transform: translateY(-5px) scale(1.2); }
+}
+
+.logo:active {
+  transform: translateY(2px);
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+.logo:active::before {
+  transform: skewX(-5deg) scale(0.98);
+  background: rgba(200, 169, 126, 0.3);
+}
+
+/* Navigasyon Linkleri İyileştirmesi */
 .navLinks {
   display: flex;
-  gap: 1.8rem;
+  gap: 2.5rem;
+  align-items: center;
+  height: 100%;
 }
 
-.navLink, .activeLink {
+.navLink {
   font-family: 'Montserrat', sans-serif;
-  color: #f5f5f5;
-  text-decoration: none;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 500;
-  padding: 0.6rem 0.9rem;
-  border-radius: 4px;
-  transition: all 0.3s ease;
+  color: #ffffff;
+  text-decoration: none;
+  position: relative;
+  padding: 0.5rem 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  height: 100%;
   letter-spacing: 0.5px;
 }
 
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  transition: width 0.3s ease;
+}
+
 .navLink:hover {
-  color: #c8a97e;
-  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--primary);
   transform: translateY(-2px);
 }
 
-.activeLink {
-  color: #c8a97e;
-  background-color: rgba(255, 255, 255, 0.1);
-  font-weight: 600;
-  border-bottom: 2px solid #c8a97e;
+.navLink:hover::after {
+  width: 100%;
 }
 
-/* Kullanıcı bağlantıları */
+.activeLink {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  position: relative;
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  height: 100%;
+  letter-spacing: 0.5px;
+}
+
+.activeLink::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  animation: pulse 2s infinite;
+}
+
+/* Kimlik Doğrulama Butonları İyileştirmesi */
 .authLinks {
   display: flex;
-  gap: 1.2rem;
+  gap: 1rem;
+  align-items: center;
 }
 
-/* Çıkış butonu */
-.logoutButton {
-  background-color: #c8a97e;
-  color: #5d4037;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 4px;
-  font-size: 1rem;
+.loginButton, .registerButton, .profileButton {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
   font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  border-radius: 30px;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: 'Montserrat', sans-serif;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.loginButton {
+  color: var(--primary);
+  background-color: transparent;
+  border: 2px solid var(--primary);
+}
+
+.loginButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(200, 169, 126, 0.2), transparent);
+  transition: left 0.7s ease;
+  z-index: -1;
+}
+
+.loginButton:hover {
+  color: var(--primary-dark);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.loginButton:hover::before {
+  left: 100%;
+}
+
+.registerButton {
+  color: #fff;
+  background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.registerButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.7s ease;
+  z-index: -1;
+}
+
+.registerButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+}
+
+.registerButton:hover::before {
+  left: 100%;
+}
+
+.profileButton {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: #fff;
+  background: linear-gradient(45deg, var(--secondary-light), var(--secondary));
+  border: none;
+}
+
+.profileButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.7s ease;
+  z-index: -1;
+}
+
+.profileButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(45deg, var(--secondary), var(--secondary-light));
+}
+
+.profileButton:hover::before {
+  left: 100%;
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  background: linear-gradient(45deg, rgba(229, 57, 53, 0.1), rgba(229, 57, 53, 0.2));
+  border-radius: 30px;
+  cursor: pointer;
+  color: #e53935;
+  transition: all 0.3s ease;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.logoutButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(229, 57, 53, 0.1), transparent);
+  transition: left 0.7s ease;
+  z-index: -1;
 }
 
 .logoutButton:hover {
-  background-color: #d6ba8e;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(45deg, rgba(229, 57, 53, 0.2), rgba(229, 57, 53, 0.3));
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
-/* Hamburger menü butonu */
+.logoutButton:hover::before {
+  left: 100%;
+}
+
+/* Mobil Butonlar İyileştirmesi */
+.loginButtonMobile, .registerButtonMobile {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  letter-spacing: 0.5px;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.loginButtonMobile {
+  color: var(--primary);
+  background-color: transparent;
+  border: 2px solid var(--primary);
+}
+
+.loginButtonMobile:hover {
+  background-color: rgba(200, 169, 126, 0.1);
+}
+
+.registerButtonMobile {
+  color: #fff;
+  background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+  border: none;
+}
+
+.registerButtonMobile:hover {
+  background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+}
+
+/* Mobil Menü */
 .menuToggle {
   display: none;
   background: none;
   border: none;
-  font-size: 1.5rem;
   color: #ffffff;
+  font-size: 1.5rem;
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  padding: 0.5rem;
 }
 
 .menuToggle:hover {
-  color: #c8a97e;
+  color: var(--primary);
 }
 
-/* Responsive tasarım */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 0 1.2rem;
+.navbarMobile {
+  display: none;
+  position: fixed;
+  top: 80px;
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  z-index: 999;
+  animation: slideDown 0.3s ease;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.navbarMobileActive {
+  display: block;
+}
+
+/* Mobil Navigasyon Linkleri */
+.navLinksMobile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.navLinkMobile, .activeLinkMobile {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--secondary);
+  text-decoration: none;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.navLinkMobile:hover {
+  background-color: rgba(200, 169, 126, 0.1);
+  color: var(--primary);
+}
+
+.activeLinkMobile {
+  background-color: rgba(200, 169, 126, 0.15);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Mobil Profil Bölümü */
+.profileMobileContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(200, 169, 126, 0.2);
+}
+
+.profileMobileItem {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--secondary);
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.profileMobileItem:hover {
+  background-color: rgba(200, 169, 126, 0.1);
+  color: var(--primary);
+}
+
+.profileMobileIcon {
+  font-size: 1rem;
+  color: var(--primary);
+}
+
+.logoutButtonMobile {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  color: #e53935;
+  transition: all 0.2s ease;
+}
+
+.logoutButtonMobile:hover {
+  background-color: rgba(229, 57, 53, 0.1);
+}
+
+/* Mobil Kimlik Doğrulama Linkleri */
+.authLinksMobile {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(200, 169, 126, 0.2);
+}
+
+.registerButtonMobile {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Responsive Ayarlar */
+@media (max-width: 992px) {
+  .navSection, .authSection {
+    display: none;
+  }
+  
+  .logoSection {
+    flex: 1;
   }
   
   .menuToggle {
     display: block;
   }
   
-  .navLinks, .authLinks {
-    display: none;
-  }
-  
-  .navbarMobile {
-    position: absolute;
-    top: 75px;
-    left: 0;
-    right: 0;
-    background: linear-gradient(to bottom, #5d4037, #6d4c41);
-    flex-direction: column;
-    padding: 1.2rem;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    border-bottom: 3px solid #4e342e;
-  }
-  
-  .navLinksMobile, .authLinksMobile {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-    width: 100%;
-  }
-  
-  .navLinksMobile {
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 1rem;
-  }
-  
-  .navLinkMobile, .activeLinkMobile {
-    padding: 0.8rem;
-    width: 100%;
-    color: #f5f5f5;
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: 500;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: 'Montserrat', sans-serif;
-    letter-spacing: 0.5px;
-  }
-  
-  .navLinkMobile:hover {
-    color: #c8a97e;
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  .activeLinkMobile {
-    color: #c8a97e;
-    background-color: rgba(255, 255, 255, 0.1);
-    font-weight: 600;
-    border-left: 3px solid #c8a97e;
-  }
-  
-  .logoutButtonMobile {
-    width: 100%;
-    justify-content: center;
-    margin-top: 0.5rem;
+  .navbarContainer {
+    justify-content: space-between;
+    padding: 0 1rem;
   }
 }
 
 @media (min-width: 993px) {
-  .navbarBrand {
-    width: auto;
+  .menuToggle {
+    display: none !important;
   }
   
-  .navbarContent {
-    display: flex !important;
-    opacity: 1 !important;
-    transform: none !important;
-    position: static;
-    box-shadow: none;
-    padding: 0;
-    height: auto;
-    flex-direction: row;
+  .navbarMobile {
+    display: none !important;
   }
 }
 
-.brandText {
-  font-family: 'Playfair Display', serif;
-  font-size: 24px;
-  font-weight: 700;
-  color: #5d4037;
-  text-decoration: none;
-  letter-spacing: 1px;
-  transition: color 0.3s ease;
+@media (max-width: 576px) {
+  .navbar {
+    height: 70px;
+  }
+  
+  .navbarContainer {
+    padding: 0 0.8rem;
+  }
+  
+  .logo {
+    font-size: 28px;
+  }
+  
+  .logo span {
+    font-size: 32px;
+  }
+  
+  .navbarMobile {
+    top: 70px;
+    max-height: calc(100vh - 70px);
+  }
 }
 
-.brandText:hover {
-  color: #c8a97e;
+/* Alt sayfalarla üst üste binmeyi önlemek için */
+body {
+  padding-top: 80px; /* Navbar'ın yüksekliği */
 }
 
-.logoEmoji {
-  font-size: 32px;
-  margin-right: 10px;
-  text-decoration: none;
+/* Anasayfa için özel stil (hero ile çakışmayı önlemek için) */
+body.home-page {
+  padding-top: 0;
 }
 
-/* Yaratıcı logo stili */
-.brandLogo {
-  display: flex;
-  align-items: center;
-  font-family: 'Montserrat', sans-serif;
-}
-
-.brandAction {
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  color: #ffffff;
-  text-shadow: 1px 1px 0 #5d4037;
-  position: relative;
-  transform: skewX(-5deg);
-  transition: all 0.3s ease;
-}
-
-.brandPlus {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #c8a97e;
-  margin-left: 2px;
-  text-shadow: 1px 1px 0 #5d4037;
-  transform: rotate(12deg);
-  display: inline-block;
-  transition: all 0.3s ease;
-}
-
-.logoLink:hover .brandAction {
-  transform: skewX(-8deg) translateY(-2px);
-  text-shadow: 2px 2px 0 #5d4037;
-}
-
-.logoLink:hover .brandPlus {
-  transform: rotate(25deg) scale(1.2);
-  color: #e0c9a6;
-}
-
-.logoContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 60px;
-  margin-right: 15px;
-}
-
-.logoImage {
-  height: 50px;
-  max-width: 200px;
-  object-fit: contain;
-  border-radius: 8px;
-  background-color: white;
-  padding: 5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-}
-
-.logoImage:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+@media (max-width: 576px) {
+  body {
+    padding-top: 70px;
+  }
 }

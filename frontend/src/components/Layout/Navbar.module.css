@@ -1,0 +1,613 @@
+/* Süper yaratıcı navbar tasarımı */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  padding: 1rem 0;
+  background: transparent;
+}
+
+.scrolled {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 
+              0 0 20px rgba(255, 107, 107, 0.2),
+              0 0 40px rgba(255, 107, 107, 0.1);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.navbarContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  position: relative;
+}
+
+/* Logo Animasyonları */
+.navbarLogo {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 5;
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+  position: relative;
+  padding: 0.5rem;
+  border-radius: 50px;
+  transition: all 0.4s ease;
+}
+
+.logoLink::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(255, 107, 107, 0.2), transparent 70%);
+  border-radius: 50px;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.4s ease;
+}
+
+.logoLink:hover::before {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.logoWrapper {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  margin-right: 1rem;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+  transition: all 0.5s ease;
+  transform-style: preserve-3d;
+}
+
+.logoGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70px;
+  height: 70px;
+  background: radial-gradient(circle, rgba(255,107,107,0.3) 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0) 70%);
+  border-radius: 50%;
+  z-index: 1;
+  animation: logoGlowPulse 4s infinite alternate;
+  filter: blur(5px);
+}
+
+@keyframes logoGlowPulse {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.3; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.3; }
+}
+
+.logoLink:hover .logo {
+  transform: rotateY(20deg) rotateX(10deg);
+  filter: drop-shadow(0 0 15px rgba(255, 107, 107, 0.8));
+}
+
+.logoText {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  position: relative;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.logoFirstLetter {
+  color: #ff6b6b;
+  font-size: 1.8rem;
+  text-shadow: 0 0 15px rgba(255, 107, 107, 0.7);
+  position: relative;
+  display: inline-block;
+  animation: letterPulse 3s infinite alternate;
+}
+
+@keyframes letterPulse {
+  0% { text-shadow: 0 0 10px rgba(255, 107, 107, 0.5); }
+  50% { text-shadow: 0 0 20px rgba(255, 107, 107, 0.8), 0 0 30px rgba(255, 107, 107, 0.4); }
+  100% { text-shadow: 0 0 10px rgba(255, 107, 107, 0.5); }
+}
+
+.logoSpacer {
+  display: inline-block;
+  width: 0.3em;
+}
+
+/* Menü Butonu Animasyonları */
+.menuButton {
+  display: none;
+  color: white;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  position: relative;
+  z-index: 1001;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.menuButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.7), rgba(255, 142, 142, 0.7));
+  border-radius: 50%;
+  transform: scale(0);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: -1;
+}
+
+.menuButton:hover::before {
+  transform: scale(1);
+}
+
+.menuButtonRipple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%);
+  border-radius: 50%;
+  z-index: -2;
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.menuButton:hover .menuButtonRipple {
+  transform: translate(-50%, -50%) scale(1);
+  animation: ripplePulse 1.5s infinite;
+}
+
+@keyframes ripplePulse {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+}
+
+/* Navbar Bağlantıları */
+.navbarLinks {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.navbarLinksBackground {
+  position: absolute;
+  top: -20px;
+  left: -30px;
+  right: -30px;
+  bottom: -20px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 30px;
+  backdrop-filter: blur(10px);
+  z-index: -1;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(255, 107, 107, 0.1);
+}
+
+.navbarLinks:hover .navbarLinksBackground {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.navMenu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navItem {
+  margin: 0 0.5rem;
+  position: relative;
+  perspective: 1000px;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  padding: 0.7rem 1.2rem;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  transform-style: preserve-3d;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navIcon {
+  margin-right: 0.7rem;
+  font-size: 1.3rem;
+  transition: all 0.4s ease;
+  color: rgba(255, 255, 255, 0.8);
+  filter: drop-shadow(0 0 5px rgba(255, 107, 107, 0.3));
+}
+
+.navText {
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.navLinkHighlight {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #ff6b6b, #ff8e8e, #ff6b6b);
+  background-size: 200% 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease;
+  animation: gradientMove 3s linear infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.navLink:hover .navLinkHighlight,
+.navLink.active .navLinkHighlight {
+  transform: scaleX(1);
+}
+
+.navLink:hover .navIcon,
+.navLink.active .navIcon {
+  transform: translateY(-5px) scale(1.2);
+  color: #ff6b6b;
+  filter: drop-shadow(0 0 10px rgba(255, 107, 107, 0.7));
+}
+
+.navLink:hover .navText,
+.navLink.active .navText {
+  transform: translateY(2px);
+  color: #ff6b6b;
+}
+
+.navLink:hover,
+.navLink.active {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.15);
+  transform: translateZ(10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 107, 107, 0.3);
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+.navLink::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.7s ease;
+  z-index: 1;
+}
+
+.navLink:hover::before {
+  left: 100%;
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(255, 107, 107, 0.2), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+
+.navLink:hover::after {
+  opacity: 1;
+}
+
+/* Giriş/Kayıt Butonları */
+.navbarAuth {
+  display: flex;
+  align-items: center;
+  margin-left: 2rem;
+  perspective: 1000px;
+}
+
+.loginButton, .registerButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transform-style: preserve-3d;
+}
+
+.loginButton {
+  color: white;
+  margin-right: 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.loginButton::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #ff6b6b, transparent, #ff8e8e, transparent, #ff6b6b);
+  background-size: 400% 400%;
+  border-radius: 50px;
+  z-index: -1;
+  animation: borderGradient 5s ease infinite;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+@keyframes borderGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.loginButton:hover::before {
+  opacity: 1;
+}
+
+.loginButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: transparent;
+  transform: translateY(-5px) translateZ(20px);
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+}
+
+.authIcon {
+  margin-right: 0.7rem;
+  font-size: 1.2rem;
+  transition: all 0.4s ease;
+}
+
+.loginButton:hover .authIcon {
+  transform: rotate(360deg) scale(1.2);
+  color: #ff6b6b;
+}
+
+.registerButton {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: white;
+  border: none;
+  position: relative;
+  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+  overflow: visible;
+}
+
+.registerButton::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  border-radius: 50px;
+  z-index: -2;
+  opacity: 0.5;
+  filter: blur(10px);
+  transition: all 0.4s ease;
+}
+
+.registerButton:hover {
+  transform: translateY(-5px) translateZ(30px) scale(1.05);
+  box-shadow: 0 20px 30px rgba(255, 107, 107, 0.4);
+  animation: buttonPulse 2s infinite;
+}
+
+@keyframes buttonPulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(255, 107, 107, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+}
+
+.registerButton:hover::before {
+  opacity: 0.8;
+  filter: blur(15px);
+}
+
+.buttonGlow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+  opacity: 0;
+  transition: all 0.5s ease;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+.registerButton:hover .buttonGlow {
+  opacity: 0.8;
+  animation: glowSpin 3s infinite;
+}
+
+@keyframes glowSpin {
+  0% { transform: rotate(0deg) scale(1); opacity: 0.5; }
+  50% { transform: rotate(180deg) scale(1.5); opacity: 0.8; }
+  100% { transform: rotate(360deg) scale(1); opacity: 0.5; }
+}
+
+/* Responsive Tasarım */
+@media (max-width: 992px) {
+  .menuButton {
+    display: flex;
+  }
+  
+  .navbarLinks {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    max-width: 400px;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(20px);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: right 0.6s cubic-bezier(0.77, 0.2, 0.05, 1.0);
+    padding: 2rem;
+    z-index: 1000;
+    border-left: 1px solid rgba(255, 107, 107, 0.3);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+  }
+  
+  .navbarLinks.active {
+    right: 0;
+  }
+  
+  .navbarLinks::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(255, 107, 107, 0.2), transparent 70%);
+    opacity: 0.5;
+    z-index: -1;
+  }
+  
+  .navbarLinksBackground {
+    display: none;
+  }
+  
+  .navMenu {
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 3rem;
+  }
+  
+  .navItem {
+    margin: 0.8rem 0;
+    width: 100%;
+    transform: translateX(50px);
+    opacity: 0;
+    animation: slideInItems 0.5s forwards;
+    animation-delay: calc(0.1s * var(--item-index));
+  }
+  
+  @keyframes slideInItems {
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .navLink {
+    padding: 1rem 1.5rem;
+    width: 100%;
+    justify-content: flex-start;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .navbarAuth {
+    margin-left: 0;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .loginButton, .registerButton {
+    width: 100%;
+    margin: 0.8rem 0;
+    padding: 1rem;
+    justify-content: center;
+  }
+  
+  .loginButton {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbarContainer {
+    padding: 0 1rem;
+  }
+  
+  .logoWrapper {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .logoText {
+    font-size: 1.2rem;
+  }
+  
+  .logoFirstLetter {
+    font-size: 1.4rem;
+  }
+} 
