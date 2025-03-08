@@ -325,7 +325,7 @@ const Events = () => {
                 </h1>
                 
                 {isAdmin && (
-                    <Link to="/create-event" className={styles.createButton}>
+                    <Link to="/events/create" className={styles.createButton}>
                         <FaPlus /> Créer un événement
                     </Link>
                 )}
