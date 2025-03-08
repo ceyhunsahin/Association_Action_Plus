@@ -669,3 +669,36 @@ body.home-page {
     padding-top: 70px;
   }
 }
+
+/* Navbar İkon Stili */
+.navIcon {
+  font-size: 0.9rem;
+  margin-right: 0.3rem;
+  position: relative;
+  top: -1px;
+}
+
+/* Contact Link Özel Stili */
+.navLink:has(.navIcon), .activeLink:has(.navIcon) {
+  color: var(--accent);
+}
+
+.navLink:has(.navIcon):hover::after {
+  background: linear-gradient(90deg, var(--accent), var(--primary));
+}
+
+.activeLink:has(.navIcon)::after {
+  background: linear-gradient(90deg, var(--accent), var(--primary));
+}
+
+.navLinkMobile:has(.navIcon), .activeLinkMobile:has(.navIcon) {
+  color: var(--accent);
+}
+
+.navLinkMobile:has(.navIcon):hover {
+  background-color: rgba(255, 152, 0, 0.1);
+}
+
+.activeLinkMobile:has(.navIcon) {
+  background-color: rgba(255, 152, 0, 0.15);
+}

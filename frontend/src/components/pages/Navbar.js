@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Navbar.module.css';
-import { FaUser, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaCalendarPlus, FaBars, FaTimes } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaCalendarPlus, FaBars, FaTimes, FaEnvelope } from 'react-icons/fa';
 
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
@@ -100,6 +100,13 @@ const Navbar = () => {
             >
               Événements
             </NavLink>
+            <NavLink 
+              to="/contact" 
+              className={({ isActive }) => isActive ? styles.activeLink : styles.navLink}
+              onClick={closeMenu}
+            >
+              <FaEnvelope className={styles.navIcon} /> Contact
+            </NavLink>
             {isAdmin && (
               <NavLink 
                 to="/events/create" 
@@ -175,6 +182,13 @@ const Navbar = () => {
               onClick={closeMenu}
             >
               Événements
+            </NavLink>
+            <NavLink 
+              to="/contact" 
+              className={({ isActive }) => isActive ? styles.activeLinkMobile : styles.navLinkMobile}
+              onClick={closeMenu}
+            >
+              <FaEnvelope className={styles.navIcon} /> Contact
             </NavLink>
             {isAdmin && (
               <NavLink 
