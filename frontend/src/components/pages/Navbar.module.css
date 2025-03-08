@@ -229,27 +229,43 @@
   text-decoration: none;
 }
 
+/* Yaratıcı logo stili */
 .brandLogo {
-  font-family: 'Playfair Display', serif;
-  font-size: 28px;
-  font-weight: 700;
-  color: #5d4037;
-  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.brandAction {
+  font-size: 1.6rem;
+  font-weight: 800;
   letter-spacing: 1px;
-  transition: color 0.3s ease;
-  background-color: white;
-  padding: 5px 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #5d4037;
+  position: relative;
+  transform: skewX(-5deg);
+  transition: all 0.3s ease;
 }
 
-.brandLogo span {
+.brandPlus {
+  font-size: 2rem;
+  font-weight: 800;
   color: #c8a97e;
+  margin-left: 2px;
+  text-shadow: 1px 1px 0 #5d4037;
+  transform: rotate(12deg);
+  display: inline-block;
+  transition: all 0.3s ease;
 }
 
-.brandLogo:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+.logoLink:hover .brandAction {
+  transform: skewX(-8deg) translateY(-2px);
+  text-shadow: 2px 2px 0 #5d4037;
+}
+
+.logoLink:hover .brandPlus {
+  transform: rotate(25deg) scale(1.2);
+  color: #e0c9a6;
 }
 
 .logoContainer {

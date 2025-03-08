@@ -26,9 +26,14 @@ const Navbar = () => {
 
   return (
     <nav className={styles.navbar}>
-      <Link to="/" className={styles.logo} onClick={closeMenu}>
-        ACTION<span>PLUS</span>
-      </Link>
+      <div className={styles.logo}>
+        <Link to="/" className={styles.logoLink}>
+          <div className={styles.brandLogo}>
+            <span className={styles.brandAction}>ACTION</span>
+            <span className={styles.brandPlus}>+</span>
+          </div>
+        </Link>
+      </div>
       
       <button className={styles.menuToggle} onClick={toggleMenu}>
         {menuOpen ? <FaTimes /> : <FaBars />}
