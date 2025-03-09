@@ -1,15 +1,13 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
-// Kullanılmayan Firebase importlarını kaldıralım
-// import { auth } from '../firebase/config';
-// import { 
-//   signInWithEmailAndPassword, 
-//   createUserWithEmailAndPassword, 
-//   signOut, 
-//   GoogleAuthProvider, 
-//   signInWithPopup,
-//   onAuthStateChanged
-// } from 'firebase/auth';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  GoogleAuthProvider, 
+  signInWithPopup
+} from 'firebase/auth';
+import { auth } from '../firebase/config';
 
 // AuthContext'i oluştur
 const AuthContext = createContext();
@@ -31,8 +29,7 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  // Kullanılmayan error state'ini kaldıralım veya kullanılır hale getirelim
-  // const [error, setError] = useState(null);
+  const [error, setError] = useState(null);
 
   // Kullanıcı oturum durumunu izle
   useEffect(() => {
@@ -109,15 +106,98 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Google ile giriş
+  // Google ile giriş - Firebase popup yöntemi
   const loginWithGoogle = async () => {
     try {
-      // Google OAuth işlemi
-      // Bu kısım backend entegrasyonuna göre değişebilir
-      window.location.href = 'http://localhost:8000/api/auth/google';
-      return true;
+      setError(null);
+      
+      // Google provider oluştur
+      const provider = new GoogleAuthProvider();
+      
+      // Email istediğimizi belirtelim
+      provider.addScope('email');
+      provider.addScope('profile');
+      
+      // Basit yapılandırma
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+      
+      // Popup ile giriş yap
+      console.log("Opening Google sign-in popup...");
+      const result = await signInWithPopup(auth, provider);
+      console.log("Google sign-in successful, getting ID token...");
+      
+      // Kullanıcı bilgilerini al
+      const { displayName, email, photoURL, uid } = result.user;
+      
+      // Email kontrolü
+      if (!email) {
+        console.error("No email found in Google user data");
+        throw new Error("Email not found in Google user data");
+      }
+      
+      // Token al
+      const idToken = await result.user.getIdToken();
+      console.log(`Got ID token, first 10 chars: ${idToken.substring(0, 10)}...`);
+      
+      try {
+        // Backend'e gönder
+        console.log("Sending token to backend...");
+        const response = await axios.post('http://localhost:8000/api/auth/google-login', { 
+          idToken,
+          userData: {
+            displayName,
+            email,
+            photoURL,
+            uid
+          }
+        });
+        
+        console.log("Backend response:", response.data);
+        
+        // Kullanıcı bilgilerini kaydet
+        const { access_token, user } = response.data;
+        localStorage.setItem('token', access_token);
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        // State'i güncelle
+        setAccessToken(access_token);
+        setUser(user);
+        setIsAdmin(user.role === 'admin');
+        setIsAuthenticated(true);
+        
+        // API istekleri için default header'ı ayarla
+        axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+        
+        return response.data;
+      } catch (backendError) {
+        console.error("Backend error:", backendError);
+        if (backendError.response) {
+          console.error("Response data:", backendError.response.data);
+          console.error("Response status:", backendError.response.status);
+          throw new Error(backendError.response.data.detail || "Backend error");
+        }
+        throw backendError;
+      }
     } catch (error) {
       console.error('Google login error:', error);
+      
+      // Hata detaylarını yazdır
+      if (error.code) console.error('Error code:', error.code);
+      if (error.message) console.error('Error message:', error.message);
+      
+      // Kullanıcıya gösterilecek hata mesajı
+      let errorMessage = "Google ile giriş yapılırken bir hata oluştu.";
+      
+      // Firebase hata kodlarına göre özel mesajlar
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = "Giriş penceresi kapatıldı. Lütfen tekrar deneyin.";
+      } else if (error.code === 'auth/popup-blocked') {
+        errorMessage = "Tarayıcınız popup'ları engelliyor. Lütfen izin verin ve tekrar deneyin.";
+      }
+      
+      setError(errorMessage);
       throw error;
     }
   };
@@ -244,7 +324,8 @@ export const AuthProvider = ({ children }) => {
     loginWithGoogle,
     logout,
     isAdmin,
-    isAuthenticated
+    isAuthenticated,
+    error
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
