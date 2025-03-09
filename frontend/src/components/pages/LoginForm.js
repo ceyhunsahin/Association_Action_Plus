@@ -60,11 +60,27 @@ const LoginForm = () => {
 
     const handleGoogleLogin = async () => {
         try {
+            setError('');
+            setLoading(true);
+            
+            // Google ile giriş yap
             await loginWithGoogle();
-            navigate('/');
+            
+            // Başarılı giriş sonrası yönlendir
+            navigate('/profile');
         } catch (err) {
             console.error('Google login error:', err);
-            setError('Erreur lors de la connexion avec Google');
+            
+            // Hata mesajını göster
+            let errorMessage = 'Erreur lors de la connexion avec Google';
+            
+            if (err.message) {
+                errorMessage = err.message;
+            }
+            
+            setError(errorMessage);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -113,9 +129,16 @@ const LoginForm = () => {
                 </div>
                 
                 <button 
+                    type="button"
                     onClick={handleGoogleLogin}
                     className={styles.googleButton}
+                    disabled={loading}
                 >
+                    <img 
+                        src="https://developers.google.com/identity/images/g-logo.png" 
+                        alt="Google logo" 
+                        className={styles.googleLogo} 
+                    />
                     Se connecter avec Google
                 </button>
                 
