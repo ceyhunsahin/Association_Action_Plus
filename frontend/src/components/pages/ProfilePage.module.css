@@ -1,456 +1,740 @@
-.profileContainer {
-  max-width: 1000px;
+.profilePage {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 30px 20px;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.animateProfile {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .profileHeader {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-bottom: 40px;
-  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eaeaea;
 }
 
 .profileAvatar {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  background-color: #4a90e2;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  font-weight: bold;
-  margin-bottom: 15px;
-}
-
-.profileName {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: #333;
-}
-
-.profileEmail {
-  font-size: 16px;
-  color: #666;
-  margin-bottom: 10px;
-}
-
-.adminBadge {
-  background-color: #ff9800;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.profileContent {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  margin-right: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 4px solid #fff;
 }
 
-.profileSection {
-  padding: 25px;
-  border-bottom: 1px solid #eee;
-}
-
-.profileSection:last-child {
-  border-bottom: none;
-}
-
-.sectionTitle {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #333;
-  border-bottom: 2px solid #4a90e2;
-  padding-bottom: 10px;
-  display: inline-block;
-}
-
-.infoGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.infoItem {
-  display: flex;
-  flex-direction: column;
-}
-
-.infoLabel {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 5px;
-}
-
-.infoValue {
-  font-size: 16px;
-  color: #333;
-  font-weight: 500;
-}
-
-.eventsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.eventCard {
-  background-color: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
-  cursor: pointer;
-}
-
-.eventCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-}
-
-.eventImage {
+.profileAvatar img {
   width: 100%;
-  height: 150px;
+  height: 100%;
   object-fit: cover;
 }
 
-.eventInfo {
-  padding: 15px;
+.defaultAvatar {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e0e0e0;
+  color: #757575;
+  font-size: 3rem;
 }
 
-.eventTitle {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 5px;
+.profileInfo {
+  flex: 1;
+}
+
+.profileInfo h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
   color: #333;
 }
 
-.eventDate {
-  font-size: 14px;
+.userEmail {
+  display: flex;
+  align-items: center;
   color: #666;
+  margin-bottom: 1rem;
+}
+
+.userEmail svg {
+  margin-right: 0.5rem;
+}
+
+.userBadges {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.userBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  color: #333;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.userBadge:hover {
+  transform: scale(1.1);
 }
 
 .profileActions {
   display: flex;
-  justify-content: center;
-  padding: 25px;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .logoutButton {
-  background-color: #f44336;
-  color: white;
-  border: none;
-  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  color: #f44336;
+  border: 1px solid #f44336;
   border-radius: 4px;
-  font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.2s ease;
 }
 
 .logoutButton:hover {
-  background-color: #d32f2f;
+  background-color: #f44336;
+  color: white;
 }
 
-.loading {
-  text-align: center;
-  padding: 20px;
-  color: #666;
+.logoutButton svg {
+  margin-right: 0.5rem;
 }
 
-.error {
-  text-align: center;
-  padding: 20px;
-  color: #f44336;
-}
-
-.noEvents {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-  font-style: italic;
-}
-
-/* Etkinlik kartları için stiller */
-.eventActions {
+.successMessage, .errorMessage {
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
+  align-items: center;
 }
 
-.viewButton, .unregisterButton {
-  padding: 8px 12px;
+.successMessage {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #2e7d32;
+}
+
+.errorMessage {
+  background-color: #ffebee;
+  color: #c62828;
+  border-left: 4px solid #c62828;
+}
+
+.successMessage svg, .errorMessage svg {
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.profileNavigation {
+  display: flex;
+  border-bottom: 1px solid #eaeaea;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+}
+
+.navButton {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.navButton svg {
+  margin-right: 0.5rem;
+}
+
+.navButton:hover {
+  color: #3f51b5;
+}
+
+.activeTab {
+  color: #3f51b5;
+  border-bottom: 3px solid #3f51b5;
+  font-weight: 600;
+}
+
+.profileContent {
+  min-height: 400px;
+}
+
+/* Overview Section */
+.overviewContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.statsCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.statCard {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.statIcon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #3f51b5;
+}
+
+.statTitle {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.twoColumnLayout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.leftColumn, .rightColumn {
+  flex: 1;
+  min-width: 300px;
+}
+
+.membershipCard {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.membershipStatus {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.membershipDetails {
+  margin-bottom: 1.5rem;
+}
+
+.membershipDetails p {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.renewButton {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #3f51b5;
+  color: white;
   border: none;
   border-radius: 4px;
-  font-size: 0.9rem;
-  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.renewButton:hover {
+  background-color: #303f9f;
+}
+
+/* Events Section */
+.eventsContainer {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.eventsTabs {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.eventsTab {
   flex: 1;
+  padding: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #666;
+  transition: all 0.2s ease;
 }
 
-.viewButton {
-  background-color: #007bff;
-  color: white;
+.eventsTab:hover {
+  color: #3f51b5;
 }
 
-.viewButton:hover {
-  background-color: #0056b3;
+.eventsTab.activeTab {
+  color: #3f51b5;
+  border-bottom: 3px solid #3f51b5;
+  font-weight: 600;
 }
 
-.unregisterButton {
-  background-color: #dc3545;
-  color: white;
+.eventsTab svg {
+  margin-right: 0.5rem;
 }
 
-.unregisterButton:hover {
-  background-color: #c82333;
-}
-
-.eventIcon {
-  margin-right: 5px;
-}
-
-/* Responsive tasarım */
-@media (max-width: 768px) {
-  .profileContainer {
-    padding: 20px;
-  }
-  
-  .profileHeader {
-    flex-direction: column;
-  }
-  
-  .profileInfo {
-    margin-left: 0;
-    margin-top: 20px;
-    text-align: center;
-  }
-  
-  .profileTabs {
-    flex-direction: column;
-  }
-  
-  .profileTab {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  
-  .eventGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Kullanıcı etkinlikleri container */
-.userEventsContainer {
-  margin-top: 2rem;
-  background-color: #f9f9f9;
-  border-radius: 12px;
+.eventsList {
   padding: 1.5rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-
-.userEventsTitle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.5rem;
-  color: #5d4037;
-  margin-bottom: 1.5rem;
-  border-bottom: 2px solid #c8a97e;
-  padding-bottom: 0.5rem;
-}
-
-.userEventsList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 
-/* Kullanıcı etkinlik kartı */
-.userEventCard {
-  background-color: white;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.userEventCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.userEventImageContainer {
-  position: relative;
-  height: 160px;
-  overflow: hidden;
-}
-
-.userEventImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.userEventCard:hover .userEventImage {
-  transform: scale(1.1);
-}
-
-.userEventDate {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
-  color: white;
-  padding: 5px 10px;
+.eventCard {
+  background-color: #fff;
   border-radius: 8px;
-  text-align: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease;
-}
-
-.userEventCard:hover .userEventDate {
-  transform: scale(1.1) rotate(-3deg);
-}
-
-.userEventDay {
-  display: block;
-  font-size: 1.2rem;
-  font-weight: bold;
-  line-height: 1;
-}
-
-.userEventMonth {
-  display: block;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-}
-
-.userEventContent {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-
-.userEventTitle {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 0.8rem;
-}
-
-.userEventDetails {
-  margin-bottom: 1rem;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.userEventLocation, .userEventTime {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.3rem;
-}
-
-.userEventActions {
-  margin-top: auto;
-  display: flex;
-  gap: 0.8rem;
-}
-
-.userEventViewButton, .userEventLeaveButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 30px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  flex: 1;
 }
 
-.userEventViewButton {
-  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
+.eventCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.eventHeader {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: #f5f5f5;
+}
+
+.eventType, .eventDate {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.eventType svg, .eventDate svg {
+  margin-right: 0.5rem;
+}
+
+.eventTitle {
+  padding: 1rem;
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.eventDetails {
+  padding: 0 1rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.eventLocation, .eventTime {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.eventLocation svg, .eventTime svg {
+  margin-right: 0.5rem;
+  color: #3f51b5;
+}
+
+.eventActions {
+  padding: 1rem;
+  border-top: 1px solid #eaeaea;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.viewEventButton {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: #3f51b5;
   color: white;
   border: none;
-  text-decoration: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.userEventViewButton:hover {
-  background: linear-gradient(135deg, #5d4037 0%, #c8a97e 100%);
-  transform: translateY(-2px);
+.viewEventButton:hover {
+  background-color: #303f9f;
 }
 
-.userEventLeaveButton {
-  background: white;
-  color: #f44336;
-  border: 1px solid #f44336;
+.viewEventButton svg {
+  margin-right: 0.5rem;
 }
 
-.userEventLeaveButton:hover {
-  background: #f44336;
+.viewAllButton {
+  display: block;
+  margin: 1.5rem auto;
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  color: #3f51b5;
+  border: 1px solid #3f51b5;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.viewAllButton:hover {
+  background-color: #3f51b5;
   color: white;
-  transform: translateY(-2px);
 }
 
-/* Etkinlik yok durumu */
-.noEventsContainer {
+.emptyStateContainer {
+  padding: 3rem 1.5rem;
   text-align: center;
-  padding: 3rem 1rem;
-  background-color: #f9f9f9;
-  border-radius: 12px;
-  margin-top: 2rem;
 }
 
-.noEventsIcon {
+.emptyState {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.emptyStateIcon {
   font-size: 3rem;
-  color: #c8a97e;
+  color: #bdbdbd;
   margin-bottom: 1rem;
 }
 
-.noEventsText {
-  font-size: 1.2rem;
+.emptyState h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+}
+
+.emptyState p {
   color: #666;
   margin-bottom: 1.5rem;
 }
 
-.browseEventsButton {
+.discoverButton {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
+  padding: 0.75rem 1.5rem;
+  background-color: #3f51b5;
   color: white;
-  padding: 0.8rem 1.5rem;
-  border-radius: 30px;
+  border: none;
+  border-radius: 4px;
   text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 }
 
-.browseEventsButton:hover {
-  background: linear-gradient(135deg, #5d4037 0%, #c8a97e 100%);
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+.discoverButton:hover {
+  background-color: #303f9f;
+}
+
+.discoverButton svg {
+  margin-right: 0.5rem;
+}
+
+/* Donations Section */
+.donationHistoryContainer {
+  padding: 1.5rem;
+}
+
+.donationSummaryCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.donationSummaryCard {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.donationSummaryIcon {
+  font-size: 2rem;
+  margin-right: 1rem;
+  color: #3f51b5;
+}
+
+.donationSummaryInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.donationSummaryTitle {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.donationSummaryValue {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.donationTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.donationTable th, .donationTable td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.donationTable th {
+  font-weight: 600;
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.donationTable tr:last-child td {
+  border-bottom: none;
+}
+
+.donationAmount {
+  font-weight: 600;
+  color: #4caf50;
+}
+
+.donationDate {
+  color: #666;
+}
+
+.emptyDonations {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.donateButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  text-decoration: none;
+  margin-top: 1rem;
+  transition: all 0.2s ease;
+}
+
+.donateButton:hover {
+  background-color: #388e3c;
+}
+
+.donateButton svg {
+  margin-right: 0.5rem;
+}
+
+/* Settings Section */
+.settingsContainer {
+  padding: 1.5rem;
+}
+
+.editProfileForm {
+  max-width: 600px;
+  margin-bottom: 3rem;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.formGroup input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.formActions {
+  display: flex;
+  gap: 1rem;
+}
+
+.saveButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.saveButton:hover {
+  background-color: #303f9f;
+}
+
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background-color: #f5f5f5;
+}
+
+.dangerZone {
+  padding: 1.5rem;
+  border: 1px solid #ffcdd2;
+  border-radius: 8px;
+  background-color: #ffebee;
+}
+
+.dangerZone h3 {
+  color: #c62828;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.deleteAccountButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deleteAccountButton:hover {
+  background-color: #d32f2f;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.loadingEvents {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 1.5rem;
+}
+
+.loadingAnimation {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3f51b5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profileHeader {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .profileAvatar {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .profileInfo {
+    margin-bottom: 1rem;
+  }
+  
+  .userBadges {
+    justify-content: center;
+  }
+  
+  .twoColumnLayout {
+    flex-direction: column;
+  }
+  
+  .statsCards, .donationSummaryCards {
+    grid-template-columns: 1fr;
+  }
+  
+  .eventsList {
+    grid-template-columns: 1fr;
+  }
 }

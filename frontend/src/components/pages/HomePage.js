@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import styles from './HomePage.module.css';
 import { Helmet } from 'react-helmet';
-import { FaCalendarAlt, FaUsers, FaGlobeAmericas, FaMapMarkerAlt, FaArrowRight } from 'react-icons/fa';
+import { FaCalendarAlt, FaUsers, FaGlobeAmericas, FaMapMarkerAlt, FaArrowRight, FaHandHoldingHeart, FaTicketAlt } from 'react-icons/fa';
+import { useAuth } from '../../context/AuthContext';
 
 const HomePage = () => {
+  const { isAuthenticated } = useAuth();
   const [latestEvents, setLatestEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -99,7 +101,7 @@ const HomePage = () => {
                 <span className={styles.buttonText}>Découvrir nos activités</span>
                 <span className={styles.buttonIcon}>→</span>
               </Link>
-              <Link to="/donation" className={styles.secondaryButton}>
+              <Link to="/donate" className={styles.secondaryButton}>
                 <span className={styles.buttonText}>Faire un don</span>
                 <span className={styles.buttonGlow}></span>
               </Link>
@@ -277,6 +279,39 @@ const HomePage = () => {
             </form>
           </div>
         </section>
+
+        {/* Yaratıcı Butonlar Bölümü */}
+        <div className={styles.creativeButtonsSection}>
+          <div className={styles.creativeButtonsContainer}>
+            <Link to="/donate" className={styles.creativeButton}>
+              <div className={styles.creativeButtonIcon}>
+                <FaHandHoldingHeart />
+              </div>
+              <div className={styles.creativeButtonContent}>
+                <h3>Faire un don</h3>
+                <p>Soutenez nos projets culturels et contribuez à la diversité artistique</p>
+              </div>
+              <div className={styles.creativeButtonArrow}>
+                <FaArrowRight />
+              </div>
+            </Link>
+            
+            {isAuthenticated && (
+              <Link to="/profile" className={styles.creativeButton}>
+                <div className={styles.creativeButtonIcon}>
+                  <FaTicketAlt />
+                </div>
+                <div className={styles.creativeButtonContent}>
+                  <h3>Découvrir mes événements</h3>
+                  <p>Consultez vos réservations et participations aux événements</p>
+                </div>
+                <div className={styles.creativeButtonArrow}>
+                  <FaArrowRight />
+                </div>
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
     </>
   );

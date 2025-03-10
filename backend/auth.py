@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi import Depends, HTTPException, status, APIRouter, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from database import get_db
+from database import get_db_connection
 from models import User, LoginRequest, TokenData  # TokenData modelini import et
 import os
 import requests
@@ -15,7 +15,7 @@ import secrets
 import string
 
 # Güvenlik ayarları
-SECRET_KEY = 'ceyhunsahin'  # Güvenli bir anahtar kullanın
+SECRET_KEY = "your-secret-key"  # Gerçek uygulamada güvenli bir şekilde saklayın
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
@@ -64,33 +64,9 @@ def create_refresh_token(data: dict):
     expires_delta = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     return create_token(data, expires_delta, "refresh")
 
-# Token doğrulama fonksiyonu
-def verify_token(token: str):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        token_type: str = payload.get("type")
-
-        if email is None or token_type is None:
-            raise credentials_exception
-
-        # Token'ın süresini kontrol et
-        expiration = payload.get("exp")
-        if expiration is None or datetime.utcnow().timestamp() > expiration:
-            raise credentials_exception
-
-        return email, token_type
-    except JWTError as e:
-        print("JWTError:", e)  # Hata mesajını logla
-        raise credentials_exception
-
 # Token doğrulama ve kullanıcı alma
 async def get_current_user(token: str = Depends(oauth2_scheme)):
+    """Token'dan kullanıcı bilgilerini al"""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -99,45 +75,53 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         # Token'ı decode et
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
+        
+        # Kullanıcı ID'si veya email'i al
+        user_id = payload.get("sub")
+        
         if user_id is None:
             raise credentials_exception
         
-        # Kullanıcıyı veritabanından al
-        conn = get_db()
-        cursor = conn.cursor()
+        print(f"Token payload: {payload}")
+        print(f"User ID from token: {user_id}")
         
-        # Kullanıcı ID'si sayı ise doğrudan kullan, email ise email ile ara
-        if user_id.isdigit():
-            cursor.execute("SELECT * FROM users WHERE id = ?", (int(user_id),))
-        else:
+        # Eğer sub alanı email ise, email ile kullanıcıyı bul
+        if isinstance(user_id, str) and "@" in user_id:
+            conn = get_db_connection()
+            cursor = conn.cursor()
             cursor.execute("SELECT * FROM users WHERE email = ?", (user_id,))
-        
-        user = cursor.fetchone()
+            user = cursor.fetchone()
+            conn.close()
+        else:
+            # Eğer sub alanı ID ise, ID ile kullanıcıyı bul
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+            user = cursor.fetchone()
+            conn.close()
         
         if user is None:
             print(f"User not found for ID/email: {user_id}")
             raise credentials_exception
         
-        # Kullanıcı bilgilerini döndür (şifre hariç)
         user_dict = dict(user)
-        if "password" in user_dict:
-            user_dict.pop("password")
-        
+        print(f"User found: {user_dict}")
         return user_dict
+    
     except JWTError as e:
-        print(f"JWT error: {e}")
+        print(f"JWT Error: {e}")
         raise credentials_exception
     except Exception as e:
         print(f"Unexpected error in get_current_user: {e}")
         raise credentials_exception
 
 # Admin kullanıcısını kontrol et
-def get_current_admin(current_user: dict = Depends(get_current_user)):
-    if current_user.get("role") != "admin":
+async def get_current_admin(current_user: dict = Depends(get_current_user)):
+    """Admin kullanıcısını kontrol et"""
+    if current_user["role"] != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bu işlem için admin yetkisi gerekiyor"
+            detail="You don't have admin privileges"
         )
     return current_user
 
@@ -145,7 +129,7 @@ def get_current_admin(current_user: dict = Depends(get_current_user)):
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     try:
         # Veritabanı bağlantısı
-        conn = get_db()
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         # Kullanıcıyı bul
@@ -212,7 +196,7 @@ async def options_register():
 
 @router.post("/register", status_code=201)
 async def register(user: User):
-    conn = get_db()
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     try:
@@ -287,7 +271,7 @@ async def login(request: Request):
             return {"access_token": access_token, "token_type": "bearer", "user": user}
         
         # Normal kullanıcı kontrolü
-        conn = get_db()
+        conn = get_db_connection()
         cursor = conn.cursor()
         
         # Kullanıcıyı email veya username ile ara
@@ -367,149 +351,100 @@ def verify_firebase_token(id_token):
 # Google login endpoint
 @router.post("/google-login")
 async def google_login(request: Request):
+    """Google ile giriş yap"""
     try:
+        # Request body'den verileri al
         data = await request.json()
-        id_token = data.get("idToken")
-        user_data = data.get("userData", {})  # Ek kullanıcı bilgileri
+        user_data = data.get("userData", {})
         
-        if not id_token:
+        # Kullanıcı bilgilerini al
+        email = user_data.get("email")
+        display_name = user_data.get("displayName", "")
+        photo_url = user_data.get("photoURL", "")
+        
+        print(f"Processing Google login for email: {email}")
+        print(f"User data: {user_data}")
+        
+        if not email:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="ID token is required"
+                detail="Email is required"
             )
         
-        print(f"Processing Google login with token: {id_token[:10]}...")
-        print(f"User data received: {user_data}")
-        
         try:
-            # Firebase token doğrulamasını atlayıp doğrudan kullanıcı verilerini kullan
-            # Bu, geçici bir çözümdür
-            email = user_data.get("email")
-            display_name = user_data.get("displayName", "")
-            photo_url = user_data.get("photoURL", "")
+            # Veritabanı bağlantısı
+            conn = get_db_connection()
+            cursor = conn.cursor()
             
-            print(f"Using user data directly: email={email}, name={display_name}")
-            
-            if not email:
-                print("No email found in user data")
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Email not found in user data"
-                )
-            
-            # İsmi parçalara ayır
-            name_parts = display_name.split()
-            first_name = name_parts[0] if name_parts else ""
-            last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
-            
-            # Kullanıcı adını oluştur
-            username = email.split("@")[0]
-            
-            # Veritabanında kullanıcıyı ara
-            db = get_db()
-            cursor = db.cursor()
+            # Kullanıcıyı email ile ara
             cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
             user = cursor.fetchone()
             
-            if user:
-                # Kullanıcı varsa, bilgilerini güncelleme kısmını atlayalım
-                user_id = user["id"]
-                print(f"Found existing user: {user_id}")
-            else:
-                # Kullanıcı yoksa, yeni kullanıcı oluştur
+            # Kullanıcı yoksa oluştur
+            if not user:
+                print(f"Creating new user for email: {email}")
+                
+                # İsmi parçalara ayır
+                name_parts = display_name.split()
+                first_name = name_parts[0] if name_parts else ""
+                last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
+                
+                # Kullanıcı adını oluştur
+                username = email.split("@")[0]
+                
+                # Rastgele şifre oluştur
+                password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+                hashed_password = get_password_hash(password)
+                
                 try:
-                    # Rastgele güçlü bir şifre oluştur
-                    import string as string_module
-                    alphabet = string_module.ascii_letters + string_module.digits + string_module.punctuation
-                    random_password = ''.join(secrets.choice(alphabet) for _ in range(16))
-                    hashed_password = get_password_hash(random_password)
-                    
-                    cursor.execute(
-                        """
+                    cursor.execute("""
                         INSERT INTO users (email, firstName, lastName, username, password, role)
                         VALUES (?, ?, ?, ?, ?, ?)
-                        """,
-                        (
-                            email,
-                            first_name,
-                            last_name,
-                            username,
-                            hashed_password,
-                            "user"
-                        )
-                    )
-                    db.commit()
-                    user_id = cursor.lastrowid
-                    print(f"Created new user: {user_id}")
-                except sqlite3.IntegrityError as e:
-                    # Kullanıcı adı çakışması olabilir, rastgele bir son ek ekle
-                    if "UNIQUE constraint failed: users.username" in str(e):
-                        import random
-                        import string as string_module
-                        random_suffix = ''.join(random.choices(string_module.digits, k=4))
-                        username = f"{username}{random_suffix}"
-                        
-                        # Rastgele güçlü bir şifre oluştur
-                        alphabet = string_module.ascii_letters + string_module.digits + string_module.punctuation
-                        random_password = ''.join(secrets.choice(alphabet) for _ in range(16))
-                        hashed_password = get_password_hash(random_password)
-                        
-                        cursor.execute(
-                            """
-                            INSERT INTO users (email, firstName, lastName, username, password, role)
-                            VALUES (?, ?, ?, ?, ?, ?)
-                            """,
-                            (
-                                email,
-                                first_name,
-                                last_name,
-                                username,
-                                hashed_password,
-                                "user"
-                            )
-                        )
-                        db.commit()
-                        user_id = cursor.lastrowid
-                        print(f"Created new user with modified username: {user_id}")
-                    else:
-                        raise
+                    """, (email, first_name, last_name, username, hashed_password, "user"))
+                    conn.commit()
+                except sqlite3.IntegrityError:
+                    # Kullanıcı adı çakışması durumunda rastgele son ek ekle
+                    username = f"{username}{secrets.randbelow(1000)}"
+                    cursor.execute("""
+                        INSERT INTO users (email, firstName, lastName, username, password, role)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    """, (email, first_name, last_name, username, hashed_password, "user"))
+                    conn.commit()
+                
+                # Yeni kullanıcıyı getir
+                cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+                user = cursor.fetchone()
             
-            # Kullanıcı bilgilerini al
-            cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-            user = cursor.fetchone()
-            
-            if not user:
-                print(f"User not found after creation/update: {user_id}")
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="User not found after creation/update"
-                )
-            
-            # Token oluştur
-            access_token = create_access_token(
-                data={"sub": str(user_id), "role": user["role"]},
-                expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            )
-            
-            # Kullanıcı bilgilerini döndür
+            # Kullanıcı bilgilerini dictionary'e çevir
             user_dict = dict(user)
+            
+            # Şifreyi kaldır
             if "password" in user_dict:
                 user_dict.pop("password")
             
-            print(f"Login successful, returning user: {user_dict['email']}")
+            print(f"User found/created: {user_dict}")
+            
+            # Access token oluştur
+            access_token = create_access_token(
+                data={"sub": email, "role": user_dict["role"]},
+                expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            )
+            
+            conn.close()
+            
             return {
                 "access_token": access_token,
                 "token_type": "bearer",
                 "user": user_dict
             }
+            
         except Exception as e:
-            print(f"Error processing token: {str(e)}")
-            import traceback
-            traceback.print_exc()
+            print(f"Error processing user: {str(e)}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error processing token: {str(e)}"
+                detail=f"Error processing user: {str(e)}"
             )
+            
     except Exception as e:
         print(f"Google login error: {str(e)}")
         import traceback
@@ -547,7 +482,7 @@ async def refresh_token(request: Request):
                 )
             
             # Kullanıcıyı veritabanından al
-            conn = get_db()
+            conn = get_db_connection()
             cursor = conn.cursor()
             
             # Kullanıcı ID'si sayı ise doğrudan kullan, email ise email ile ara

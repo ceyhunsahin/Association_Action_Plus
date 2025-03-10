@@ -1,41 +1,305 @@
-.container {
+.donatePageContainer {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem;
 }
 
-.header {
+.donateHeader {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
-.icon {
+.donateIcon {
   font-size: 3rem;
-  color: #c8a97e;
+  color: #e91e63;
   margin-bottom: 1rem;
 }
 
-.subtitle {
-  font-size: 1.2rem;
-  color: #666;
-  max-width: 800px;
-  margin: 0 auto;
+.donateHeader h1 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 2.5rem;
 }
 
-.content {
+.donateHeader p {
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: 1.1rem;
+}
+
+.donateFormContainer {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
 }
 
+.donateForm {
+  flex: 1;
+  min-width: 300px;
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.formGroup input,
+.formGroup textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.amountInput {
+  font-size: 1.5rem !important;
+  font-weight: 600;
+  text-align: center;
+}
+
+.quickAmounts {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+}
+
+.quickAmountButton {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quickAmountButton:hover {
+  background-color: #e0e0e0;
+}
+
+.paymentMethods {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.paymentMethod {
+  flex: 1;
+  min-width: 120px;
+  padding: 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.paymentMethod:hover {
+  border-color: #e91e63;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.paymentMethod.selected {
+  background: linear-gradient(to bottom, #fff, #f8f0f4);
+  border-color: #e91e63;
+  box-shadow: 0 4px 10px rgba(233, 30, 99, 0.1);
+}
+
+.paymentIcon {
+  font-size: 2rem;
+  color: #e91e63;
+  transition: all 0.3s ease;
+}
+
+.paymentMethod:hover .paymentIcon {
+  transform: scale(1.1);
+}
+
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.cancelButton,
+.submitButton {
+  padding: 14px 25px;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.cancelButton {
+  background-color: #f5f5f5;
+  color: #555;
+  border: 1px solid #ddd;
+}
+
+.cancelButton:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.submitButton {
+  background: linear-gradient(135deg, #e91e63, #9c27b0);
+  color: white;
+}
+
+.submitButton:hover {
+  background: linear-gradient(135deg, #d81b60, #8e24aa);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(233, 30, 99, 0.3);
+}
+
+.submitButton:disabled,
+.cancelButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.homeButton {
+  margin-top: 30px;
+  padding: 14px 30px;
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+.homeButton:hover {
+  background: linear-gradient(135deg, #43a047, #1b5e20);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+}
+
+.amountButton {
+  padding: 12px 20px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 80px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.amountButton:hover {
+  border-color: #e91e63;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.amountButton.selected {
+  background: linear-gradient(135deg, #e91e63, #9c27b0);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 10px rgba(233, 30, 99, 0.3);
+}
+
+.customAmount {
+  position: relative;
+  flex: 1;
+  min-width: 150px;
+}
+
+.customAmount input {
+  width: 100%;
+  padding: 12px 30px 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.customAmount input:focus {
+  border-color: #e91e63;
+  outline: none;
+  box-shadow: 0 4px 8px rgba(233, 30, 99, 0.1);
+}
+
+.customAmount.selected input {
+  border-color: #e91e63;
+  box-shadow: 0 4px 10px rgba(233, 30, 99, 0.1);
+}
+
+.donateButton {
+  width: 100%;
+  background-color: #e91e63;
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.donateButton:hover {
+  background-color: #c2185b;
+}
+
+.donateButton:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.secureInfo {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+}
+
 .donationInfo {
   flex: 1;
   min-width: 300px;
+  background-color: #f9f9f9;
+  padding: 2rem;
+  border-radius: 8px;
 }
 
-.donationInfo h2 {
-  color: #5d4037;
-  margin-bottom: 1.5rem;
+.donationInfo h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
 }
 
 .donationInfo ul {
@@ -44,200 +308,450 @@
 }
 
 .donationInfo li {
-  margin-bottom: 0.8rem;
-  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  color: #555;
 }
 
-.taxInfo {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  background-color: #f8f9fa;
-  padding: 1.5rem;
-  border-radius: 8px;
-  border-left: 4px solid #c8a97e;
-}
-
-.taxInfo svg {
-  color: #c8a97e;
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.donationForm {
-  flex: 1;
-  min-width: 300px;
-  background-color: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.donationForm h2 {
-  color: #5d4037;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.paymentMethods {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.methodButton {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
+.taxExample {
+  background-color: #e8f5e9;
   padding: 1rem;
-  background-color: #f8f9fa;
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.methodButton svg {
-  font-size: 1.5rem;
-  color: #6c757d;
-}
-
-.methodButton.active {
-  background-color: #fff;
-  border-color: #c8a97e;
-}
-
-.methodButton.active svg {
-  color: #c8a97e;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.formGroup label {
-  font-weight: 500;
-  color: #495057;
-}
-
-.formGroup input {
-  padding: 0.8rem 1rem;
-  border: 1px solid #ced4da;
   border-radius: 4px;
-  font-size: 1rem;
-}
-
-.presetAmounts {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.presetAmounts button {
-  padding: 0.5rem 1rem;
-  background-color: #f8f9fa;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.presetAmounts button:hover {
-  background-color: #e9ecef;
-}
-
-.submitButton {
-  padding: 1rem;
-  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
   margin-top: 1rem;
 }
 
-.submitButton:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(93, 64, 55, 0.3);
+.taxExample p {
+  margin: 0;
+  color: #2e7d32;
+  font-weight: 500;
 }
 
-.bankTransferInfo {
-  padding: 1rem 0;
+.errorMessage {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
 }
 
-.bankTransferInfo h3 {
-  color: #5d4037;
-  margin-bottom: 1rem;
-}
-
-.bankDetails {
-  background-color: #f8f9fa;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin: 1.5rem 0;
-}
-
-.bankDetail {
-  display: flex;
-  margin-bottom: 1rem;
-}
-
-.bankDetail:last-child {
-  margin-bottom: 0;
-}
-
-.label {
-  font-weight: 600;
-  width: 40%;
-  color: #495057;
-}
-
-.value {
-  width: 60%;
-}
-
-.bankTransferNote {
-  font-style: italic;
-  color: #6c757d;
-}
-
-.loading, .error {
-  text-align: center;
+.successContainer {
+  background-color: #e8f5e9;
   padding: 3rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.successIcon {
+  font-size: 4rem;
+  color: #4caf50;
+  margin-bottom: 1.5rem;
+}
+
+.successContainer h2 {
+  margin: 0 0 1rem 0;
+  color: #2e7d32;
+}
+
+.successContainer p {
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+/* Vergi Hesaplama Görsel Tablosu */
+.taxCalculator {
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.taxCalculator h4 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #333;
   font-size: 1.2rem;
 }
 
-.error {
-  color: #dc3545;
+.taxCalculatorVisual {
+  position: relative;
 }
 
-@media (max-width: 768px) {
-  .content {
-    flex-direction: column;
+.taxCalculatorHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px dashed #e0e0e0;
+}
+
+.taxColumn {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.taxIcon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #4a90e2;
+}
+
+.taxCalculatorHeader .taxColumn span {
+  font-weight: 600;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.taxCalculatorRows {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.taxRow {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
+.taxBubble {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background-color: #4a90e2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 8px rgba(74, 144, 226, 0.2);
+  transition: all 0.3s ease;
+}
+
+.taxBubble:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(74, 144, 226, 0.3);
+}
+
+.taxBubblePrimary {
+  background-color: #e91e63;
+  box-shadow: 0 4px 8px rgba(233, 30, 99, 0.2);
+}
+
+.taxBubbleSecondary {
+  background-color: #ff9800;
+  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.2);
+}
+
+.taxBubbleSuccess {
+  background-color: #4caf50;
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+}
+
+.taxArrow {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+.taxArrowLine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #e0e0e0;
+}
+
+.taxArrowHead {
+  position: absolute;
+  top: -4px;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid #e0e0e0;
+}
+
+.taxRowHighlighted {
+  padding: 1rem;
+  background-color: rgba(74, 144, 226, 0.05);
+  border-radius: 12px;
+  border: 2px dashed #4a90e2;
+  margin-top: 1rem;
+}
+
+.taxArrowHighlighted .taxArrowLine {
+  background-color: #4a90e2;
+}
+
+.taxArrowHighlighted .taxArrowHead {
+  border-left-color: #4a90e2;
+}
+
+.taxCalculatorNote {
+  display: flex;
+  align-items: center;
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #e8f4fd;
+  border-radius: 8px;
+}
+
+.taxCalculatorNote .infoIcon {
+  color: #4a90e2;
+  font-size: 1.2rem;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.taxCalculatorNote p {
+  margin: 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.taxCalculatorCTA {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.calculateButton {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 30px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(74, 144, 226, 0.2);
+}
+
+.calculateButton:hover {
+  background-color: #3a7bc8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(74, 144, 226, 0.3);
+}
+
+.calculateButton:active {
+  transform: translateY(0);
+}
+
+/* Makbuz stilleri */
+.receiptContainer {
+  max-width: 800px;
+  margin: 30px auto;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.receiptCard {
+  padding: 30px;
+  border: 1px solid #e0e0e0;
+  background-color: #fff;
+  border-radius: 10px;
+}
+
+.receiptHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 20px;
+}
+
+.receiptHeader h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin: 0;
+}
+
+.receiptLogo {
+  width: 100px;
+  height: 100px;
+}
+
+.receiptLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.receiptBody {
+  padding: 10px 0;
+}
+
+.receiptInfo {
+  margin-bottom: 30px;
+}
+
+.receiptRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.receiptLabel {
+  font-weight: 500;
+  color: #666;
+}
+
+.receiptValue {
+  text-align: right;
+  color: #333;
+}
+
+.receiptTaxInfo {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.receiptTaxInfo h3 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.taxSummary {
+  margin-top: 15px;
+}
+
+.taxRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.receiptFooter {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #f0f0f0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.associationInfo {
+  margin-bottom: 20px;
+}
+
+.receiptNote {
+  text-align: center;
+  font-style: italic;
+  margin-top: 20px;
+}
+
+.receiptActions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+  padding: 20px;
+}
+
+.receiptSentMessage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  background-color: #e8f5e9;
+  border-radius: 8px;
+  color: #2e7d32;
+}
+
+.receiptActionButtons {
+  display: flex;
+  gap: 15px;
+}
+
+.sendReceiptButton,
+.printReceiptButton,
+.downloadReceiptButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  flex: 1;
+}
+
+.sendReceiptButton {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.sendReceiptButton:hover {
+  background-color: #3a7bc8;
+  transform: translateY(-2px);
+}
+
+.printReceiptButton {
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.printReceiptButton:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+}
+
+.downloadReceiptButton {
+  background-color: #4caf50;
+  color: white;
+}
+
+.downloadReceiptButton:hover {
+  background-color: #43a047;
+  transform: translateY(-2px);
+}
+
+.successIcon {
+  font-size: 4rem;
+  color: #4caf50;
+  margin-bottom: 20px;
+}
+
+/* Yazdırma stilleri */
+@media print {
+  .receiptActions,
+  .donateHeader p:last-child {
+    display: none;
   }
   
-  .bankDetail {
-    flex-direction: column;
+  .receiptContainer {
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
   }
   
-  .label, .value {
-    width: 100%;
-  }
-  
-  .label {
-    margin-bottom: 0.3rem;
+  .receiptCard {
+    border: none;
   }
 } 

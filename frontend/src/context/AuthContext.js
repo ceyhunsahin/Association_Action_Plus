@@ -28,17 +28,19 @@ export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
   // Kullanıcı oturum durumunu izle
   useEffect(() => {
     const checkUserLoggedIn = async () => {
       try {
+        setLoading(true);
         const storedToken = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
         
         if (storedToken && storedUser) {
+          console.log('Stored token found:', storedToken.substring(0, 15) + '...');
+          
           // Token ve kullanıcı bilgilerini state'e yükle
           setAccessToken(storedToken);
           const parsedUser = JSON.parse(storedUser);
@@ -48,12 +50,16 @@ export const AuthProvider = ({ children }) => {
           
           // API istekleri için default header'ı ayarla
           axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+        } else {
+          console.log('No stored token found');
+          setIsAuthenticated(false);
         }
       } catch (error) {
         console.error('Error checking authentication:', error);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         delete axios.defaults.headers.common['Authorization'];
+        setIsAuthenticated(false);
       } finally {
         setLoading(false);
       }
@@ -66,6 +72,24 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await axios.post('http://localhost:8000/api/auth/register', userData);
+      
+      if (response.data && response.data.access_token) {
+        const { access_token, user } = response.data;
+        
+        // Token'ı localStorage'a kaydet
+        localStorage.setItem('token', access_token);
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        // Context state'ini güncelle
+        setUser(user);
+        setAccessToken(access_token);
+        setIsAuthenticated(true);
+        setIsAdmin(user.role === 'admin');
+        
+        // API istekleri için default header'ı ayarla
+        axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+      }
+      
       return response.data;
     } catch (error) {
       console.error('Registration error:', error);
@@ -73,71 +97,79 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Normal giriş
+  // Token'ı localStorage'dan al ve axios default header'a ekle
+  useEffect(() => {
+    const storedToken = localStorage.getItem('accessToken');
+    const storedUser = localStorage.getItem('user');
+    
+    if (storedToken) {
+      setAccessToken(storedToken);
+      setIsAuthenticated(true);
+      
+      // API istekleri için default header'ı ayarla
+      axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+      
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+          setIsAdmin(parsedUser.role === 'admin');
+        } catch (error) {
+          console.error('Error parsing stored user:', error);
+        }
+      }
+    }
+  }, []);
+
+  // Login fonksiyonu
   const login = async (email, password) => {
     try {
-      console.log('Login attempt with:', { email, password });
+      setLoading(true);
+      setError(null);
+      
       const response = await axios.post('http://localhost:8000/api/auth/login', {
         email,
         password
       });
       
-      console.log('Login response:', response.data);
-      
       const { access_token, user } = response.data;
       
-      // Token'ı localStorage'a kaydet
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(user));
+      console.log('Login successful, token:', access_token.substring(0, 10) + '...');
+      console.log('User:', user);
       
-      // Context state'ini güncelle
-      setUser(user);
-      setAccessToken(access_token);
-      setIsAuthenticated(true);
-      setIsAdmin(user.role === 'admin');
+      // Token ve kullanıcı bilgilerini sakla
+      localStorage.setItem('accessToken', access_token);
+      localStorage.setItem('user', JSON.stringify(user));
       
       // API istekleri için default header'ı ayarla
       axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
       
-      return response.data;
+      setAccessToken(access_token);
+      setUser(user);
+      setIsAdmin(user.role === 'admin');
+      setIsAuthenticated(true);
+      setLoading(false);
+      
+      return true;
     } catch (error) {
-      console.error('Login error in context:', error);
-      throw error;
+      console.error('Login error:', error.response || error);
+      setError(error.response?.data?.detail || 'Login failed');
+      setLoading(false);
+      return false;
     }
   };
 
-  // Google ile giriş - Firebase popup yöntemi
+  // Google ile giriş
   const loginWithGoogle = async () => {
     try {
-      setError(null);
-      
-      // Google provider oluştur
       const provider = new GoogleAuthProvider();
-      
-      // Email istediğimizi belirtelim
-      provider.addScope('email');
-      provider.addScope('profile');
-      
-      // Basit yapılandırma
-      provider.setCustomParameters({
-        prompt: 'select_account'
-      });
-      
-      // Popup ile giriş yap
-      console.log("Opening Google sign-in popup...");
       const result = await signInWithPopup(auth, provider);
-      console.log("Google sign-in successful, getting ID token...");
       
-      // Kullanıcı bilgilerini al
-      const { displayName, email, photoURL, uid } = result.user;
+      // Google'dan kullanıcı bilgilerini al
+      const { email } = result.user;
+      console.log(`Google login successful for: ${email}`);
       
-      // Email kontrolü
-      if (!email) {
-        console.error("No email found in Google user data");
-        throw new Error("Email not found in Google user data");
-      }
-      
-      // Token al
+      // Firebase'den ID token al
       const idToken = await result.user.getIdToken();
       console.log(`Got ID token, first 10 chars: ${idToken.substring(0, 10)}...`);
       
@@ -145,136 +177,49 @@ export const AuthProvider = ({ children }) => {
         // Backend'e gönder
         console.log("Sending token to backend...");
         const response = await axios.post('http://localhost:8000/api/auth/google-login', { 
-          idToken,
-          userData: {
-            displayName,
-            email,
-            photoURL,
-            uid
-          }
+          idToken 
         });
         
-        console.log("Backend response:", response.data);
-        
-        // Kullanıcı bilgilerini kaydet
-        const { access_token, user } = response.data;
-        localStorage.setItem('token', access_token);
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        // State'i güncelle
-        setAccessToken(access_token);
-        setUser(user);
-        setIsAdmin(user.role === 'admin');
-        setIsAuthenticated(true);
-        
-        // API istekleri için default header'ı ayarla
-        axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-        
-        return response.data;
-      } catch (backendError) {
-        console.error("Backend error:", backendError);
-        if (backendError.response) {
-          console.error("Response data:", backendError.response.data);
-          console.error("Response status:", backendError.response.status);
-          throw new Error(backendError.response.data.detail || "Backend error");
+        if (response.data && response.data.access_token) {
+          const { access_token, user } = response.data;
+          
+          console.log('Backend login successful, token:', access_token.substring(0, 10) + '...');
+          console.log('User:', user);
+          
+          // Token ve kullanıcı bilgilerini sakla
+          localStorage.setItem('accessToken', access_token);
+          localStorage.setItem('user', JSON.stringify(user));
+          
+          // API istekleri için default header'ı ayarla
+          axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+          
+          setAccessToken(access_token);
+          setUser(user);
+          setIsAdmin(user.role === 'admin');
+          setIsAuthenticated(true);
+          
+          return response.data;
         }
-        throw backendError;
+      } catch (error) {
+        console.error('Backend error:', error.response?.data?.detail || error.message);
+        throw new Error(error.response?.data?.detail || 'Google login failed');
       }
     } catch (error) {
       console.error('Google login error:', error);
-      
-      // Hata detaylarını yazdır
-      if (error.code) console.error('Error code:', error.code);
-      if (error.message) console.error('Error message:', error.message);
-      
-      // Kullanıcıya gösterilecek hata mesajı
-      let errorMessage = "Google ile giriş yapılırken bir hata oluştu.";
-      
-      // Firebase hata kodlarına göre özel mesajlar
-      if (error.code === 'auth/popup-closed-by-user') {
-        errorMessage = "Giriş penceresi kapatıldı. Lütfen tekrar deneyin.";
-      } else if (error.code === 'auth/popup-blocked') {
-        errorMessage = "Tarayıcınız popup'ları engelliyor. Lütfen izin verin ve tekrar deneyin.";
-      }
-      
-      setError(errorMessage);
       throw error;
     }
   };
 
-  // Çıkış
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    delete axios.defaults.headers.common['Authorization'];
-    setUser(null);
-    setAccessToken(null);
-    setIsAdmin(false);
-    setIsAuthenticated(false);
-  };
-
-  // Token yenileme fonksiyonu
-  const refreshToken = async () => {
-    try {
-      // Eğer zaten token yenileme işlemi yapılıyorsa, tekrar yapma
-      if (isRefreshing) return null;
-      
-      setIsRefreshing(true);
-      
-      const response = await axios.post(
-        'http://localhost:8000/api/auth/refresh-token',
-        {},
-        { withCredentials: true }
-      );
-      
-      if (response.data && response.data.access_token) {
-        setAccessToken(response.data.access_token);
-        
-        // Kullanıcı bilgilerini güncelle
-        const userResponse = await axios.get(
-          'http://localhost:8000/api/users/me',
-          {
-            headers: {
-              Authorization: `Bearer ${response.data.access_token}`
-            }
-          }
-        );
-        
-        if (userResponse.data) {
-          setUser(userResponse.data);
-          setIsAdmin(userResponse.data.role === 'admin');
-        }
-        
-        setIsRefreshing(false);
-        return response.data.access_token;
-      }
-      
-      setIsRefreshing(false);
-    } catch (error) {
-      console.error('Token yenileme hatası:', error);
-      // Token yenilenemezse kullanıcıyı çıkış yaptır
-      setUser(null);
-      setAccessToken(null);
-      setIsAdmin(false);
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-      setIsRefreshing(false);
-    }
-    return null;
-  };
-
   // Axios interceptor'ları
   useEffect(() => {
-    // İstek sayacı
-    let failedRequestCount = 0;
-    const MAX_FAILED_REQUESTS = 3;
-    
     // Request interceptor
     const requestInterceptor = axios.interceptors.request.use(
-      async (config) => {
+      (config) => {
         // Eğer token varsa ve auth isteği değilse token ekle
-        if (accessToken && !config.url.includes('/auth/')) {
-          config.headers.Authorization = `Bearer ${accessToken}`;
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+          console.log(`Adding token to request: ${config.url}`);
+          config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
@@ -285,22 +230,16 @@ export const AuthProvider = ({ children }) => {
     const responseInterceptor = axios.interceptors.response.use(
       (response) => response,
       async (error) => {
-        const originalRequest = error.config;
-        
-        // Token süresi dolmuşsa ve bu istek daha önce yenilenmemişse
-        // ve başarısız istek sayısı limiti aşmamışsa
-        if (error.response?.status === 401 && 
-            !originalRequest._retry && 
-            failedRequestCount < MAX_FAILED_REQUESTS) {
+        // 401 hatası alındığında
+        if (error.response?.status === 401) {
+          console.log('401 error detected:', error.config.url);
           
-          originalRequest._retry = true;
-          failedRequestCount++;
-          
-          const newToken = await refreshToken();
-          if (newToken) {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            failedRequestCount = 0; // Başarılı olursa sayacı sıfırla
-            return axios(originalRequest);
+          // Token'ı kontrol et
+          const token = localStorage.getItem('accessToken');
+          if (token) {
+            console.log('Token exists but got 401, logging out...');
+            // Oturumu kapat
+            logout();
           }
         }
         
@@ -313,7 +252,22 @@ export const AuthProvider = ({ children }) => {
       axios.interceptors.request.eject(requestInterceptor);
       axios.interceptors.response.eject(responseInterceptor);
     };
-  }, [accessToken]);
+  }, []);
+
+  // Çıkış
+  const logout = () => {
+    console.log('Logging out user');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('user');
+    delete axios.defaults.headers.common['Authorization'];
+    setUser(null);
+    setAccessToken(null);
+    setIsAdmin(false);
+    setIsAuthenticated(false);
+    
+    // Sayfayı yenileme yerine window.location.href kullan
+    window.location.href = '/login';
+  };
 
   const value = {
     user,

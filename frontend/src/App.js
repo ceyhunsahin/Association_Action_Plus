@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import ScrollToTop from './components/common/ScrollToTop';
+import Footer from './components/pages/Footer';
 
 // Doğru dosya yollarını kullanarak bileşenleri import edelim
 // Dosya adlarını tam olarak dosya sistemindeki gibi yazalım
@@ -29,7 +31,9 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Layout>
+        <ScrollToTop />
+        <Navbar />
+        <main>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<About />} />
@@ -37,7 +41,7 @@ function App() {
             <Route path="/register" element={<RegisterForm />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<EventDetail />} />
-            <Route path="/donation" element={<Donate />} />  {/* Bağış sayfası rotası */}
+            <Route path="/donate" element={<Donate />} />  {/* Bağış sayfası rotası */}
             
             {/* Admin route for creating events */}
             <Route 
@@ -72,7 +76,8 @@ function App() {
             {/* 404 sayfası */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
-        </Layout>
+        </main>
+        <Footer />
       </Router>
     </AuthProvider>
   );

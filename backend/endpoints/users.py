@@ -167,17 +167,19 @@ async def auth_register(user: User):
 # Kullanıcının etkinliklerini getir
 @router.get("/me/events")
 async def get_user_events(current_user: dict = Depends(get_current_user)):
+    """Kullanıcının katıldığı etkinlikleri getir"""
     try:
-        print(f"Getting events for user: {current_user['id']}")
+        print(f"Get user events request received for user {current_user['id']}")
+        
         conn = get_db()
         cursor = conn.cursor()
         
         # Kullanıcının katıldığı etkinlikleri getir
-        cursor.execute('''
-        SELECT e.* FROM events e
-        JOIN event_participants ep ON e.id = ep.event_id
-        WHERE ep.user_id = ?
-        ''', (current_user["id"],))
+        cursor.execute("""
+            SELECT e.* FROM events e
+            JOIN event_participants ep ON e.id = ep.event_id
+            WHERE ep.user_id = ?
+        """, (current_user["id"],))
         
         events = cursor.fetchall()
         conn.close()
@@ -185,14 +187,18 @@ async def get_user_events(current_user: dict = Depends(get_current_user)):
         # SQLite Row'ları dictionary'e çevir
         events_list = []
         for event in events:
-            events_list.append(dict(event))
+            event_dict = dict(event)
+            # Kullanıcının katıldığı etkinlikleri işaretle
+            event_dict["isParticipating"] = True
+            events_list.append(event_dict)
         
         return {"events": events_list}
+    
     except Exception as e:
-        print(f"Error getting user events: {e}")
+        print(f"Error in get_user_events: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            detail=f"Error fetching user events: {str(e)}"
         )
 
 # Admin kullanıcısı için tüm etkinlikleri getir

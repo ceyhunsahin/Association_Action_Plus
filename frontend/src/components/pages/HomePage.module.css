@@ -1187,7 +1187,7 @@
     background-color: #b89669;
     transform: translateY(-3px);
   }
-
+  
   /* Loading ve Error Mesajları */
   .loading, .error {
     text-align: center;
@@ -1199,4 +1199,128 @@
 
   .error {
     color: #e53935;
+  }
+
+  /* Yaratıcı Butonlar Bölümü */
+  .creativeButtonsSection {
+    padding: 40px 20px;
+    background-color: #f9f9f9;
+    position: relative;
+    z-index: 1;
+  }
+
+  .creativeButtonsSection::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent, #f9f9f9);
+    z-index: -1;
+  }
+
+  .creativeButtonsContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+
+  .creativeButton {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 12px;
+    padding: 25px 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: #333;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .creativeButton::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 5px;
+    background: linear-gradient(to bottom, #e91e63, #9c27b0);
+    transition: all 0.3s ease;
+  }
+
+  .creativeButton:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  }
+
+  .creativeButton:hover::before {
+    width: 10px;
+  }
+
+  .creativeButtonIcon {
+    font-size: 2.5rem;
+    margin-right: 20px;
+    color: #e91e63;
+    transition: all 0.3s ease;
+  }
+
+  .creativeButton:hover .creativeButtonIcon {
+    transform: scale(1.1);
+  }
+
+  .creativeButtonContent {
+    flex: 1;
+  }
+
+  .creativeButtonContent h3 {
+    font-size: 1.4rem;
+    margin: 0 0 5px 0;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .creativeButtonContent p {
+    font-size: 0.9rem;
+    margin: 0;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  .creativeButtonArrow {
+    margin-left: 15px;
+    font-size: 1.2rem;
+    color: #9c27b0;
+    transition: all 0.3s ease;
+  }
+
+  .creativeButton:hover .creativeButtonArrow {
+    transform: translateX(5px);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .creativeButton {
+      padding: 20px;
+    }
+    
+    .creativeButtonIcon {
+      font-size: 2rem;
+      margin-right: 15px;
+    }
+    
+    .creativeButtonContent h3 {
+      font-size: 1.2rem;
+    }
+    
+    .creativeButtonContent p {
+      font-size: 0.8rem;
+    }
   }

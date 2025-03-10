@@ -46,3 +46,20 @@ class EventCreate(BaseModel):
     location: str = None
     image: str = None
     max_participants: int = 50
+
+class Donation(BaseModel):
+    id: Optional[int] = None
+    user_id: int
+    amount: float
+    currency: str = "EUR"
+    payment_method: str
+    transaction_id: Optional[str] = None
+    status: str
+    donor_name: str
+    donor_email: str
+    donor_address: Optional[str] = None
+    donor_phone: Optional[str] = None
+    donor_message: Optional[str] = None
+    bank_info: Optional[dict] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None

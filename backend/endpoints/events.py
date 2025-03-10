@@ -5,6 +5,7 @@ from auth import get_current_user, get_current_admin, oauth2_scheme
 from models import Event, EventCreate, EventUpdate
 import sqlite3
 from jose import JWTError, jwt
+from datetime import datetime
 
 router = APIRouter(
     tags=["events"]
@@ -366,50 +367,55 @@ async def join_event(event_id: int, current_user: dict = Depends(get_current_use
 
 # Etkinlikten ayrıl
 @router.delete("/{event_id}/register")
-async def unregister_from_event(event_id: int, current_user: dict = Depends(get_current_user)):
-    conn = get_db()
-    cursor = conn.cursor()
-    
+async def unregister_event(event_id: int, current_user: dict = Depends(get_current_user)):
+    """Kullanıcıyı etkinlikten çıkar"""
     try:
-        # Etkinliği bul
-        cursor.execute('''
-        SELECT * FROM events WHERE id = ?
-        ''', (event_id,))
+        print(f"Unregister event request received for event {event_id}")
+        print(f"Current user: {current_user}")
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Etkinliğin var olup olmadığını kontrol et
+        cursor.execute("SELECT * FROM events WHERE id = ?", (event_id,))
         event = cursor.fetchone()
         
         if not event:
-            raise HTTPException(status_code=404, detail="Événement non trouvé")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Event not found"
+            )
         
-        # Kullanıcının kaydını bul
-        cursor.execute('''
-        SELECT * FROM event_participants
-        WHERE event_id = ? AND user_id = ?
-        ''', (event_id, current_user["id"]))
-        registration = cursor.fetchone()
+        # Kullanıcının kayıtlı olup olmadığını kontrol et
+        cursor.execute(
+            "SELECT * FROM event_participants WHERE user_id = ? AND event_id = ?",
+            (current_user["id"], event_id)
+        )
+        existing_registration = cursor.fetchone()
         
-        if not registration:
-            raise HTTPException(status_code=404, detail="Vous n'êtes pas inscrit à cet événement")
+        if not existing_registration:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not registered for this event"
+            )
         
-        # Kullanıcının kaydını sil
-        cursor.execute('''
-        DELETE FROM event_participants
-        WHERE event_id = ? AND user_id = ?
-        ''', (event_id, current_user["id"]))
-        
-        # Etkinliğin katılımcı sayısını güncelle
-        cursor.execute('''
-        UPDATE events
-        SET participant_count = CASE WHEN participant_count > 0 THEN participant_count - 1 ELSE 0 END
-        WHERE id = ?
-        ''', (event_id,))
+        # Kullanıcıyı etkinlikten çıkar
+        cursor.execute(
+            "DELETE FROM event_participants WHERE user_id = ? AND event_id = ?",
+            (current_user["id"], event_id)
+        )
         
         conn.commit()
-        
-        return {"message": "Désinscription de l'événement réussie"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
         conn.close()
+        
+        return {"message": "Successfully unregistered from event"}
+    
+    except Exception as e:
+        print(f"Error unregistering from event: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error unregistering from event: {str(e)}"
+        )
 
 # Kullanıcının etkinliğe kayıtlı olup olmadığını kontrol et
 @router.get("/{event_id}/check-registration")
