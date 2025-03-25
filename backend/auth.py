@@ -66,54 +66,49 @@ def create_refresh_token(data: dict):
 
 # Token doğrulama ve kullanıcı alma
 async def get_current_user(token: str = Depends(oauth2_scheme)):
-    """Token'dan kullanıcı bilgilerini al"""
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
     try:
-        # Token'ı decode et
+        print("[DEBUG] Verifying token")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        role = payload.get("role")
         
-        # Kullanıcı ID'si veya email'i al
-        user_id = payload.get("sub")
+        print(f"[DEBUG] Token payload: {payload}")
         
-        if user_id is None:
-            raise credentials_exception
+        # Admin kontrolü
+        if email == "admin@admin" and role == "admin":
+            print("[DEBUG] Admin token verified")
+            return {
+                "id": 1,
+                "email": "admin@admin",
+                "firstName": "Admin",
+                "lastName": "User",
+                "role": "admin"
+            }
+
+        # Normal kullanıcı kontrolü devam eder...
+        print(f"[DEBUG] Regular user token verification for: {email}")
+        conn = get_db_connection()
+        cursor = conn.cursor()
         
-        print(f"Token payload: {payload}")
-        print(f"User ID from token: {user_id}")
+        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        user = cursor.fetchone()
         
-        # Eğer sub alanı email ise, email ile kullanıcıyı bul
-        if isinstance(user_id, str) and "@" in user_id:
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM users WHERE email = ?", (user_id,))
-            user = cursor.fetchone()
-            conn.close()
-        else:
-            # Eğer sub alanı ID ise, ID ile kullanıcıyı bul
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-            user = cursor.fetchone()
-            conn.close()
-        
-        if user is None:
-            print(f"User not found for ID/email: {user_id}")
-            raise credentials_exception
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid credentials"
+            )
         
         user_dict = dict(user)
         print(f"User found: {user_dict}")
         return user_dict
     
     except JWTError as e:
-        print(f"JWT Error: {e}")
-        raise credentials_exception
-    except Exception as e:
-        print(f"Unexpected error in get_current_user: {e}")
-        raise credentials_exception
+        print(f"[DEBUG] JWT Error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials"
+        )
 
 # Admin kullanıcısını kontrol et
 async def get_current_admin(current_user: dict = Depends(get_current_user)):
@@ -247,41 +242,56 @@ async def login(request: Request):
         email = data.get("email")
         password = data.get("password")
         
-        print(f"Login attempt with: {email}")
-        
-        # Basit admin kontrolü
-        if email == "admin@admin" and password == "admin":
-            print("Admin login successful")
-            # Admin kullanıcısı için token oluştur
-            access_token = create_access_token(
-                data={"sub": "admin@admin", "role": "admin"},
-                expires_delta=timedelta(days=1)  # Admin için daha uzun süre
-            )
-            
-            # Admin kullanıcı bilgilerini döndür
-            user = {
-                "id": 1,
-                "username": "admin",
-                "email": "admin@admin",
-                "firstName": "Admin",
-                "lastName": "User",
-                "role": "admin"
-            }
-            
-            return {"access_token": access_token, "token_type": "bearer", "user": user}
-        
-        # Normal kullanıcı kontrolü
+        print(f"[DEBUG] Login attempt for: {email}")
+
+        # Admin kontrolü
+        if email == "admin@admin":
+            print("[DEBUG] Admin login attempt")
+            if password == "admin":
+                print("[DEBUG] Admin password verified")
+                access_token = create_access_token(
+                    data={
+                        "sub": "admin@admin",
+                        "role": "admin",
+                        "type": "access"  # Token tipini belirt
+                    }
+                )
+                
+                admin_user = {
+                    "id": 1,
+                    "email": "admin@admin",
+                    "firstName": "Admin",
+                    "lastName": "User",
+                    "role": "admin"
+                }
+                
+                print("[DEBUG] Admin token created successfully")
+                return {
+                    "access_token": access_token,
+                    "token_type": "bearer",
+                    "user": admin_user
+                }
+            else:
+                print("[DEBUG] Admin password incorrect")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid credentials"
+                )
+
+        # Normal kullanıcı girişi için mevcut kod aynen devam eder...
+        print("[DEBUG] Proceeding with regular user login")
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Kullanıcıyı email veya username ile ara
-        cursor.execute("SELECT * FROM users WHERE email = ? OR username = ?", (email, email))
+        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
         user = cursor.fetchone()
         
         if not user:
-            print(f"User not found: {email}")
-            raise HTTPException(status_code=401, detail="Email, nom d'utilisateur ou mot de passe incorrect")
-        
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid credentials"
+            )
+            
         # Şifreyi doğrula
         if not pwd_context.verify(password, user["password"]):
             print(f"Invalid password for user: {email}")
@@ -423,39 +433,54 @@ async def google_login(request: Request):
 @router.post("/refresh-token")
 async def refresh_token(request: Request):
     try:
-        # Refresh token'ı cookie'den al
-        refresh_token = request.cookies.get("refresh_token")
-        if not refresh_token:
+        token = request.headers.get('Authorization')
+        if not token or not token.startswith('Bearer '):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Refresh token not found"
+                detail="No token provided"
             )
+            
+        token = token.split(' ')[1]
+        print(f"[DEBUG] Refreshing token")
         
-        # Token'ı doğrula
         try:
-            payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
-            if payload.get("type") != "refresh":
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid token type"
-                )
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            print(f"[DEBUG] Token payload for refresh: {payload}")
             
-            user_id = payload.get("sub")
-            if not user_id:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid token"
+            # Admin token kontrolü
+            if payload.get("sub") == "admin@admin" and payload.get("role") == "admin":
+                print("[DEBUG] Refreshing admin token")
+                new_token = create_access_token(
+                    data={
+                        "sub": "admin@admin",
+                        "role": "admin",
+                        "type": "access"
+                    }
                 )
-            
+                
+                return {
+                    "access_token": new_token,
+                    "token_type": "bearer",
+                    "user": {
+                        "id": 1,
+                        "email": "admin@admin",
+                        "firstName": "Admin",
+                        "lastName": "User",
+                        "role": "admin"
+                    }
+                }
+                
+            # Normal kullanıcı token yenileme devam eder...
+            print("[DEBUG] Proceeding with regular token refresh")
             # Kullanıcıyı veritabanından al
             conn = get_db_connection()
             cursor = conn.cursor()
             
             # Kullanıcı ID'si sayı ise doğrudan kullan, email ise email ile ara
-            if user_id.isdigit():
-                cursor.execute("SELECT * FROM users WHERE id = ?", (int(user_id),))
+            if payload.get("sub").isdigit():
+                cursor.execute("SELECT * FROM users WHERE id = ?", (int(payload.get("sub")),))
             else:
-                cursor.execute("SELECT * FROM users WHERE email = ?", (user_id,))
+                cursor.execute("SELECT * FROM users WHERE email = ?", (payload.get("sub"),))
             
             user = cursor.fetchone()
             
@@ -486,9 +511,8 @@ async def refresh_token(request: Request):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token"
             )
-    except HTTPException as e:
-        raise e
     except Exception as e:
+        print(f"[DEBUG] Token refresh error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
