@@ -440,6 +440,12 @@ const ProfilePage = () => {
                   >
                     <FaEye /> Voir les détails
                   </button>
+                  <button 
+                    className={styles.unregisterButton}
+                    onClick={() => handleUnregister(event.id)}
+                  >
+                    <FaSignOutAlt /> Se désinscrire
+                  </button>
                 </div>
               </div>
             );
@@ -699,96 +705,118 @@ const ProfilePage = () => {
     );
   };
 
+  // Etkinlikten ayrılma fonksiyonu
+  const handleUnregister = async (eventId) => {
+    try {
+        const response = await axios.delete(
+            `http://localhost:8000/api/events/${eventId}/register`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                }
+            }
+        );
+
+        if (response.status === 200) {
+            // Etkinlik listelerini güncelle
+            setUserEvents(userEvents.filter(event => event.id !== eventId));
+        }
+    } catch (error) {
+        console.error('Error unregistering from event:', error);
+        alert('Erreur lors de la désinscription de l\'événement');
+    }
+  };
+
   if (!user) {
     return <div className={styles.loading}>Chargement...</div>;
   }
 
   return (
     <div className={`${styles.profilePage} ${animateProfile ? styles.animateProfile : ''}`} ref={profileRef}>
-      <div className={styles.profileHeader}>
-        <div className={styles.profileAvatar}>
-          {user.profileImage ? (
-            <img src={user.profileImage} alt={`${user.firstName} ${user.lastName}`} />
-          ) : (
-            <div className={styles.defaultAvatar}>
-              <FaUser />
+        <div className={styles.profileHeader}>
+            <div className={styles.profileAvatar}>
+                {user.profileImage ? (
+                    <img src={user.profileImage} alt={`${user.firstName} ${user.lastName}`} />
+                ) : (
+                    <div className={styles.defaultAvatar}>
+                        <FaUser />
+                    </div>
+                )}
             </div>
-          )}
+            
+            <div className={styles.profileInfo}>
+                <h1>{user.firstName} {user.lastName}</h1>
+                <p className={styles.userEmail}><FaEnvelope /> {user.email}</p>
+                
+                <div className={styles.userBadges}>
+                    <span className={styles.userBadge} title="Membre actif">
+                        <FaUserFriends />
+                    </span>
+                    {donationHistory.length > 0 && (
+                        <span className={styles.userBadge} title="Donateur" style={{ color: calculateDonationLevel().color }}>
+                            {calculateDonationLevel().icon}
+                        </span>
+                    )}
+                    {userEvents.length > 5 && (
+                        <span className={styles.userBadge} title="Participant régulier">
+                            <FaStar />
+                        </span>
+                    )}
+                </div>
+            </div>
+            
+            <div className={styles.profileActions}>
+                <button className={styles.logoutButton} onClick={logout}>
+                    <FaSignOutAlt /> Se déconnecter
+                </button>
+            </div>
         </div>
         
-        <div className={styles.profileInfo}>
-          <h1>{user.firstName} {user.lastName}</h1>
-          <p className={styles.userEmail}><FaEnvelope /> {user.email}</p>
-          
-          <div className={styles.userBadges}>
-            <span className={styles.userBadge} title="Membre actif">
-              <FaUserFriends />
-            </span>
-            {donationHistory.length > 0 && (
-              <span className={styles.userBadge} title="Donateur" style={{ color: calculateDonationLevel().color }}>
-                {calculateDonationLevel().icon}
-              </span>
-            )}
-            {userEvents.length > 5 && (
-              <span className={styles.userBadge} title="Participant régulier">
-                <FaStar />
-              </span>
-            )}
-          </div>
+        {successMessage && (
+            <div className={styles.successMessage}>
+                <FaCheckCircle /> {successMessage}
+            </div>
+        )}
+        
+        {error && (
+            <div className={styles.errorMessage}>
+                <FaExclamationCircle /> {error}
+            </div>
+        )}
+        
+        <div className={styles.profileNavigation}>
+            <button 
+                className={`${styles.navButton} ${activeTab === 'overview' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('overview')}
+            >
+                <FaUser /> Vue d'ensemble
+            </button>
+            <button 
+                className={`${styles.navButton} ${activeTab === 'events' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('events')}
+            >
+                <FaCalendarCheck /> Événements
+            </button>
+            <button 
+                className={`${styles.navButton} ${activeTab === 'donations' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('donations')}
+            >
+                <FaHandHoldingHeart /> Dons
+            </button>
+            <button 
+                className={`${styles.navButton} ${activeTab === 'settings' ? styles.activeTab : ''}`}
+                onClick={() => setActiveTab('settings')}
+            >
+                <FaEdit /> Paramètres
+            </button>
         </div>
         
-        <div className={styles.profileActions}>
-          <button className={styles.logoutButton} onClick={logout}>
-            <FaSignOutAlt /> Se déconnecter
-          </button>
+        <div className={styles.profileContent}>
+            {activeTab === 'overview' && renderOverview()}
+            {activeTab === 'events' && renderUserEvents()}
+            {activeTab === 'donations' && renderDonationHistory()}
+            {activeTab === 'settings' && renderSettings()}
         </div>
-      </div>
-      
-      {successMessage && (
-        <div className={styles.successMessage}>
-          <FaCheckCircle /> {successMessage}
-        </div>
-      )}
-      
-      {error && (
-        <div className={styles.errorMessage}>
-          <FaExclamationCircle /> {error}
-        </div>
-      )}
-      
-      <div className={styles.profileNavigation}>
-        <button 
-          className={`${styles.navButton} ${activeTab === 'overview' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          <FaUser /> Vue d'ensemble
-        </button>
-        <button 
-          className={`${styles.navButton} ${activeTab === 'events' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('events')}
-        >
-          <FaCalendarCheck /> Événements
-        </button>
-        <button 
-          className={`${styles.navButton} ${activeTab === 'donations' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('donations')}
-        >
-          <FaHandHoldingHeart /> Dons
-        </button>
-        <button 
-          className={`${styles.navButton} ${activeTab === 'settings' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('settings')}
-        >
-          <FaEdit /> Paramètres
-        </button>
-      </div>
-      
-      <div className={styles.profileContent}>
-        {activeTab === 'overview' && renderOverview()}
-        {activeTab === 'events' && renderUserEvents()}
-        {activeTab === 'donations' && renderDonationHistory()}
-        {activeTab === 'settings' && renderSettings()}
-      </div>
     </div>
   );
 };

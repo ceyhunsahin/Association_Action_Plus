@@ -302,123 +302,143 @@
 
 .eventsTabs {
   display: flex;
-  border-bottom: 1px solid #eaeaea;
-}
-
-.eventsTab {
-  flex: 1;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
   padding: 1rem;
-  background: none;
+  background: linear-gradient(to right, rgba(74, 144, 226, 0.1), rgba(243, 156, 18, 0.1));
+  border-radius: 15px;
+}
+
+.eventTab {
+  flex: 1;
+  padding: 1rem 1.5rem;
   border: none;
-  cursor: pointer;
-  font-size: 1rem;
+  border-radius: 12px;
+  background: white;
   color: #666;
-  transition: all 0.2s ease;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.eventsTab:hover {
-  color: #3f51b5;
+.eventTab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.eventsTab.activeTab {
-  color: #3f51b5;
-  border-bottom: 3px solid #3f51b5;
-  font-weight: 600;
-}
-
-.eventsTab svg {
-  margin-right: 0.5rem;
+.eventTab.activeTab {
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  color: white;
 }
 
 .eventsList {
-  padding: 1.5rem;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
+  padding: 1rem;
 }
 
 .eventCard {
-  background-color: #fff;
-  border-radius: 8px;
+  background: white;
+  border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .eventCard:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .eventHeader {
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem;
-  background-color: #f5f5f5;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  color: white;
 }
 
-.eventType, .eventDate {
+.eventType {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   font-size: 0.9rem;
-  color: #666;
-}
-
-.eventType svg, .eventDate svg {
-  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .eventTitle {
-  padding: 1rem;
-  margin: 0;
   font-size: 1.2rem;
-  color: #333;
+  font-weight: 600;
+  margin: 1rem 1.5rem;
+  color: #2c3e50;
 }
 
 .eventDetails {
-  padding: 0 1rem 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.eventLocation, .eventTime {
-  display: flex;
-  align-items: center;
-  font-size: 0.9rem;
+  padding: 0 1.5rem 1rem;
   color: #666;
 }
 
-.eventLocation svg, .eventTime svg {
-  margin-right: 0.5rem;
-  color: #3f51b5;
+.eventDate, .eventLocation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
 }
 
 .eventActions {
-  padding: 1rem;
-  border-top: 1px solid #eaeaea;
+  padding: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
-  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.viewEventButton, .unregisterButton {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .viewEventButton {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  background-color: #3f51b5;
+  background: var(--primary);
   color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .viewEventButton:hover {
-  background-color: #303f9f;
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(74, 144, 226, 0.2);
 }
 
-.viewEventButton svg {
-  margin-right: 0.5rem;
+.unregisterButton {
+  background: white;
+  color: #dc3545;
+  border: 2px solid #dc3545;
+}
+
+.unregisterButton:hover {
+  background: #dc3545;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2);
+}
+
+.buttonIcon {
+  font-size: 1rem;
 }
 
 .viewAllButton {
@@ -734,7 +754,44 @@
     grid-template-columns: 1fr;
   }
   
+  .eventsTabs {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .eventTab {
+    width: 100%;
+  }
+  
   .eventsList {
     grid-template-columns: 1fr;
+    padding: 0.5rem;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.eventCard {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Responsive tasarım için */
+@media (max-width: 480px) {
+  .eventActions {
+    flex-direction: column;
+  }
+  
+  .viewEventButton, .unregisterButton {
+    width: 100%;
   }
 }
