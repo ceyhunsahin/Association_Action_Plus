@@ -70,109 +70,92 @@ async def get_events():
 # Kullanıcının etkinliklerini getir
 @router.get("/users/me/events")
 async def get_user_events(current_user: dict = Depends(get_current_user)):
+    """Kullanıcının katıldığı etkinlikleri getir"""
     try:
         conn = get_db()
         cursor = conn.cursor()
         
-        # Debug için
-        print(f"Getting events for user: {current_user['id']}")
+        # Kullanıcı ID'sini al
+        user_id = current_user.get("id")
+        if not user_id and "@" in current_user.get("sub", ""):
+            # Email ile kullanıcıyı bul
+            cursor.execute("SELECT id FROM users WHERE email = ?", (current_user["sub"],))
+            result = cursor.fetchone()
+            if result:
+                user_id = result["id"]
         
-        # Kullanıcının katıldığı etkinlikleri getir
-        cursor.execute('''
-            SELECT e.* FROM events e
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        # Kullanıcının etkinliklerini getir
+        cursor.execute("""
+            SELECT e.* 
+            FROM events e
             JOIN event_participants ep ON e.id = ep.event_id
             WHERE ep.user_id = ?
-        ''', (current_user["id"],))
+        """, (user_id,))
         
         events = cursor.fetchall()
-        print(f"Found {len(events)} events for user {current_user['id']}")
+        conn.close()
         
-        # Sonuçları kontrol et
-        if not events:
-            print("No events found for user")
-            return {"events": []}
+        return {"events": [dict(event) for event in events]}
         
-        # SQLite row'larını dict'e çevir
-        events_list = []
-        for event in events:
-            event_dict = dict(event)
-            events_list.append(event_dict)
-            print(f"Added event: {event_dict['id']} - {event_dict['title']}")
-        
-        return {"events": events_list}
     except Exception as e:
-        print(f"Error in get_user_events: {str(e)}")
+        print(f"Error getting user events: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
-    finally:
-        if 'conn' in locals():
-            conn.close()
 
 # Yeni etkinlik oluştur (sadece admin)
-@router.post("")
-async def create_event(event: dict, token: str = Depends(oauth2_scheme)):
+@router.post("/events")
+async def create_event(
+    event: dict,
+    current_user: dict = Depends(get_current_admin)
+):
+    """Yeni etkinlik oluştur (sadece admin)"""
     try:
-        # Token'ı doğrula
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        role = payload.get("role")
-        
-        print(f"Token payload: {payload}")  # Debug için
-        print(f"Role: {role}")  # Debug için
-        
-        # Admin kontrolü
-        if role != "admin":
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Bu işlem için admin yetkisi gerekiyor"
-            )
-        
-        # Veritabanı bağlantısı
         conn = get_db()
         cursor = conn.cursor()
         
-        # Etkinlik bilgilerini al
-        title = event.get("title")
-        description = event.get("description")
-        date = event.get("date")
-        location = event.get("location")
-        image = event.get("image")
-        max_participants = event.get("max_participants", 50)
-        
-        print(f"Creating event: {title}, {date}, {location}")  # Debug için
-        
-        # Etkinliği veritabanına ekle
-        cursor.execute('''
-        INSERT INTO events (title, description, date, location, image, max_participants)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ''', (title, description, date, location, image, max_participants))
+        # Etkinliği oluştur
+        cursor.execute("""
+            INSERT INTO events (
+                title, description, date, location, type, 
+                maxParticipants, isFeatured, imageUrl, createdBy
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            event.get("title"),
+            event.get("description"),
+            event.get("date"),
+            event.get("location"),
+            event.get("type"),
+            event.get("maxParticipants"),
+            event.get("isFeatured", False),
+            event.get("imageUrl"),
+            current_user.get("id") or current_user.get("sub")
+        ))
         
         conn.commit()
         
-        # Yeni eklenen etkinliğin ID'sini al
+        # Yeni oluşturulan etkinliği getir
         event_id = cursor.lastrowid
-        
-        # Etkinlik bilgilerini döndür
         cursor.execute("SELECT * FROM events WHERE id = ?", (event_id,))
-        event = cursor.fetchone()
+        new_event = cursor.fetchone()
         
-        event_dict = dict(event)
-        print("Created event:", event_dict)  # Debug için
+        conn.close()
         
-        return event_dict
-    except JWTError as e:
-        print(f"JWT error: {e}")  # Debug için
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Geçersiz token"
-        )
-    except sqlite3.Error as e:
-        print(f"SQLite error: {e}")  # Debug için
-        raise HTTPException(status_code=500, detail=f"Veritabanı hatası: {str(e)}")
+        return dict(new_event)
+        
     except Exception as e:
-        print(f"Unexpected error: {e}")  # Debug için
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error creating event: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
 # Etkinliği güncelle (sadece admin)
 @router.put("/{event_id}", response_model=Dict)

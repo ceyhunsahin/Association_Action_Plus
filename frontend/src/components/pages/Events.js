@@ -24,19 +24,17 @@ const Events = () => {
     const upcomingCarouselRef = useRef(null);
     const pastCarouselRef = useRef(null);
 
-    // fetchUserEvents fonksiyonunu useCallback ile tanımlayalım
+    // Kullanıcının etkinliklerini getir
     const fetchUserEvents = useCallback(async () => {
         if (!user) return;
-
+        
         try {
-            const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken');
             if (!token) return;
             
-            console.log('Fetching user events with token:', token.substring(0, 10) + '...');
+            console.log('Fetching user events...');
             
-            const response = await axios({
-                method: 'get',
-                url: 'http://localhost:8000/api/users/me/events',
+            const response = await axios.get('http://localhost:8000/api/users/me/events', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -46,7 +44,13 @@ const Events = () => {
             console.log('User events response:', response.data);
             setUserEvents(response.data.events || []);
         } catch (error) {
-            console.error('Fetch user events error:', error.response || error);
+            // 401 hatası için sessizce devam et
+            if (error.response?.status === 401) {
+                console.log('Not authenticated, skipping user events fetch');
+                return;
+            }
+            
+            console.error('Error fetching user events:', error);
         }
     }, [user]);
 

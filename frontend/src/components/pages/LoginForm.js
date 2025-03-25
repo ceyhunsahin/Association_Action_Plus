@@ -64,21 +64,14 @@ const LoginForm = () => {
             setLoading(true);
             
             // Google ile giriş yap
-            await loginWithGoogle();
+            const result = await loginWithGoogle();
+            console.log('Google login successful:', result);
             
             // Başarılı giriş sonrası yönlendir
             navigate('/profile');
         } catch (err) {
             console.error('Google login error:', err);
-            
-            // Hata mesajını göster
-            let errorMessage = 'Erreur lors de la connexion avec Google';
-            
-            if (err.message) {
-                errorMessage = err.message;
-            }
-            
-            setError(errorMessage);
+            setError(err.response?.data?.detail || 'Google ile giriş yapılırken bir hata oluştu');
         } finally {
             setLoading(false);
         }

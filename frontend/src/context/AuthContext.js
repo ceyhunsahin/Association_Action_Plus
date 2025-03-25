@@ -127,6 +127,8 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
+      console.log('Attempting login with:', email);
+      
       const response = await axios.post('http://localhost:8000/api/auth/login', {
         email,
         password
@@ -166,43 +168,36 @@ export const AuthProvider = ({ children }) => {
       const result = await signInWithPopup(auth, provider);
       
       // Google'dan kullanıcı bilgilerini al
-      const { email } = result.user;
-      console.log(`Google login successful for: ${email}`);
+      const userData = {
+        email: result.user.email,
+        displayName: result.user.displayName,
+        photoURL: result.user.photoURL
+      };
       
-      // Firebase'den ID token al
-      const idToken = await result.user.getIdToken();
-      console.log(`Got ID token, first 10 chars: ${idToken.substring(0, 10)}...`);
+      console.log('Google user data:', userData);
       
-      try {
-        // Backend'e gönder
-        console.log("Sending token to backend...");
-        const response = await axios.post('http://localhost:8000/api/auth/google-login', { 
-          idToken 
-        });
+      // Backend'e gönder
+      const response = await axios.post('http://localhost:8000/api/auth/google-login', {
+        userData: userData
+      });
+      
+      if (response.data && response.data.access_token) {
+        const { access_token, user } = response.data;
         
-        if (response.data && response.data.access_token) {
-          const { access_token, user } = response.data;
-          
-          console.log('Backend login successful, token:', access_token.substring(0, 10) + '...');
-          console.log('User:', user);
-          
-          // Token ve kullanıcı bilgilerini sakla
-          localStorage.setItem('accessToken', access_token);
-          localStorage.setItem('user', JSON.stringify(user));
-          
-          // API istekleri için default header'ı ayarla
-          axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-          
-          setAccessToken(access_token);
-          setUser(user);
-          setIsAdmin(user.role === 'admin');
-          setIsAuthenticated(true);
-          
-          return response.data;
-        }
-      } catch (error) {
-        console.error('Backend error:', error.response?.data?.detail || error.message);
-        throw new Error(error.response?.data?.detail || 'Google login failed');
+        // Token ve kullanıcı bilgilerini sakla
+        localStorage.setItem('accessToken', access_token);
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        // State'i güncelle
+        setAccessToken(access_token);
+        setUser(user);
+        setIsAdmin(user.role === 'admin');
+        setIsAuthenticated(true);
+        
+        // API istekleri için default header'ı ayarla
+        axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+        
+        return response.data;
       }
     } catch (error) {
       console.error('Google login error:', error);
@@ -234,12 +229,32 @@ export const AuthProvider = ({ children }) => {
         if (error.response?.status === 401) {
           console.log('401 error detected:', error.config.url);
           
+          // Eğer bu /api/users/me endpoint'i ise, sessizce hata döndür
+          if (error.config.url.includes('/api/users/me')) {
+            console.log('Ignoring 401 for /api/users/me');
+            return Promise.reject(error);
+          }
+          
           // Token'ı kontrol et
           const token = localStorage.getItem('accessToken');
           if (token) {
-            console.log('Token exists but got 401, logging out...');
-            // Oturumu kapat
-            logout();
+            console.log('Token exists but got 401, trying to refresh...');
+            try {
+              // Token'ı yenilemeyi dene
+              const response = await axios.post('/api/auth/refresh-token');
+              const { access_token } = response.data;
+              
+              localStorage.setItem('accessToken', access_token);
+              axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+              
+              // Orijinal isteği yeni token ile tekrarla
+              error.config.headers['Authorization'] = `Bearer ${access_token}`;
+              return axios(error.config);
+            } catch (refreshError) {
+              // Token yenileme başarısız olursa sessizce devam et
+              console.log('Token refresh failed, continuing...');
+              return Promise.reject(error);
+            }
           }
         }
         

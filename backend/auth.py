@@ -351,107 +351,73 @@ def verify_firebase_token(id_token):
 # Google login endpoint
 @router.post("/google-login")
 async def google_login(request: Request):
-    """Google ile giriş yap"""
     try:
-        # Request body'den verileri al
         data = await request.json()
         user_data = data.get("userData", {})
         
-        # Kullanıcı bilgilerini al
         email = user_data.get("email")
         display_name = user_data.get("displayName", "")
         photo_url = user_data.get("photoURL", "")
         
-        print(f"Processing Google login for email: {email}")
-        print(f"User data: {user_data}")
-        
         if not email:
+            print("Email bulunamadı:", user_data)
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=400,
                 detail="Email is required"
             )
         
-        try:
-            # Veritabanı bağlantısı
-            conn = get_db_connection()
-            cursor = conn.cursor()
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Kullanıcıyı email ile ara
+        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        user = cursor.fetchone()
+        
+        if not user:
+            # Yeni kullanıcı oluştur
+            cursor.execute("""
+                INSERT INTO users (email, firstName, username, profileImage, role)
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                email,
+                display_name or email.split('@')[0],
+                email.split('@')[0],
+                photo_url,
+                "user"
+            ))
+            conn.commit()
             
-            # Kullanıcıyı email ile ara
+            # Yeni oluşturulan kullanıcıyı al
             cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
             user = cursor.fetchone()
-            
-            # Kullanıcı yoksa oluştur
-            if not user:
-                print(f"Creating new user for email: {email}")
-                
-                # İsmi parçalara ayır
-                name_parts = display_name.split()
-                first_name = name_parts[0] if name_parts else ""
-                last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else ""
-                
-                # Kullanıcı adını oluştur
-                username = email.split("@")[0]
-                
-                # Rastgele şifre oluştur
-                password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
-                hashed_password = get_password_hash(password)
-                
-                try:
-                    cursor.execute("""
-                        INSERT INTO users (email, firstName, lastName, username, password, role)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    """, (email, first_name, last_name, username, hashed_password, "user"))
-                    conn.commit()
-                except sqlite3.IntegrityError:
-                    # Kullanıcı adı çakışması durumunda rastgele son ek ekle
-                    username = f"{username}{secrets.randbelow(1000)}"
-                    cursor.execute("""
-                        INSERT INTO users (email, firstName, lastName, username, password, role)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    """, (email, first_name, last_name, username, hashed_password, "user"))
-                    conn.commit()
-                
-                # Yeni kullanıcıyı getir
-                cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
-                user = cursor.fetchone()
-            
-            # Kullanıcı bilgilerini dictionary'e çevir
-            user_dict = dict(user)
-            
-            # Şifreyi kaldır
-            if "password" in user_dict:
-                user_dict.pop("password")
-            
-            print(f"User found/created: {user_dict}")
-            
-            # Access token oluştur
-            access_token = create_access_token(
-                data={"sub": email, "role": user_dict["role"]},
-                expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            )
-            
-            conn.close()
-            
-            return {
-                "access_token": access_token,
-                "token_type": "bearer",
-                "user": user_dict
+        
+        # Token oluştur
+        access_token = create_access_token(
+            data={
+                "sub": email,
+                "id": user["id"],
+                "role": user["role"]
             }
-            
-        except Exception as e:
-            print(f"Error processing user: {str(e)}")
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error processing user: {str(e)}"
-            )
-            
+        )
+        
+        # Kullanıcı bilgilerini hazırla
+        user_dict = dict(user)
+        if "password" in user_dict:
+            user_dict.pop("password")
+        
+        conn.close()
+        
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": user_dict
+        }
+        
     except Exception as e:
         print(f"Google login error: {str(e)}")
-        import traceback
-        traceback.print_exc()
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Google login failed: {str(e)}"
+            status_code=500,
+            detail=str(e)
         )
 
 @router.post("/refresh-token")
