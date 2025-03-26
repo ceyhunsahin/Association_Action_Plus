@@ -5,7 +5,9 @@ import {
   createUserWithEmailAndPassword, 
   signOut, 
   GoogleAuthProvider, 
-  signInWithPopup
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult
 } from 'firebase/auth';
 import { auth } from '../firebase/config';
 
@@ -165,7 +167,14 @@ export const AuthProvider = ({ children }) => {
   const loginWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
+      
+      // Popup kullan (daha güvenilir)
       const result = await signInWithPopup(auth, provider);
+      
+      if (!result) {
+        console.error('No result from Google login');
+        return null;
+      }
       
       // Google'dan kullanıcı bilgilerini al
       const userData = {
@@ -176,31 +185,46 @@ export const AuthProvider = ({ children }) => {
       
       console.log('Google user data:', userData);
       
-      // Backend'e gönder
-      const response = await axios.post('http://localhost:8000/api/auth/google-login', {
-        userData: userData
-      });
-      
-      if (response.data && response.data.access_token) {
-        const { access_token, user } = response.data;
+      try {
+        // Backend'e gönder
+        const response = await axios.post('http://localhost:8000/api/auth/google-login', {
+          userData: userData
+        });
         
-        // Token ve kullanıcı bilgilerini sakla
-        localStorage.setItem('accessToken', access_token);
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        // State'i güncelle
-        setAccessToken(access_token);
-        setUser(user);
-        setIsAdmin(user.role === 'admin');
-        setIsAuthenticated(true);
-        
-        // API istekleri için default header'ı ayarla
-        axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-        
-        return response.data;
+        if (response.data && response.data.access_token) {
+          const { access_token, user } = response.data;
+          
+          // Token ve kullanıcı bilgilerini sakla
+          localStorage.setItem('accessToken', access_token);
+          localStorage.setItem('user', JSON.stringify(user));
+          
+          // State'i güncelle
+          setAccessToken(access_token);
+          setUser(user);
+          setIsAdmin(user.role === 'admin');
+          setIsAuthenticated(true);
+          
+          // API istekleri için default header'ı ayarla
+          axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+          
+          return response.data;
+        }
+      } catch (backendError) {
+        console.error('Backend error during Google login:', backendError);
+        throw backendError;
       }
+      
+      return null;
     } catch (error) {
       console.error('Google login error:', error);
+      
+      // Popup kapatma hatasını özel olarak ele al
+      if (error.code === 'auth/popup-closed-by-user') {
+        console.log('User closed the popup window');
+        // Bu hatayı sessizce geç, kullanıcıya hata gösterme
+        return null;
+      }
+      
       throw error;
     }
   };

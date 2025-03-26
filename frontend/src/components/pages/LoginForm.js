@@ -65,14 +65,26 @@ const LoginForm = () => {
             
             // Google ile giriş yap
             const result = await loginWithGoogle();
-            console.log('Google login successful:', result);
             
-            // Başarılı giriş sonrası yönlendir
-            navigate('/profile');
+            if (result) {
+                console.log('Google login successful:', result);
+                // Başarılı giriş sonrası yönlendir
+                navigate('/profile');
+            } else {
+                // Kullanıcı popup'ı kapattı veya işlem iptal edildi
+                // Sessizce geç, hata gösterme
+                setLoading(false);
+            }
         } catch (err) {
             console.error('Google login error:', err);
-            setError(err.response?.data?.detail || 'Google ile giriş yapılırken bir hata oluştu');
-        } finally {
+            
+            // Hata mesajını göster
+            if (err.code === 'auth/popup-blocked') {
+                setError('Tarayıcınız popup penceresini engelledi. Lütfen popup izinlerini kontrol edin.');
+            } else {
+                setError(err.response?.data?.detail || 'Google ile giriş yapılırken bir hata oluştu');
+            }
+            
             setLoading(false);
         }
     };
