@@ -25,8 +25,8 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   padding: 0;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: space-between;
+  flex-direction:row;
   z-index: 1000;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -176,7 +176,8 @@
 /* Navigasyon Linkleri İyileştirmesi */
 .navLinks {
   display: flex;
-  gap: 2.5rem;
+  flex-direction: row;
+  gap: 1.5rem;
   align-items: center;
   height: 100%;
 }
@@ -701,4 +702,60 @@ body.home-page {
 
 .activeLinkMobile:has(.navIcon) {
   background-color: rgba(255, 152, 0, 0.15);
+}
+
+/* Menü bölümleri için stil */
+.menuSection {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Menü başlıkları için stil */
+.menuTitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  margin: 10px 0;
+  padding: 0 15px;
+}
+
+/* Menü ayırıcı çizgisi */
+.menuDivider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 10px 0;
+}
+/* Admin menü öğeleri için stil */
+.adminLink {
+  color: #4CAF50 !important;
+  font-weight: 500;
+}
+
+.adminLink:hover {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+/* Kullanıcı menü öğeleri için stil */
+.userLink {
+  color: #2196F3 !important;
+  font-weight: 500;
+}
+
+.userLink:hover {
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+/* Menü ikonları için stil */
+.navIcon {
+  margin-right: 10px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Menü etiketleri için stil */
+.navLabel {
+  font-size: 1rem;
 }
