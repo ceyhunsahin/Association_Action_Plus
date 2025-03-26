@@ -177,7 +177,7 @@
 .navLinks {
   display: flex;
   flex-direction: row;
-  gap: 1.5rem;
+  gap: 1.8rem;
   align-items: center;
   height: 100%;
 }

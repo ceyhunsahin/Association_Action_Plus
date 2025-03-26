@@ -1,189 +1,229 @@
-import React from 'react';
-import { Helmet } from 'react-helmet';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './About.module.css';
-import { FaHandshake, FaGlobeAmericas, FaComments, FaUsers } from 'react-icons/fa';
+import { FaHandshake, FaGlobeEurope, FaUsers, FaHistory, FaLightbulb, FaHeart } from 'react-icons/fa';
 
 const About = () => {
-  return (
-    <>
-      <Helmet>
-        <title>À propos | Action Plus</title>
-        <meta name="description" content="Découvrez l'histoire, la mission et les valeurs d'Action Plus, une association dédiée au dialogue interculturel et à l'inclusion sociale." />
-      </Helmet>
+  const parallaxRef = useRef(null);
+  const valuesRef = useRef(null);
+  const [scrollY, setScrollY] = useState(0);
+  const [isVisible, setIsVisible] = useState({
+    values: false,
+    mission: false,
+    team: false
+  });
+
+  // Scroll olayını dinle
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
       
-      <div className={styles.aboutPage}>
-        <section className={styles.heroSection}>
-          <div className={styles.heroContent}>
-            <h1>À propos d'Action Plus</h1>
-            <p>Une association dédiée au dialogue interculturel et à l'inclusion sociale</p>
-          </div>
-        </section>
-        
-        <section className={styles.missionSection}>
-          <div className={styles.container}>
-            <h2>Notre Mission</h2>
-            <p className={styles.missionText}>
-              Action Plus est une association à but non lucratif fondée en 2010 avec pour mission de promouvoir le dialogue interculturel, 
-              l'inclusion sociale et la compréhension mutuelle entre les différentes communautés culturelles en France.
-            </p>
-            <p className={styles.missionText}>
-              Nous croyons fermement que la diversité culturelle est une richesse pour notre société et que le dialogue 
-              est le meilleur moyen de construire des ponts entre les différentes cultures et traditions.
-            </p>
-          </div>
-        </section>
-        
-        <section className={styles.valuesSection}>
-          <div className={styles.container}>
-            <h2>Nos Valeurs</h2>
-            <div className={styles.valuesGrid}>
-              <div className={styles.valueCard}>
-                <div className={styles.valueIcon}><FaHandshake /></div>
-                <h3>Solidarité</h3>
-                <p>Nous croyons en l'entraide et au soutien mutuel pour construire une communauté forte.</p>
-              </div>
-              
-              <div className={styles.valueCard}>
-                <div className={styles.valueIcon}><FaGlobeAmericas /></div>
-                <h3>Diversité</h3>
-                <p>Nous célébrons les différences culturelles comme une richesse pour notre société.</p>
-              </div>
-              
-              <div className={styles.valueCard}>
-                <div className={styles.valueIcon}><FaComments /></div>
-                <h3>Dialogue</h3>
-                <p>Nous encourageons l'échange et la communication pour mieux se comprendre.</p>
-              </div>
-              
-              <div className={styles.valueCard}>
-                <div className={styles.valueIcon}><FaUsers /></div>
-                <h3>Respect</h3>
-                <p>Nous valorisons chaque individu et promouvons la dignité humaine.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        <section className={styles.historySection}>
-          <div className={styles.container}>
-            <h2>Notre Histoire</h2>
-            <div className={styles.historyContent}>
-              <div className={styles.historyText}>
-                <p>
-                  Action Plus a été fondée en 2010 par un groupe de personnes passionnées par le dialogue interculturel et l'inclusion sociale. 
-                  Au départ, l'association organisait de petits événements culturels dans le quartier de Belleville à Paris.
-                </p>
-                <p>
-                  Au fil des années, Action Plus a grandi et a étendu ses activités à travers toute la France. Aujourd'hui, 
-                  nous comptons plus de 450 membres actifs et organisons plus de 100 événements par an.
-                </p>
-                <p>
-                  Notre engagement pour la promotion du dialogue interculturel nous a valu plusieurs reconnaissances, 
-                  dont le Prix de la Diversité Culturelle en 2018 et le Prix de l'Innovation Sociale en 2020.
-                </p>
-              </div>
-              <div className={styles.historyTimeline}>
-                <div className={styles.timelineItem}>
-                  <div className={styles.timelineDate}>2010</div>
-                  <div className={styles.timelineContent}>
-                    <h4>Fondation</h4>
-                    <p>Création de l'association Action Plus à Paris</p>
-                  </div>
-                </div>
-                
-                <div className={styles.timelineItem}>
-                  <div className={styles.timelineDate}>2013</div>
-                  <div className={styles.timelineContent}>
-                    <h4>Expansion</h4>
-                    <p>Ouverture de notre premier bureau à Lyon</p>
-                  </div>
-                </div>
-                
-                <div className={styles.timelineItem}>
-                  <div className={styles.timelineDate}>2016</div>
-                  <div className={styles.timelineContent}>
-                    <h4>Reconnaissance</h4>
-                    <p>Obtention du statut d'association d'utilité publique</p>
-                  </div>
-                </div>
-                
-                <div className={styles.timelineItem}>
-                  <div className={styles.timelineDate}>2018</div>
-                  <div className={styles.timelineContent}>
-                    <h4>Prix</h4>
-                    <p>Récompensée par le Prix de la Diversité Culturelle</p>
-                  </div>
-                </div>
-                
-                <div className={styles.timelineItem}>
-                  <div className={styles.timelineDate}>2020</div>
-                  <div className={styles.timelineContent}>
-                    <h4>Innovation</h4>
-                    <p>Lancement de notre plateforme numérique</p>
-                  </div>
-                </div>
-                
-                <div className={styles.timelineItem}>
-                  <div className={styles.timelineDate}>2023</div>
-                  <div className={styles.timelineContent}>
-                    <h4>Aujourd'hui</h4>
-                    <p>Plus de 450 membres actifs dans 25 pays</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        <section className={styles.teamSection}>
-          <div className={styles.container}>
-            <h2>Notre Équipe</h2>
-            <div className={styles.teamGrid}>
-              <div className={styles.teamMember}>
-                <div className={styles.memberPhoto} style={{backgroundImage: 'url(https://randomuser.me/api/portraits/men/32.jpg)'}}></div>
-                <h3>Jean Dupont</h3>
-                <p className={styles.memberRole}>Président</p>
-                <p className={styles.memberBio}>Passionné par le dialogue interculturel depuis plus de 20 ans, Jean a fondé Action Plus en 2010.</p>
-              </div>
-              
-              <div className={styles.teamMember}>
-                <div className={styles.memberPhoto} style={{backgroundImage: 'url(https://randomuser.me/api/portraits/women/44.jpg)'}}></div>
-                <h3>Marie Laurent</h3>
-                <p className={styles.memberRole}>Vice-présidente</p>
-                <p className={styles.memberBio}>Spécialiste en médiation culturelle, Marie coordonne nos programmes éducatifs.</p>
-              </div>
-              
-              <div className={styles.teamMember}>
-                <div className={styles.memberPhoto} style={{backgroundImage: 'url(https://randomuser.me/api/portraits/men/68.jpg)'}}></div>
-                <h3>Ahmed Benali</h3>
-                <p className={styles.memberRole}>Secrétaire Général</p>
-                <p className={styles.memberBio}>Expert en relations internationales, Ahmed gère nos partenariats stratégiques.</p>
-              </div>
-              
-              <div className={styles.teamMember}>
-                <div className={styles.memberPhoto} style={{backgroundImage: 'url(https://randomuser.me/api/portraits/women/65.jpg)'}}></div>
-                <h3>Sophie Martin</h3>
-                <p className={styles.memberRole}>Trésorière</p>
-                <p className={styles.memberBio}>Avec son expertise en finance, Sophie assure la bonne gestion des ressources de l'association.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        <section className={styles.joinSection}>
-          <div className={styles.container}>
-            <h2>Rejoignez-nous</h2>
-            <p className={styles.joinText}>
-              Vous partagez nos valeurs et notre vision ? Rejoignez Action Plus et participez à la construction d'une société plus inclusive et respectueuse de la diversité culturelle.
-            </p>
-            <div className={styles.joinButtons}>
-              <a href="/register" className={styles.primaryButton}>Devenir membre</a>
-              <a href="/donate" className={styles.secondaryButton}>Faire un don</a>
-            </div>
-          </div>
-        </section>
+      // Bölümlerin görünürlüğünü kontrol et
+      const checkVisibility = (ref, section) => {
+        if (ref.current) {
+          const rect = ref.current.getBoundingClientRect();
+          if (rect.top < window.innerHeight * 0.75) {
+            setIsVisible(prev => ({ ...prev, [section]: true }));
+          }
+        }
+      };
+      
+      checkVisibility(valuesRef, 'values');
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // İlk yükleme için kontrol et
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Ekip üyeleri
+  const teamMembers = [
+    {
+      name: 'Sophie Laurent',
+      role: 'Fondatrice & Présidente',
+      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+      bio: 'Passionnée par l\'éducation interculturelle depuis plus de 15 ans, Sophie a fondé ACTION+ avec la vision de créer des ponts entre les cultures.'
+    },
+    {
+      name: 'Marc Dubois',
+      role: 'Directeur des Programmes',
+      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+      bio: 'Avec une expérience de 10 ans dans le développement de programmes éducatifs, Marc supervise toutes nos initiatives culturelles.'
+    },
+    {
+      name: 'Amina Ndiaye',
+      role: 'Coordinatrice des Événements',
+      image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+      bio: 'Amina apporte son expertise en gestion d\'événements et sa passion pour la diversité culturelle à chaque projet qu\'elle coordonne.'
+    }
+  ];
+
+  // Değerlerimiz
+  const values = [
+    { icon: <FaHandshake />, title: 'Respect', description: 'Nous valorisons le respect mutuel et la dignité de chaque individu, indépendamment de son origine ou de sa culture.' },
+    { icon: <FaGlobeEurope />, title: 'Diversité', description: 'Nous célébrons la richesse de la diversité culturelle et encourageons le partage des traditions et des perspectives.' },
+    { icon: <FaUsers />, title: 'Inclusion', description: 'Nous nous efforçons de créer des espaces où chacun se sent bienvenu, valorisé et entendu.' },
+    { icon: <FaLightbulb />, title: 'Innovation', description: 'Nous recherchons constamment de nouvelles façons de connecter les communautés et de promouvoir la compréhension interculturelle.' },
+    { icon: <FaHeart />, title: 'Engagement', description: 'Nous sommes dévoués à notre mission et travaillons avec passion pour créer un impact positif dans la société.' }
+  ];
+
+  return (
+    <div className={styles.aboutContainer}>
+      {/* Hero Section with Parallax */}
+      <div 
+        className={styles.heroSection}
+        ref={parallaxRef}
+        style={{ 
+          backgroundPositionY: `calc(50% + ${scrollY * 0.5}px)` 
+        }}
+      >
+        <div className={styles.heroOverlay}>
+          <h1 className={styles.heroTitle}>
+            À Propos de <span>ACTION+</span>
+          </h1>
+          <p className={styles.heroSubtitle}>
+            Construire des ponts entre les cultures depuis 2010
+          </p>
+        </div>
       </div>
-    </>
+
+      {/* Mission Section */}
+      <section className={styles.missionSection}>
+        <div className={styles.container}>
+          <div className={styles.missionContent}>
+            <h2 className={styles.sectionTitle}>Notre Mission</h2>
+            <div className={styles.separator}></div>
+            <p className={styles.missionText}>
+              ACTION+ est une association culturelle dédiée à la promotion de la diversité culturelle et à la création d'espaces de dialogue interculturel. Nous croyons au pouvoir transformateur des échanges culturels et travaillons à construire des ponts entre les différentes communautés.
+            </p>
+            <p className={styles.missionText}>
+              À travers nos événements, ateliers et programmes éducatifs, nous visons à favoriser la compréhension mutuelle, célébrer la richesse de la diversité et encourager l'inclusion sociale. Notre approche est basée sur le respect, l'ouverture d'esprit et l'engagement communautaire.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Histoire Section */}
+      <section className={styles.historySection}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Notre Histoire</h2>
+          <div className={styles.separator}></div>
+          
+          <div className={styles.timelineContainer}>
+            <div className={styles.timelineItem}>
+              <div className={styles.timelineIcon}>
+                <FaHistory />
+              </div>
+              <div className={styles.timelineContent}>
+                <h3>2010</h3>
+                <p>Fondation d'ACTION+ par Sophie Laurent avec une vision claire : créer des espaces de dialogue interculturel.</p>
+              </div>
+            </div>
+            
+            <div className={styles.timelineItem}>
+              <div className={styles.timelineIcon}>
+                <FaHistory />
+              </div>
+              <div className={styles.timelineContent}>
+                <h3>2013</h3>
+                <p>Lancement de notre premier festival interculturel, réunissant plus de 500 participants de diverses origines.</p>
+              </div>
+            </div>
+            
+            <div className={styles.timelineItem}>
+              <div className={styles.timelineIcon}>
+                <FaHistory />
+              </div>
+              <div className={styles.timelineContent}>
+                <h3>2016</h3>
+                <p>Expansion de nos programmes éducatifs dans les écoles locales, touchant plus de 1000 jeunes chaque année.</p>
+              </div>
+            </div>
+            
+            <div className={styles.timelineItem}>
+              <div className={styles.timelineIcon}>
+                <FaHistory />
+              </div>
+              <div className={styles.timelineContent}>
+                <h3>2019</h3>
+                <p>Reconnaissance nationale pour notre travail avec le Prix de l'Innovation Sociale.</p>
+              </div>
+            </div>
+            
+            <div className={styles.timelineItem}>
+              <div className={styles.timelineIcon}>
+                <FaHistory />
+              </div>
+              <div className={styles.timelineContent}>
+                <h3>Aujourd'hui</h3>
+                <p>ACTION+ continue de grandir, avec une équipe dévouée et des partenariats stratégiques pour maximiser notre impact social.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Nos Valeurs Section */}
+      <section className={styles.valuesSection} ref={valuesRef}>
+        <div className={styles.container}>
+          <div>
+            <h2 className={styles.sectionTitle}>Nos Valeurs</h2>
+            <div className={styles.separator}></div>
+            
+            <div className={styles.valuesGrid}>
+              {values.map((value, index) => (
+                <div 
+                  key={index} 
+                  className={`${styles.valueCard} ${isVisible.values ? styles.valueCardVisible : ''}`}
+                  style={{ transitionDelay: `${index * 100}ms` }}
+                >
+                  <div className={styles.valueIcon}>
+                    {value.icon}
+                  </div>
+                  <h3 className={styles.valueTitle}>{value.title}</h3>
+                  <p className={styles.valueDescription}>{value.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Notre Équipe Section */}
+      <section className={styles.teamSection}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Notre Équipe</h2>
+          <div className={styles.separator}></div>
+          
+          <div className={styles.teamGrid}>
+            {teamMembers.map((member, index) => (
+              <div key={index} className={styles.teamCard}>
+                <div className={styles.teamImageContainer}>
+                  <img src={member.image} alt={member.name} className={styles.teamImage} />
+                </div>
+                <h3 className={styles.teamName}>{member.name}</h3>
+                <p className={styles.teamRole}>{member.role}</p>
+                <p className={styles.teamBio}>{member.bio}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action Section */}
+      <section className={styles.ctaSection}>
+        <div className={styles.container}>
+          <h2 className={styles.ctaTitle}>Rejoignez Notre Mouvement</h2>
+          <p className={styles.ctaText}>
+            Ensemble, nous pouvons construire un monde plus inclusif et culturellement riche. Participez à nos événements, devenez bénévole ou soutenez notre mission.
+          </p>
+          <div className={styles.ctaButtons}>
+            <a href="/events" className={styles.ctaButton}>Voir Nos Événements</a>
+            <a href="/contact" className={styles.ctaButtonOutline}>Nous Contacter</a>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 };
 

@@ -1,815 +1,440 @@
-/* Google Fonts'tan yazı tipi ekleyin */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+/* About Page Styles */
+.aboutContainer {
+  width: 100%;
+  overflow-x: hidden;
+}
 
-/* Ana sayfa stil */
-.aboutPage {
-  background-color: #f8f9fa;
-  padding: 2rem 1rem; /* Mobil için padding azaltıldı */
-  font-family: 'Poppins', sans-serif;
-  min-height: 100vh;
+/* Hero Section */
+.heroSection {
+  height: 60vh;
+  min-height: 400px;
+  background-image: url('https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+  background-size: cover;
+  background-position: center;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #333;
+  color: white;
+  margin-top: -80px; /* Navbar'ın yüksekliği */
 }
 
-/* İçerik container */
-.aboutContent {
-  max-width: 900px;
-  margin: 0 auto;
-  background-color: #ffffff;
-  padding: 2rem; /* Mobil için padding azaltıldı */
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Başlık stil */
-.title {
-  font-size: 2rem; /* Mobil için başlık boyutu küçültüldü */
-  font-weight: 600;
-  color: #333;
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-/* Giriş metni stil */
-.intro {
-  font-size: 1rem; /* Mobil için yazı boyutu küçültüldü */
-  color: #555;
-  line-height: 1.8;
-  margin-bottom: 2rem;
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(93, 64, 55, 0.7), rgba(93, 64, 55, 0.9));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
   text-align: center;
 }
 
-/* Bölüm stil */
-.section {
-  margin-bottom: 2rem;
-}
-
-/* Bölüm başlığı stil */
-.sectionTitle {
-  font-size: 1.5rem; /* Mobil için başlık boyutu küçültüldü */
-  font-weight: 600;
-  color: #007bff;
+.heroTitle {
+  font-size: 3.5rem;
+  font-weight: 700;
   margin-bottom: 1rem;
-  text-decoration: underline;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Bölüm metni stil */
-.sectionText {
-  font-size: 1rem; /* Mobil için yazı boyutu küçültüldü */
-  color: #555;
-  line-height: 1.8;
+.heroTitle span {
+  color: #c8a97e;
 }
 
-/* Rejoignez-nous link stil */
-.joinLink {
-  display: inline-block;
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background-color: #007bff;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-  font-size: 1rem; /* Mobil için yazı boyutu küçültüldü */
-  font-weight: 500;
-  transition: background-color 0.3s ease;
+.heroSubtitle {
+  font-size: 1.5rem;
+  font-weight: 400;
+  max-width: 700px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.joinLink:hover {
-  background-color: #0056b3;
-}
-
-/* Kapanış metni stil */
-.closing {
-  font-size: 1rem; /* Mobil için yazı boyutu küçültüldü */
-  color: #333;
-  font-weight: 500;
-  text-align: center;
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background-color: rgba(0, 123, 255, 0.1);
-  border-radius: 5px;
-}
-
-/* Tablet ve mobil için media query'ler */
-@media (max-width: 768px) {
-  .aboutContent {
-    padding: 1.5rem; /* Tablet için padding azaltıldı */
-  }
-
-  .title {
-    font-size: 1.75rem; /* Tablet için başlık boyutu küçültüldü */
-  }
-
-  .intro {
-    font-size: 0.95rem; /* Tablet için yazı boyutu küçültüldü */
-  }
-
-  .sectionTitle {
-    font-size: 1.25rem; /* Tablet için başlık boyutu küçültüldü */
-  }
-
-  .sectionText {
-    font-size: 0.95rem; /* Tablet için yazı boyutu küçültüldü */
-  }
-
-  .joinLink {
-    font-size: 0.95rem; /* Tablet için yazı boyutu küçültüldü */
-  }
-
-  .closing {
-    font-size: 0.95rem; /* Tablet için yazı boyutu küçültüldü */
-  }
-}
-
-@media (max-width: 480px) {
-  .aboutContent {
-    padding: 1rem; /* Mobil için padding azaltıldı */
-  }
-
-  .title {
-    font-size: 1.5rem; /* Mobil için başlık boyutu küçültüldü */
-  }
-
-  .intro {
-    font-size: 0.9rem; /* Mobil için yazı boyutu küçültüldü */
-  }
-
-  .sectionTitle {
-    font-size: 1.1rem; /* Mobil için başlık boyutu küçültüldü */
-  }
-
-  .sectionText {
-    font-size: 0.9rem; /* Mobil için yazı boyutu küçültüldü */
-  }
-
-  .joinLink {
-    font-size: 0.9rem; /* Mobil için yazı boyutu küçültüldü */
-  }
-
-  .closing {
-    font-size: 0.9rem; /* Mobil için yazı boyutu küçültüldü */
-  }
-}
-
+/* Common Section Styles */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
-.heroSection {
-  height: 400px;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.sectionTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
   text-align: center;
-  color: white;
-}
-
-.heroContent h1 {
-  font-size: 48px;
-  margin-bottom: 20px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.heroContent p {
-  font-size: 20px;
-  max-width: 700px;
-  margin: 0 auto;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.missionSection {
-  padding: 80px 0;
-  background-color: #f9f9f9;
-}
-
-.missionSection h2, .valuesSection h2, .historySection h2, .teamSection h2, .joinSection h2 {
-  font-size: 36px;
+  margin-bottom: 1rem;
   color: #5d4037;
+}
+
+.separator {
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #c8a97e, #ff9800);
+  margin: 0 auto 3rem;
+  border-radius: 2px;
+}
+
+/* Mission Section */
+.missionSection {
+  padding: 5rem 0;
+  background-color: #fff;
+}
+
+.missionContent {
+  max-width: 800px;
+  margin: 0 auto;
   text-align: center;
-  margin-bottom: 40px;
 }
 
 .missionText {
-  font-size: 18px;
-  line-height: 1.6;
-  max-width: 800px;
-  margin: 0 auto 20px;
-  text-align: center;
-}
-
-.valuesSection {
-  padding: 80px 0;
-  background-color: white;
-}
-
-.valuesGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 30px;
-}
-
-.valueCard {
-  background-color: #f9f9f9;
-  padding: 30px;
-  border-radius: 10px;
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.valueCard:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.valueIcon {
-  font-size: 40px;
-  color: #c8a97e;
-  margin-bottom: 20px;
-}
-
-.valueCard h3 {
-  font-size: 22px;
-  color: #5d4037;
-  margin-bottom: 15px;
-}
-
-.valueCard p {
-  font-size: 16px;
-  line-height: 1.5;
-  color: #666;
-}
-
-.historySection {
-  padding: 80px 0;
-  background-color: #f9f9f9;
-}
-
-.historyContent {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 40px;
-}
-
-.historyText {
-  flex: 1;
-  min-width: 300px;
-}
-
-.historyText p {
-  font-size: 16px;
-  line-height: 1.6;
-  margin-bottom: 20px;
+  font-size: 1.2rem;
+  line-height: 1.8;
   color: #555;
+  margin-bottom: 1.5rem;
 }
 
-.historyTimeline {
-  flex: 1;
-  min-width: 300px;
+/* History Section */
+.historySection {
+  padding: 5rem 0;
+  background-color: #f9f9f9;
+}
+
+.timelineContainer {
   position: relative;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.historyTimeline::before {
+.timelineContainer::before {
   content: '';
   position: absolute;
   top: 0;
-  bottom: 0;
-  left: 20px;
-  width: 2px;
-  background-color: #c8a97e;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(#c8a97e, #ff9800);
+  border-radius: 2px;
 }
 
 .timelineItem {
   position: relative;
-  padding-left: 60px;
-  margin-bottom: 30px;
+  margin-bottom: 3rem;
+  display: flex;
+  align-items: flex-start;
 }
 
-.timelineDate {
+.timelineItem:nth-child(odd) {
+  flex-direction: row-reverse;
+}
+
+.timelineIcon {
   position: absolute;
-  left: 0;
-  width: 40px;
-  height: 40px;
-  background-color: #c8a97e;
-  color: white;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
+  background-color: #5d4037;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  color: white;
+  font-size: 1.2rem;
   z-index: 1;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .timelineContent {
+  width: 45%;
+  padding: 1.5rem;
   background-color: white;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.timelineContent h4 {
-  font-size: 18px;
-  color: #5d4037;
-  margin-bottom: 10px;
+.timelineContent h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #c8a97e;
+  margin-bottom: 0.5rem;
 }
 
 .timelineContent p {
-  font-size: 14px;
-  color: #666;
-}
-
-.teamSection {
-  padding: 80px 0;
-  background-color: white;
-}
-
-.teamGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 30px;
-}
-
-.teamMember {
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
-}
-
-.teamMember:hover {
-  transform: translateY(-10px);
-}
-
-.memberPhoto {
-  height: 250px;
-  background-size: cover;
-  background-position: center;
-}
-
-.teamMember h3 {
-  font-size: 20px;
-  color: #5d4037;
-  margin: 20px 20px 5px;
-}
-
-.memberRole {
-  font-size: 16px;
-  color: #c8a97e;
-  margin: 0 20px 10px;
-  font-weight: 500;
-}
-
-.memberBio {
-  font-size: 14px;
-  color: #666;
-  line-height: 1.5;
-  margin: 0 20px 20px;
-}
-
-.joinSection {
-  padding: 80px 0;
-  background-color: #f9f9f9;
-  text-align: center;
-}
-
-.joinText {
-  font-size: 18px;
+  font-size: 1rem;
   line-height: 1.6;
-  max-width: 800px;
-  margin: 0 auto 40px;
-}
-
-.joinButtons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.primaryButton, .secondaryButton {
-  display: inline-block;
-  padding: 15px 30px;
-  border-radius: 30px;
-  font-size: 16px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-.primaryButton {
-  background-color: #c8a97e;
-  color: white;
-}
-
-.primaryButton:hover {
-  background-color: #b89669;
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.secondaryButton {
-  background-color: transparent;
-  color: #c8a97e;
-  border: 2px solid #c8a97e;
-}
-
-.secondaryButton:hover {
-  background-color: #c8a97e;
-  color: white;
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-@media (max-width: 768px) {
-  .heroContent h1 {
-    font-size: 36px;
-  }
-  
-  .heroContent p {
-    font-size: 16px;
-  }
-  
-  .missionSection h2, .valuesSection h2, .historySection h2, .teamSection h2, .joinSection h2 {
-    font-size: 28px;
-  }
-  
-  .missionText {
-    font-size: 16px;
-  }
-  
-  .historyContent {
-    flex-direction: column;
-  }
-  
-  .joinButtons {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .primaryButton, .secondaryButton {
-    width: 100%;
-    max-width: 300px;
-  }
-}
-
-/* Mobil görünüm için responsive tasarım */
-@media (max-width: 768px) {
-  .aboutHero {
-    padding: 40px 20px;
-  }
-  
-  .aboutHeroTitle {
-    font-size: 2rem;
-  }
-  
-  .aboutSection, .missionSection, .teamSection, .joinSection {
-    padding: 40px 20px;
-  }
-  
-  .twoColumns {
-    flex-direction: column;
-  }
-  
-  .column {
-    width: 100%;
-    margin-bottom: 30px;
-  }
-  
-  .teamGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.aboutContainer {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.aboutHero {
-  background-color: #f9f9f9;
-  padding: 80px 20px;
-  text-align: center;
-  margin-bottom: 60px;
-}
-
-.aboutHeroTitle {
-  font-size: 3rem;
-  color: #5d4037;
-  margin-bottom: 20px;
-  font-weight: 700;
-}
-
-.aboutHeroSubtitle {
-  font-size: 1.2rem;
-  color: #666;
-  max-width: 800px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-
-.aboutSection {
-  padding: 60px 0;
-}
-
-.sectionTitle {
-  font-size: 2.2rem;
-  color: #5d4037;
-  margin-bottom: 30px;
-  text-align: center;
-  position: relative;
-}
-
-.sectionTitle::after {
-  content: '';
-  display: block;
-  width: 80px;
-  height: 3px;
-  background-color: #c8a97e;
-  margin: 15px auto 0;
-}
-
-.twoColumns {
-  display: flex;
-  gap: 40px;
-  margin-top: 40px;
-}
-
-.column {
-  flex: 1;
-}
-
-.aboutImage {
-  width: 100%;
-  height: auto;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.aboutText {
-  font-size: 1.1rem;
-  line-height: 1.8;
   color: #555;
 }
 
-.aboutText p {
-  margin-bottom: 20px;
-}
-
-.missionSection {
-  background-color: #f9f9f9;
-  padding: 80px 20px;
-  text-align: center;
-}
-
-.missionText {
-  font-size: 1.3rem;
-  line-height: 1.8;
-  color: #555;
-  max-width: 800px;
-  margin: 0 auto 40px;
+/* Values Section */
+.valuesSection {
+  padding: 5rem 0;
+  background-color: #fff;
 }
 
 .valuesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 30px;
-  margin-top: 40px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
 }
 
 .valueCard {
-  background-color: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-align: center;
-  transition: transform 0.3s ease;
 }
 
 .valueCard:hover {
   transform: translateY(-10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .valueIcon {
-  font-size: 40px;
+  font-size: 2.5rem;
   color: #c8a97e;
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
 }
 
 .valueTitle {
-  font-size: 1.3rem;
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #5d4037;
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
 }
 
 .valueDescription {
   font-size: 1rem;
-  color: #666;
   line-height: 1.6;
+  color: #555;
 }
 
+/* Team Section */
 .teamSection {
-  padding: 80px 20px;
+  padding: 5rem 0;
+  background-color: #f9f9f9;
 }
 
 .teamGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 30px;
-  margin-top: 40px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
 }
 
-.teamMember {
-  background-color: #f9f9f9;
-  border-radius: 10px;
+.teamCard {
+  background-color: white;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.teamMember:hover {
+.teamCard:hover {
   transform: translateY(-10px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.memberPhoto {
-  height: 280px;
-  background-size: cover;
-  background-position: center;
+.teamImageContainer {
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
 }
 
-.memberInfo {
-  padding: 20px;
+.teamImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
 }
 
-.memberName {
-  font-size: 1.3rem;
+.teamCard:hover .teamImage {
+  transform: scale(1.1);
+}
+
+.teamName {
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #5d4037;
-  margin-bottom: 5px;
+  margin: 1.5rem 0 0.5rem;
+  padding: 0 1.5rem;
 }
 
-.memberRole {
+.teamRole {
   font-size: 1rem;
   color: #c8a97e;
-  margin-bottom: 15px;
-  font-weight: 500;
+  margin-bottom: 1rem;
+  padding: 0 1.5rem;
 }
 
-.memberBio {
-  font-size: 0.9rem;
-  color: #666;
+.teamBio {
+  font-size: 0.95rem;
   line-height: 1.6;
+  color: #555;
+  padding: 0 1.5rem 1.5rem;
 }
 
-.joinSection {
-  background-color: #5d4037;
+/* Call to Action Section */
+.ctaSection {
+  padding: 5rem 0;
+  background: linear-gradient(rgba(93, 64, 55, 0.9), rgba(93, 64, 55, 0.9)), url('https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+  background-size: cover;
+  background-position: center;
   color: white;
-  padding: 80px 20px;
   text-align: center;
 }
 
-.joinTitle {
-  font-size: 2.2rem;
-  margin-bottom: 20px;
+.ctaTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
 }
 
-.joinText {
-  font-size: 1.1rem;
+.ctaText {
+  font-size: 1.2rem;
   line-height: 1.8;
   max-width: 800px;
-  margin: 0 auto 40px;
-  opacity: 0.9;
+  margin: 0 auto 2rem;
 }
 
-.joinButtons {
+.ctaButtons {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 1.5rem;
   flex-wrap: wrap;
 }
 
-.primaryButton, .secondaryButton {
+.ctaButton {
   display: inline-block;
-  padding: 15px 30px;
+  padding: 1rem 2rem;
+  background-color: #c8a97e;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
   border-radius: 30px;
-  font-size: 1rem;
-  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.ctaButton:hover {
+  background-color: #b89669;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+}
+
+.ctaButtonOutline {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background-color: transparent;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: 2px solid #c8a97e;
+  border-radius: 30px;
   text-decoration: none;
   transition: all 0.3s ease;
 }
 
-.primaryButton {
-  background-color: #c8a97e;
-  color: white;
-}
-
-.primaryButton:hover {
-  background-color: #b89669;
+.ctaButtonOutline:hover {
+  background-color: rgba(200, 169, 126, 0.2);
   transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.secondaryButton {
-  background-color: transparent;
-  color: white;
-  border: 2px solid white;
-}
-
-.secondaryButton:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* Responsive tasarım */
+/* Responsive Styles */
 @media (max-width: 992px) {
-  .aboutHeroTitle {
-    font-size: 2.5rem;
+  .heroTitle {
+    font-size: 3rem;
   }
   
-  .sectionTitle {
-    font-size: 2rem;
+  .heroSubtitle {
+    font-size: 1.3rem;
   }
   
-  .missionText {
-    font-size: 1.2rem;
+  .timelineContainer::before {
+    left: 30px;
+  }
+  
+  .timelineItem {
+    flex-direction: row !important;
+    justify-content: flex-start;
+  }
+  
+  .timelineIcon {
+    left: 30px;
+    transform: translateX(0);
+  }
+  
+  .timelineContent {
+    width: calc(100% - 80px);
+    margin-left: 80px;
   }
 }
 
 @media (max-width: 768px) {
-  .aboutHero {
-    padding: 60px 20px;
+  .heroTitle {
+    font-size: 2.5rem;
   }
   
-  .aboutHeroTitle {
-    font-size: 2rem;
-  }
-  
-  .aboutHeroSubtitle {
-    font-size: 1rem;
-  }
-  
-  .aboutSection, .missionSection, .teamSection, .joinSection {
-    padding: 50px 20px;
+  .heroSubtitle {
+    font-size: 1.1rem;
   }
   
   .sectionTitle {
-    font-size: 1.8rem;
-  }
-  
-  .twoColumns {
-    flex-direction: column;
-    gap: 30px;
+    font-size: 2rem;
   }
   
   .missionText {
     font-size: 1.1rem;
   }
   
-  .joinTitle {
-    font-size: 1.8rem;
-  }
-  
-  .joinText {
-    font-size: 1rem;
-  }
-  
-  .primaryButton, .secondaryButton {
-    width: 100%;
-    max-width: 300px;
-    text-align: center;
-  }
-}
-
-@media (max-width: 576px) {
-  .aboutHero {
-    padding: 40px 20px;
-  }
-  
-  .aboutHeroTitle {
-    font-size: 1.8rem;
-  }
-  
-  .sectionTitle {
-    font-size: 1.6rem;
-  }
-  
-  .aboutText {
-    font-size: 1rem;
-  }
-  
   .valuesGrid, .teamGrid {
     grid-template-columns: 1fr;
   }
   
-  .joinButtons {
-    flex-direction: column;
-    align-items: center;
+  .ctaTitle {
+    font-size: 2rem;
+  }
+  
+  .ctaText {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .heroSection {
+    margin-top: -70px; /* Navbar'ın mobil yüksekliği */
+    height: 50vh;
+  }
+  
+  .heroTitle {
+    font-size: 2rem;
+  }
+  
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.8rem;
+  }
+  
+  .separator {
+    margin-bottom: 2rem;
+  }
+  
+  .timelineContent {
+    padding: 1rem;
+  }
+  
+  .timelineContent h3 {
+    font-size: 1.3rem;
+  }
+  
+  .ctaButton, .ctaButtonOutline {
+    width: 100%;
+    margin-bottom: 1rem;
   }
 }
