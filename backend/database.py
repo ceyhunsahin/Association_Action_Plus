@@ -63,13 +63,13 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         description TEXT,
-        date TEXT NOT NULL,
-        time TEXT,
+        date TEXT,
         location TEXT,
-        image_url TEXT,
+        image TEXT,
+        max_participants INTEGER,
+        created_by INTEGER,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT,
-        created_by INTEGER,
         status TEXT DEFAULT 'active',
         FOREIGN KEY (created_by) REFERENCES users (id)
     )
@@ -128,6 +128,14 @@ def init_db():
         INSERT INTO users (email, firstName, lastName, username, password, role, created_at, last_login)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', ("admin@admin", "Admin", "User", "admin", admin_password, "admin", datetime.now().isoformat(), datetime.now().isoformat()))
+    
+    # Eğer updated_at sütunu yoksa ekle
+    try:
+        cursor.execute('ALTER TABLE events ADD COLUMN updated_at TEXT')
+        conn.commit()
+    except:
+        # Sütun zaten var, devam et
+        pass
     
     # Değişiklikleri kaydet
     conn.commit()

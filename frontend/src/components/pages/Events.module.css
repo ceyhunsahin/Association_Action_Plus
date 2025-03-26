@@ -867,3 +867,81 @@
   height: 36px; /* Sabit yükseklik */
   vertical-align: middle; /* Dikey hizalama */
 }
+
+.eventsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.createEventButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #4CAF50;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.createEventButton:hover {
+  background-color: #388E3C;
+}
+
+.adminActions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.eventImageContainer {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+}
+
+.eventImageContainer:hover .adminActions {
+  opacity: 1;
+}
+
+.editButton, .deleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.editButton {
+  background-color: #2196F3;
+  color: white;
+}
+
+.deleteButton {
+  background-color: #F44336;
+  color: white;
+}
+
+.editButton:hover, .deleteButton:hover {
+  transform: scale(1.1);
+}
+
+.editButton:hover {
+  background-color: #1976D2;
+}
+
+.deleteButton:hover {
+  background-color: #D32F2F;
+}

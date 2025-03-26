@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from './Events.module.css';
-import { FaChevronLeft, FaChevronRight, FaCalendarAlt, FaUsers, FaMapMarkerAlt, FaClock, FaHistory, FaPlus, FaStar, FaEye, FaCheckCircle, FaCalendarCheck, FaMusic, FaPalette, FaMicrophone, FaTheaterMasks, FaTools, FaCalendarDay, FaCrown } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight, FaCalendarAlt, FaUsers, FaMapMarkerAlt, FaClock, FaHistory, FaPlus, FaStar, FaEye, FaCheckCircle, FaCalendarCheck, FaMusic, FaPalette, FaMicrophone, FaTheaterMasks, FaTools, FaCalendarDay, FaCrown, FaEdit, FaTrash } from 'react-icons/fa';
 import ConfirmModal from '../Modal/ConfirmModal';
 
 const Events = () => {
@@ -225,10 +225,6 @@ const Events = () => {
 
     // Etkinliğe katıl veya çık
     const joinEvent = async (eventId) => {
-        if (!user) {
-            navigate('/login', { state: { from: '/events' } });
-            return;
-        }
         
         try {
             // Önce etkinliğin durumunu kontrol et
@@ -358,11 +354,6 @@ const Events = () => {
         }
     };
 
-    // Etkinlik silme işlemi
-    const handleDeleteEvent = (eventId) => {
-        setEventToDelete(eventId);
-        setShowConfirmModal(true);
-    };
 
     // Etkinlik silme onayı
     const confirmDeleteEvent = async () => {
@@ -492,6 +483,28 @@ const Events = () => {
                 </div>
             </div>
         );
+    };
+
+    const handleEditEvent = (eventId) => {
+        navigate(`/events/edit/${eventId}`);
+    };
+
+    const handleDeleteEvent = async (eventId) => {
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer cet événement?')) {
+            try {
+                await axios.delete(`http://localhost:8000/api/events/${eventId}`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+                // Etkinliği listeden kaldır
+                setEvents(events.filter(event => event.id !== eventId));
+                alert('Événement supprimé avec succès!');
+            } catch (error) {
+                console.error('Error deleting event:', error);
+                alert('Une erreur s\'est produite lors de la suppression de l\'événement.');
+            }
+        }
     };
 
     if (loading) {

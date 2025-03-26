@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import styles from './EventDetail.module.css';
 import { useAuth } from '../../context/AuthContext';
-import { FaCalendarAlt, FaUsers, FaChevronLeft, FaChevronRight, FaSignInAlt, FaSignOutAlt, FaArrowLeft } from 'react-icons/fa';
+import { FaCalendarAlt, FaUsers, FaChevronLeft, FaChevronRight, FaSignInAlt, FaSignOutAlt, FaArrowLeft, FaEdit, FaTrash } from 'react-icons/fa';
 
 // Loader fonksiyonu
 export async function loader({ params }) {
@@ -18,7 +18,7 @@ export async function loader({ params }) {
 const EventDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();  // navigate'i kullanacağız
-  const { user, accessToken } = useAuth();
+  const { user, accessToken, isAuthenticated, isAdmin } = useAuth();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -217,12 +217,55 @@ const EventDetail = () => {
     navigate('/events');
   };
 
+  const handleEditEvent = () => {
+    navigate(`/events/edit/${id}`);
+  };
+
+  const handleDeleteEvent = async () => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet événement?')) {
+      try {
+        await axios.delete(`http://localhost:8000/api/events/${id}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+        alert('Événement supprimé avec succès!');
+        navigate('/events');
+      } catch (error) {
+        console.error('Error deleting event:', error);
+        alert('Une erreur s\'est produite lors de la suppression de l\'événement.');
+      }
+    }
+  };
+
   if (loading) return <div className={styles.loading}>Chargement...</div>;
   if (error) return <div className={styles.error}>{error}</div>;
   if (!event) return <div className={styles.error}>Événement non trouvé</div>;
 
   return (
     <div className={styles.eventDetailContainer}>
+      <div className={styles.eventDetailHeader}>
+        <Link to="/events" className={styles.backButton}>
+          <FaArrowLeft /> Retour aux événements
+        </Link>
+        {isAdmin && (
+          <div className={styles.adminActions}>
+            <button 
+              onClick={handleEditEvent}
+              className={styles.editButton}
+            >
+              <FaEdit /> Modifier
+            </button>
+            <button 
+              onClick={handleDeleteEvent}
+              className={styles.deleteButton}
+            >
+              <FaTrash /> Supprimer
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className={styles.cinemaCarousel}>
         <button 
           className={`${styles.carouselButton} ${styles.prevButton}`}

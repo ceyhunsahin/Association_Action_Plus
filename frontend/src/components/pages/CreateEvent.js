@@ -14,7 +14,9 @@ const CreateEvent = () => {
     date: '',
     location: '',
     image: '',
-    max_participants: 50
+    max_participants: 50,
+    created_by: 1,
+    created_at: new Date().toISOString()
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

@@ -10,7 +10,6 @@ from datetime import datetime
 router = APIRouter(
     tags=["events"]
 )
-
 # SECRET_KEY ve ALGORITHM değerlerini auth.py'den alın
 SECRET_KEY = 'ceyhunsahin'
 ALGORITHM = "HS256"
@@ -111,32 +110,33 @@ async def get_user_events(current_user: dict = Depends(get_current_user)):
         )
 
 # Yeni etkinlik oluştur (sadece admin)
-@router.post("/events")
+@router.post("", status_code=status.HTTP_201_CREATED)
 async def create_event(
     event: dict,
     current_user: dict = Depends(get_current_admin)
 ):
     """Yeni etkinlik oluştur (sadece admin)"""
     try:
+        print(f"[DEBUG] Creating event with data: {event}")
+        print(f"[DEBUG] Current user: {current_user}")
+        
         conn = get_db()
         cursor = conn.cursor()
         
         # Etkinliği oluştur
         cursor.execute("""
             INSERT INTO events (
-                title, description, date, location, type, 
-                maxParticipants, isFeatured, imageUrl, createdBy
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                title, description, date, location, 
+                image, max_participants, created_by
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (
             event.get("title"),
             event.get("description"),
             event.get("date"),
             event.get("location"),
-            event.get("type"),
-            event.get("maxParticipants"),
-            event.get("isFeatured", False),
-            event.get("imageUrl"),
-            current_user.get("id") or current_user.get("sub")
+            event.get("image"),
+            event.get("max_participants"),
+            current_user.get("id", 1)  # Admin ID'si varsayılan olarak 1
         ))
         
         conn.commit()
@@ -157,48 +157,67 @@ async def create_event(
             detail=str(e)
         )
 
-# Etkinliği güncelle (sadece admin)
-@router.put("/{event_id}", response_model=Dict)
-async def update_event(event_id: int, event: EventUpdate, current_user: dict = Depends(get_current_admin)):
-    conn = get_db()
-    cursor = conn.cursor()
-    
+# Etkinlik güncelleme (sadece admin)
+@router.put("/{event_id}", status_code=status.HTTP_200_OK)
+async def update_event(
+    event_id: int,
+    event: dict,
+    current_user: dict = Depends(get_current_admin)
+):
+    """Etkinliği güncelle (sadece admin)"""
     try:
-        # Etkinliği bul
-        cursor.execute('''
-        SELECT * FROM events WHERE id = ?
-        ''', (event_id,))
+        print(f"[DEBUG] Updating event {event_id} with data: {event}")
+        print(f"[DEBUG] Current user: {current_user}")
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Etkinliğin var olup olmadığını kontrol et
+        cursor.execute("SELECT * FROM events WHERE id = ?", (event_id,))
         existing_event = cursor.fetchone()
         
         if not existing_event:
-            raise HTTPException(status_code=404, detail="Événement non trouvé")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Événement non trouvé"
+            )
         
-        # Etkinliği güncelle
-        cursor.execute('''
-        UPDATE events
-        SET title = ?, date = ?, description = ?, image = ?
-        WHERE id = ?
-        ''', (event.title, event.date, event.description, event.image, event_id))
+        # Etkinliği güncelle - updated_at sütununu kaldırdık
+        cursor.execute("""
+            UPDATE events SET
+                title = ?,
+                description = ?,
+                date = ?,
+                location = ?,
+                image = ?,
+                max_participants = ?
+            WHERE id = ?
+        """, (
+            event.get("title"),
+            event.get("description"),
+            event.get("date"),
+            event.get("location"),
+            event.get("image"),
+            event.get("max_participants"),
+            event_id
+        ))
+        
         conn.commit()
         
-        # Güncellenmiş etkinliği al
-        cursor.execute('''
-        SELECT * FROM events WHERE id = ?
-        ''', (event_id,))
+        # Güncellenmiş etkinliği getir
+        cursor.execute("SELECT * FROM events WHERE id = ?", (event_id,))
         updated_event = cursor.fetchone()
         
-        return {
-            "id": updated_event["id"],
-            "title": updated_event["title"],
-            "date": updated_event["date"],
-            "description": updated_event["description"],
-            "image": updated_event["image"],
-            "participant_count": updated_event["participant_count"] or 0
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
         conn.close()
+        
+        return dict(updated_event)
+        
+    except Exception as e:
+        print(f"Error updating event: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
 # Etkinliği sil (sadece admin)
 @router.delete("/{event_id}")

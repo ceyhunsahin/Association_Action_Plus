@@ -25,6 +25,7 @@ import Conditions from './components/pages/Conditions';
 import MentionsLegales from './components/pages/MentionsLegales';
 import Contact from './components/pages/Contact';
 import ForgotPassword from './components/pages/ForgotPassword';
+import EditEvent from './components/pages/EditEvent';
 import './App.css';
 
 function App() {
@@ -47,9 +48,9 @@ function App() {
             <Route 
               path="/events/create" 
               element={
-                <AdminRoute>
+                <ProtectedRoute adminOnly={true}>
                   <CreateEvent />
-                </AdminRoute>
+                </ProtectedRoute>
               } 
             />
             
@@ -72,6 +73,16 @@ function App() {
             
             {/* Forgot Password sayfası */}
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            
+            {/* Edit Event sayfası */}
+            <Route 
+              path="/events/edit/:id" 
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <EditEvent />
+                </ProtectedRoute>
+              } 
+            />
             
             {/* 404 sayfası */}
             <Route path="*" element={<NotFoundPage />} />

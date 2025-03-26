@@ -14,8 +14,10 @@ import sqlite3
 import secrets
 import string
 
+
+
 # Güvenlik ayarları
-SECRET_KEY = "your-secret-key"  # Gerçek uygulamada güvenli bir şekilde saklayın
+SECRET_KEY = "ceyhunsahin"  # Gerçek uygulamada güvenli bir şekilde saklayın
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
@@ -113,6 +115,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 # Admin kullanıcısını kontrol et
 async def get_current_admin(current_user: dict = Depends(get_current_user)):
     """Admin kullanıcısını kontrol et"""
+    print(f"[DEBUG] Current user: {current_user}")
     if current_user["role"] != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
