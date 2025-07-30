@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaClock, FaPaperPlane } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaClock, FaPaperPlane, FaGlobe } from 'react-icons/fa';
 import styles from './Contact.module.css';
 
 const Contact = () => {
@@ -77,7 +77,7 @@ const Contact = () => {
               <FaMapMarkerAlt />
             </div>
             <h3>Notre adresse</h3>
-            <p>123 Rue de la Culture<br />75001 Paris, France</p>
+            <p>3A rue des Jardiniers<br />57000 METZ, France</p>
           </div>
           
           <div className={styles.infoCard}>
@@ -85,8 +85,8 @@ const Contact = () => {
               <FaPhone />
             </div>
             <h3>Téléphone</h3>
-            <p>+33 1 23 45 67 89</p>
-            <p>+33 1 98 76 54 32</p>
+            <p>+33 3 87 56 75 00</p>
+            <p>Action Plus</p>
           </div>
           
           <div className={styles.infoCard}>
@@ -94,8 +94,17 @@ const Contact = () => {
               <FaEnvelope />
             </div>
             <h3>Email</h3>
-            <p>contact@association-culturelle.fr</p>
-            <p>info@association-culturelle.fr</p>
+            <p>contact@actionplusmetz.org</p>
+            <p>Action Plus</p>
+          </div>
+          
+          <div className={styles.infoCard}>
+            <div className={styles.iconWrapper}>
+              <FaGlobe />
+            </div>
+            <h3>Site web</h3>
+            <p>actionplusmetz.org</p>
+            <p>Action Plus</p>
           </div>
           
           <div className={styles.infoCard}>
@@ -179,14 +188,14 @@ const Contact = () => {
       
       <div className={styles.mapContainer}>
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.9916256937595!2d2.292292615509614!3d48.85836507928746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e2964e34e2d%3A0x8ddca9ee380ef7e0!2sTour%20Eiffel!5e0!3m2!1sfr!2sfr!4v1621956217460!5m2!1sfr!2sfr"
+          src="https://www.google.com/maps?q=3A+rue+des+Jardiniers,+57000+Metz,+France&output=embed"
           width="100%"
           height="450"
           style={{ border: 0 }}
           allowFullScreen=""
           loading="lazy"
-          title="Notre emplacement"
-        ></iframe>
+          title="Action Plus - Notre emplacement à Metz"
+        />
       </div>
     </div>
   );

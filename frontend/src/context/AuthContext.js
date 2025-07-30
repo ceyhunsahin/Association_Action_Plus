@@ -305,7 +305,7 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     
     // Sayfayı yenileme yerine window.location.href kullan
-    window.location.href = '/login';
+    window.location.href = '/';
   };
 
   const value = {

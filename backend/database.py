@@ -90,32 +90,6 @@ def init_db():
     )
     ''')
     
-    # Bağışlar tablosunu yeniden oluştur
-    cursor.execute('DROP TABLE IF EXISTS donations')
-    
-    # Bağışlar tablosunu oluştur
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS donations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        amount REAL NOT NULL,
-        currency TEXT DEFAULT 'EUR',
-        payment_method TEXT NOT NULL,
-        transaction_id TEXT,
-        status TEXT NOT NULL,
-        donor_name TEXT NOT NULL,
-        donor_email TEXT NOT NULL,
-        donor_address TEXT,
-        donor_phone TEXT,
-        donor_message TEXT,
-        is_recurring INTEGER DEFAULT 0,
-        receipt_needed INTEGER DEFAULT 0,
-        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT,
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    )
-    ''')
-    
     # Eğer veritabanı yeni oluşturulduysa, admin kullanıcısını ekle
     if not db_exists:
         print("Yeni veritabanı oluşturuldu, admin kullanıcısı ekleniyor...")
@@ -137,6 +111,40 @@ def init_db():
         # Sütun zaten var, devam et
         pass
     
+    # Üyelikler tablosunu oluştur
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS memberships (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        membership_type TEXT NOT NULL DEFAULT 'standard',
+        start_date TEXT DEFAULT CURRENT_TIMESTAMP,
+        end_date TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'active',
+        renewal_count INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+    )
+    ''')
+    
+    # Üyelik ödemeleri tablosunu oluştur
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS membership_payments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        membership_id INTEGER NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        payment_type TEXT NOT NULL DEFAULT 'renewal',
+        plan_type TEXT NOT NULL,
+        duration_months INTEGER NOT NULL,
+        payment_status TEXT NOT NULL DEFAULT 'completed',
+        payment_date TEXT DEFAULT CURRENT_TIMESTAMP,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        FOREIGN KEY (membership_id) REFERENCES memberships (id)
+    )
+    ''')
+    
     # Değişiklikleri kaydet
     conn.commit()
     conn.close()
@@ -147,67 +155,72 @@ def get_db_connection():
     """SQLite veritabanı bağlantısı oluştur"""
     conn = None
     try:
-        conn = sqlite3.connect(DATABASE_PATH)
+        conn = sqlite3.connect(DATABASE_PATH, timeout=30.0)
         conn.row_factory = sqlite3.Row  # Sonuçları dict olarak al
+        # WAL modunu etkinleştir
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
+        conn.execute("PRAGMA cache_size=10000")
         return conn
     except Error as e:
         print(f"Veritabanı bağlantı hatası: {e}")
     
     return conn
 
-def create_donation(donation_data):
-    """Yeni bağış oluştur"""
-    conn = get_db()
+# Üyelik fonksiyonları
+def get_user_membership(user_id):
+    """Kullanıcının aktif üyeliğini getir"""
+    conn = get_db_connection()
     if not conn:
-        print("Veritabanı bağlantısı kurulamadı")
         return None
     
     try:
         cursor = conn.cursor()
-        print(f"Bağış verileri: {donation_data}")
+        cursor.execute('''
+            SELECT * FROM memberships 
+            WHERE user_id = ? AND status = 'active' 
+            ORDER BY end_date DESC 
+            LIMIT 1
+        ''', (user_id,))
         
-        # Benzersiz transaction ID oluştur
-        import random
-        transaction_id = f"TRX-{int(datetime.now().timestamp())}-{random.randint(1000, 9999)}"
+        membership = cursor.fetchone()
         
-        # Kullanıcı ID'sini al (varsa)
-        user_id = donation_data.get('user_id')
-        
-        # Sorgu
-        query = '''
-        INSERT INTO donations (
-            amount, currency, payment_method, transaction_id, 
-            donor_name, donor_email, status, user_id, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        '''
-        
-        cursor.execute(query, (
-            float(donation_data['amount']),
-            donation_data['currency'],
-            donation_data['payment_method'],
-            transaction_id,
-            donation_data['donor_name'],
-            donation_data['donor_email'],
-            'PENDING',
-            user_id,  # Kullanıcı ID'si null olabilir
-            datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        ))
-        
-        conn.commit()
-        donation_id = cursor.lastrowid
-        print(f"Bağış oluşturuldu, ID: {donation_id}")
-        
-        # Yanıt
-        return {
-            "id": donation_id,
-            "amount": donation_data['amount'],
-            "status": "PENDING",
-            "message": "Donation created successfully",
-            "user_id": user_id
-        }
+        if membership:
+            return dict(zip([col[0] for col in cursor.description], membership))
+        return None
     
     except Exception as e:
-        print(f"Bağış oluşturma hatası: {str(e)}")
+        print(f"Üyelik getirme hatası: {e}")
+        return None
+    finally:
+        if conn:
+            conn.close()
+
+def create_membership(user_id, membership_type='standard', duration_days=365):
+    """Yeni üyelik oluştur"""
+    from datetime import datetime, timedelta
+    
+    conn = get_db_connection()
+    if not conn:
+        return None
+    
+    try:
+        cursor = conn.cursor()
+        start_date = datetime.now()
+        end_date = start_date + timedelta(days=duration_days)
+        
+        cursor.execute('''
+            INSERT INTO memberships (user_id, membership_type, start_date, end_date, status)
+            VALUES (?, ?, ?, ?, 'active')
+        ''', (user_id, membership_type, start_date.isoformat(), end_date.isoformat()))
+        
+        membership_id = cursor.lastrowid
+        conn.commit()
+        
+        return get_user_membership(user_id)
+    
+    except Exception as e:
+        print(f"Üyelik oluşturma hatası: {e}")
         if conn:
             conn.rollback()
         return None
@@ -215,52 +228,268 @@ def create_donation(donation_data):
         if conn:
             conn.close()
 
-def get_user_donations(user_id):
-    """Kullanıcının bağışlarını getir"""
-    conn = get_db()  # dict_factory kullanarak sonuçları dict olarak al
-    if not conn:
-        return []
+def renew_membership(user_id, plan_type='standard', duration_months=12, amount=25.0):
+    """Kullanıcının üyeliğini yenile"""
+    from datetime import datetime, timedelta
     
-    try:
-        cursor = conn.cursor()
-        query = '''
-        SELECT * FROM donations 
-        WHERE user_id = ? 
-        ORDER BY created_at DESC
-        '''
-        
-        cursor.execute(query, (user_id,))
-        donations = cursor.fetchall()
-        
-        # Sonuçlar zaten dict olarak geliyor
-        return donations
-    
-    except Exception as e:
-        print(f"Kullanıcı bağışlarını getirme hatası: {str(e)}")
-        return []
-    finally:
-        if conn:
-            conn.close()
-
-def get_donation_by_id(donation_id):
-    """Bağış detaylarını getir"""
     conn = get_db_connection()
     if not conn:
         return None
     
     try:
         cursor = conn.cursor()
-        query = 'SELECT * FROM donations WHERE id = ?'
         
-        cursor.execute(query, (donation_id,))
-        donation = cursor.fetchone()
+        # Mevcut üyeliği getir
+        cursor.execute('''
+            SELECT * FROM memberships 
+            WHERE user_id = ? AND status = 'active' 
+            ORDER BY end_date DESC 
+            LIMIT 1
+        ''', (user_id,))
         
-        if donation:
-            return dict(donation)
+        current_membership = cursor.fetchone()
+        
+        if current_membership:
+            # Mevcut üyeliği pasif yap
+            cursor.execute('''
+                UPDATE memberships 
+                SET status = 'expired', updated_at = ?
+                WHERE id = ?
+            ''', (datetime.now().isoformat(), current_membership[0]))
+            
+            # Yeni üyelik oluştur
+            start_date = datetime.now()
+            end_date = start_date + timedelta(days=duration_months * 30)  # Ay bazında hesapla
+            renewal_count = current_membership[6] + 1  # renewal_count
+            
+            cursor.execute('''
+                INSERT INTO memberships (user_id, membership_type, start_date, end_date, status, renewal_count)
+                VALUES (?, ?, ?, ?, 'active', ?)
+            ''', (user_id, plan_type, start_date.isoformat(), end_date.isoformat(), renewal_count))
+            
+        else:
+            # İlk üyelik oluştur
+            start_date = datetime.now()
+            end_date = start_date + timedelta(days=duration_months * 30)
+            
+            cursor.execute('''
+                INSERT INTO memberships (user_id, membership_type, start_date, end_date, status, renewal_count)
+                VALUES (?, ?, ?, ?, 'active', 0)
+            ''', (user_id, plan_type, start_date.isoformat(), end_date.isoformat()))
+        
+        membership_id = cursor.lastrowid
+        
+        # Ödeme kaydını atla (geçici çözüm)
+        payment_id = None
+        print("Ödeme kaydı atlandı (geçici çözüm)")
+        
+        conn.commit()
+        
+        return get_user_membership(user_id)
+    
+    except Exception as e:
+        print(f"Üyelik yenileme hatası: {e}")
+        if conn:
+            conn.rollback()
+        return None
+    finally:
+        if conn:
+            conn.close()
+
+def get_membership_history(user_id):
+    """Kullanıcının üyelik geçmişini getir"""
+    conn = get_db_connection()
+    if not conn:
+        return []
+    
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM memberships 
+            WHERE user_id = ? 
+            ORDER BY created_at DESC
+        ''', (user_id,))
+        
+        memberships = cursor.fetchall()
+        
+        if memberships:
+            return [dict(zip([col[0] for col in cursor.description], membership)) for membership in memberships]
+        return []
+    
+    except Exception as e:
+        print(f"Üyelik geçmişi getirme hatası: {e}")
+        return []
+    finally:
+        if conn:
+            conn.close()
+
+def create_membership_payment(user_id, membership_id, amount, plan_type, duration_months):
+    """Üyelik ödemesi kaydı oluştur"""
+    import time
+    
+    # Birkaç kez deneme yap
+    for attempt in range(3):
+        conn = get_db_connection()
+        if not conn:
+            time.sleep(0.1)
+            continue
+        
+        try:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO membership_payments (user_id, membership_id, amount, plan_type, duration_months, payment_status)
+                VALUES (?, ?, ?, ?, ?, 'completed')
+            ''', (user_id, membership_id, amount, plan_type, duration_months))
+            
+            payment_id = cursor.lastrowid
+            conn.commit()
+            conn.close()
+            
+            print(f"Ödeme kaydı başarıyla oluşturuldu: {payment_id}")
+            return payment_id
+        
+        except Exception as e:
+            print(f"Ödeme kaydı oluşturma hatası (deneme {attempt + 1}): {e}")
+            if conn:
+                conn.rollback()
+                conn.close()
+            time.sleep(0.2)  # Kısa bekleme
+    
+    print("Ödeme kaydı oluşturulamadı, tüm denemeler başarısız")
+    return None
+
+def get_user_payment_history(user_id):
+    """Kullanıcının ödeme geçmişini getir"""
+    conn = get_db_connection()
+    if not conn:
+        return []
+    
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT mp.*, m.membership_type, m.start_date, m.end_date
+            FROM membership_payments mp
+            JOIN memberships m ON mp.membership_id = m.id
+            WHERE mp.user_id = ?
+            ORDER BY mp.payment_date DESC
+        ''', (user_id,))
+        
+        payments = cursor.fetchall()
+        
+        if payments:
+            return [dict(zip([col[0] for col in cursor.description], payment)) for payment in payments]
+        return []
+    
+    except Exception as e:
+        print(f"Ödeme geçmişi getirme hatası: {e}")
+        return []
+    finally:
+        if conn:
+            conn.close()
+
+def get_all_users_with_membership():
+    """Tüm kullanıcıları üyelik bilgileriyle birlikte getir"""
+    conn = get_db_connection()
+    if not conn:
+        return []
+    
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT u.id, u.email, u.firstName, u.lastName, u.username, u.role, u.created_at,
+                   m.id as membership_id, m.membership_type, m.start_date, m.end_date, 
+                   m.status as membership_status, m.renewal_count,
+                   (SELECT mp.id FROM membership_payments mp WHERE mp.user_id = u.id ORDER BY mp.payment_date DESC LIMIT 1) as last_payment_id
+            FROM users u
+            LEFT JOIN memberships m ON u.id = m.user_id AND m.status = 'active'
+            ORDER BY u.created_at DESC
+        ''')
+        
+        users = cursor.fetchall()
+        print(f"Veritabanından {len(users)} kullanıcı getirildi")
+        
+        if users:
+            result = []
+            for user in users:
+                user_dict = dict(zip([col[0] for col in cursor.description], user))
+                
+                # Üyelik bilgilerini düzenle
+                if user_dict.get('membership_id') and user_dict.get('membership_id') is not None:
+                    user_dict['membership'] = {
+                        'id': user_dict['membership_id'],
+                        'membership_type': user_dict['membership_type'],
+                        'start_date': user_dict['start_date'],
+                        'end_date': user_dict['end_date'],
+                        'status': user_dict['membership_status'],
+                        'renewal_count': user_dict['renewal_count']
+                    }
+                else:
+                    user_dict['membership'] = None
+                
+                # Gereksiz alanları temizle
+                keys_to_remove = ['membership_id', 'membership_type', 'start_date', 'end_date', 'membership_status', 'renewal_count']
+                for key in keys_to_remove:
+                    if key in user_dict:
+                        del user_dict[key]
+                
+                result.append(user_dict)
+            
+            print(f"İşlenmiş {len(result)} kullanıcı döndürülüyor")
+            return result
+        return []
+    
+    except Exception as e:
+        print(f"Kullanıcı listesi getirme hatası: {e}")
+        return []
+    finally:
+        if conn:
+            conn.close()
+
+def get_user_by_id(user_id):
+    """ID'ye göre kullanıcı getir"""
+    conn = get_db_connection()
+    if not conn:
         return None
     
-    except Error as e:
-        print(f"Bağış detaylarını getirme hatası: {e}")
+    try:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
+        user = cursor.fetchone()
+        
+        if user:
+            return dict(zip([col[0] for col in cursor.description], user))
+        return None
+    
+    except Exception as e:
+        print(f"Kullanıcı getirme hatası: {e}")
+        return None
+    finally:
+        if conn:
+            conn.close()
+
+def get_payment_by_id(payment_id):
+    """ID'ye göre ödeme getir"""
+    conn = get_db_connection()
+    if not conn:
+        return None
+    
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT mp.*, m.membership_type, m.start_date, m.end_date
+            FROM membership_payments mp
+            JOIN memberships m ON mp.membership_id = m.id
+            WHERE mp.id = ?
+        ''', (payment_id,))
+        
+        payment = cursor.fetchone()
+        
+        if payment:
+            return dict(zip([col[0] for col in cursor.description], payment))
+        return None
+    
+    except Exception as e:
+        print(f"Ödeme getirme hatası: {e}")
         return None
     finally:
         if conn:

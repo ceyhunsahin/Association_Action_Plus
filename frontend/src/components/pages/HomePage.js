@@ -45,7 +45,7 @@ const HomePage = () => {
     <>
       <Helmet>
         <title>Action Plus - Association Culturelle | Dialogue Interculturel</title>
-        <meta name="description" content="Action Plus est une association culturelle qui promeut le dialogue interculturel, la diversité et l'inclusion sociale à travers des événements, ateliers et rencontres." />
+        <meta name="description" content="Action Plus est une association qui promeut le dialogue interculturel, la diversité et la solidarité à travers des actions éducatives, culturelles et sociales." />
         <meta name="keywords" content="association culturelle, dialogue interculturel, diversité, inclusion sociale" />
       </Helmet>
       
@@ -90,9 +90,9 @@ const HomePage = () => {
               <p className={styles.heroDescription}>
                 <span className={styles.descriptionPhrase}>Promouvoir le dialogue interculturel</span>
                 <span className={styles.descriptionDivider}></span>
-                <span className={styles.descriptionPhrase}>Renforcer les liens sociaux</span>
+                <span className={styles.descriptionPhrase}>Renforcer les liens entre les générations</span>
                 <span className={styles.descriptionDivider}></span>
-                <span className={styles.descriptionPhrase}>Favoriser une société inclusive</span>
+                <span className={styles.descriptionPhrase}>Encourager la tolérance et la citoyenneté</span>
               </p>
             </div>
             
@@ -101,15 +101,6 @@ const HomePage = () => {
                 <span className={styles.buttonText}>Découvrir nos activités</span>
                 <span className={styles.buttonIcon}>→</span>
               </Link>
-              <Link to="/donate" className={styles.secondaryButton}>
-                <span className={styles.buttonText}>Faire un don</span>
-                <span className={styles.buttonGlow}></span>
-              </Link>
-            </div>
-            
-            <div className={styles.heroScrollIndicator}>
-              <div className={styles.scrollArrow}></div>
-              <p className={styles.scrollText}>Découvrir</p>
             </div>
           </div>
         </div>
@@ -265,53 +256,6 @@ const HomePage = () => {
             </div>
           </div>
         </section>
-
-        {/* Newsletter Section */}
-        <section className={styles.newsletterSection}>
-          <div className={styles.newsletterContent}>
-            <h2 className={styles.newsletterTitle}>Restez informé</h2>
-            <p className={styles.newsletterText}>
-              Inscrivez-vous à notre newsletter pour recevoir les dernières nouvelles et mises à jour.
-            </p>
-            <form className={styles.newsletterForm}>
-              <input type="email" placeholder="Votre adresse e-mail" required />
-              <button type="submit">S'abonner</button>
-            </form>
-          </div>
-        </section>
-
-        {/* Yaratıcı Butonlar Bölümü */}
-        <div className={styles.creativeButtonsSection}>
-          <div className={styles.creativeButtonsContainer}>
-            <Link to="/donate" className={styles.creativeButton}>
-              <div className={styles.creativeButtonIcon}>
-                <FaHandHoldingHeart />
-              </div>
-              <div className={styles.creativeButtonContent}>
-                <h3>Faire un don</h3>
-                <p>Soutenez nos projets culturels et contribuez à la diversité artistique</p>
-              </div>
-              <div className={styles.creativeButtonArrow}>
-                <FaArrowRight />
-              </div>
-            </Link>
-            
-            {isAuthenticated && (
-              <Link to="/profile" className={styles.creativeButton}>
-                <div className={styles.creativeButtonIcon}>
-                  <FaTicketAlt />
-                </div>
-                <div className={styles.creativeButtonContent}>
-                  <h3>Découvrir mes événements</h3>
-                  <p>Consultez vos réservations et participations aux événements</p>
-                </div>
-                <div className={styles.creativeButtonArrow}>
-                  <FaArrowRight />
-                </div>
-              </Link>
-            )}
-          </div>
-        </div>
       </div>
     </>
   );

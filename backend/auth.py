@@ -56,7 +56,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)  # 30 dakika
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -75,8 +75,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         role = payload.get("role")
         
         print(f"[DEBUG] Token payload: {payload}")
+        print(f"[DEBUG] Email: {email}, Role: {role}")
         
-        # Admin kontrolü
+        # Admin kontrolü - token'daki role bilgisini kullan
         if email == "admin@admin" and role == "admin":
             print("[DEBUG] Admin token verified")
             return {
@@ -101,7 +102,15 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
                 detail="Invalid credentials"
             )
         
-        user_dict = dict(user)
+        # Kullanıcı bilgilerini düzenle
+        user_dict = {
+            "id": user[0],
+            "email": user[1],
+            "firstName": user[2],
+            "lastName": user[3],
+            "username": user[4],
+            "role": user[6] if len(user) > 6 else "user"  # role bilgisi varsa al, yoksa "user" olarak ayarla
+        }
         print(f"User found: {user_dict}")
         return user_dict
     
@@ -156,7 +165,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         # Token için kullanıcı verilerini hazırla
         token_data = {
             "sub": user[1],  # email
-            "user_id": user[0]  # id
+            "user_id": user[0],  # id
+            "role": user[6]  # role
         }
 
         # Access token oluştur
@@ -252,13 +262,13 @@ async def login(request: Request):
             print("[DEBUG] Admin login attempt")
             if password == "admin":
                 print("[DEBUG] Admin password verified")
-                access_token = create_access_token(
-                    data={
-                        "sub": "admin@admin",
-                        "role": "admin",
-                        "type": "access"  # Token tipini belirt
-                    }
-                )
+                token_data = {
+                    "sub": "admin@admin",
+                    "role": "admin"
+                }
+                print(f"[DEBUG] Creating admin token with data: {token_data}")
+                access_token = create_access_token(data=token_data)
+                print(f"[DEBUG] Admin token created: {access_token[:20]}...")
                 
                 admin_user = {
                     "id": 1,

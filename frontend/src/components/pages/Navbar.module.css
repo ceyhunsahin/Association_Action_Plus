@@ -32,7 +32,8 @@
   -webkit-backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   border-bottom: 1px solid rgba(200, 169, 126, 0.3);
-  height: 80px;
+  height: 70px;
+  min-height: 70px;
 }
 
 .navbar::before {
@@ -59,13 +60,13 @@
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1rem;
   height: 100%;
 }
 
 /* Sol Bölüm - Logo */
 .logoSection {
-  flex: 0 0 25%;
+  flex: 0 0 20%;
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -74,7 +75,7 @@
 
 /* Orta Bölüm - Navigasyon */
 .navSection {
-  flex: 0 0 50%;
+  flex: 0 0 60%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -83,7 +84,7 @@
 
 /* Sağ Bölüm - Kimlik Doğrulama */
 .authSection {
-  flex: 0 0 25%;
+  flex: 0 0 20%;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -177,26 +178,28 @@
 .navLinks {
   display: flex;
   flex-direction: row;
-  gap: 1.8rem;
+  gap: 0.8rem;
   align-items: center;
   height: 100%;
+  flex-wrap: wrap;
 }
 
 .navLink {
   font-family: 'Montserrat', sans-serif;
-  font-size: 1.05rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: #ffffff;
   text-decoration: none;
   position: relative;
-  padding: 0.5rem 0;
+  padding: 0.3rem 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.3rem;
   transition: all 0.3s ease;
   overflow: hidden;
   height: 100%;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
 }
 
 .navLink::after {
@@ -221,18 +224,18 @@
 
 .activeLink {
   font-family: 'Montserrat', sans-serif;
-  font-size: 1.05rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--primary);
   text-decoration: none;
   position: relative;
-  padding: 0.5rem 0;
+  padding: 0.3rem 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.3rem;
   overflow: hidden;
   height: 100%;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.2px;
 }
 
 .activeLink::after {
@@ -249,27 +252,27 @@
 /* Kimlik Doğrulama Butonları İyileştirmesi */
 .authLinks {
   display: flex;
-  gap: 1rem;
+  gap: 0.8rem;
   align-items: center;
 }
 
 .loginButton, .registerButton, .profileButton {
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 0.6rem 1.2rem;
-  border-radius: 30px;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   text-decoration: none;
   position: relative;
   overflow: hidden;
   z-index: 1;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .loginButton {
@@ -331,21 +334,21 @@
 
 .profileButton {
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 0.6rem 1.2rem;
-  border-radius: 30px;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   text-decoration: none;
   position: relative;
   overflow: hidden;
   z-index: 1;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   color: #fff;
   background: linear-gradient(45deg, var(--secondary-light), var(--secondary));
   border: none;
@@ -376,18 +379,18 @@
 .logoutButton {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  padding: 0.6rem 1.2rem;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
   border: none;
   background: linear-gradient(45deg, rgba(229, 57, 53, 0.1), rgba(229, 57, 53, 0.2));
-  border-radius: 30px;
+  border-radius: 20px;
   cursor: pointer;
   color: #e53935;
   transition: all 0.3s ease;
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
   z-index: 1;
@@ -476,7 +479,7 @@
 .navbarMobile {
   display: none;
   position: fixed;
-  top: 80px;
+  top: 70px;
   left: 0;
   width: 100%;
   background-color: #ffffff;
@@ -484,7 +487,7 @@
   padding: 1.5rem;
   z-index: 999;
   animation: slideDown 0.3s ease;
-  max-height: calc(100vh - 80px);
+  max-height: calc(100vh - 70px);
   overflow-y: auto;
 }
 
@@ -657,7 +660,7 @@
 
 /* Alt sayfalarla üst üste binmeyi önlemek için */
 body {
-  padding-top: 80px; /* Navbar'ın yüksekliği */
+  padding-top: 70px; /* Navbar'ın yüksekliği */
 }
 
 /* Anasayfa için özel stil (hero ile çakışmayı önlemek için) */
@@ -680,28 +683,20 @@ body.home-page {
 }
 
 /* Contact Link Özel Stili */
-.navLink:has(.navIcon), .activeLink:has(.navIcon) {
-  color: var(--accent);
-}
-
 .navLink:has(.navIcon):hover::after {
-  background: linear-gradient(90deg, var(--accent), var(--primary));
+  background: linear-gradient(90deg, var(--primary), var(--accent));
 }
 
 .activeLink:has(.navIcon)::after {
-  background: linear-gradient(90deg, var(--accent), var(--primary));
-}
-
-.navLinkMobile:has(.navIcon), .activeLinkMobile:has(.navIcon) {
-  color: var(--accent);
+  background: linear-gradient(90deg, var(--primary), var(--accent));
 }
 
 .navLinkMobile:has(.navIcon):hover {
-  background-color: rgba(255, 152, 0, 0.1);
+  background-color: rgba(200, 169, 126, 0.1);
 }
 
 .activeLinkMobile:has(.navIcon) {
-  background-color: rgba(255, 152, 0, 0.15);
+  background-color: rgba(200, 169, 126, 0.15);
 }
 
 /* Menü bölümleri için stil */
@@ -731,10 +726,56 @@ body.home-page {
 .adminLink {
   color: #4CAF50 !important;
   font-weight: 500;
+  font-size: 0.85rem !important;
+  padding: 0.3rem 0.6rem !important;
+  background-color: rgba(76, 175, 80, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(76, 175, 80, 0.3);
 }
 
 .adminLink:hover {
-  background-color: rgba(76, 175, 80, 0.1);
+  background-color: rgba(76, 175, 80, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Admin linkleri için özel stil */
+.navLink[href*="admin"], .navLink[href*="create"] {
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  color: #4CAF50 !important;
+  padding: 0.2rem 0.3rem !important;
+  background-color: transparent !important;
+  border: none !important;
+  margin: 0 0.1rem;
+  max-width: 110px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.navLink[href*="admin"]:hover, .navLink[href*="create"]:hover {
+  color: #66BB6A !important;
+  transform: translateY(-1px);
+  text-shadow: 0 1px 2px rgba(76, 175, 80, 0.3);
+}
+
+.activeLink[href*="admin"], .activeLink[href*="create"] {
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  color: #66BB6A !important;
+  padding: 0.2rem 0.3rem !important;
+  background-color: transparent !important;
+  border: none !important;
+  margin: 0 0.1rem;
+  max-width: 110px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(76, 175, 80, 0.5);
 }
 
 /* Kullanıcı menü öğeleri için stil */
@@ -758,4 +799,40 @@ body.home-page {
 /* Menü etiketleri için stil */
 .navLabel {
   font-size: 1rem;
+}
+
+.navbarAdmin {
+  text-transform: none;
+  font-size: 0.8rem;
+}
+
+.navbarNormal {
+  text-transform: uppercase;
+  font-size: 1.05rem;
+  letter-spacing: 1px;
+}
+
+.navbarNormal .navLinks {
+  gap: 1.5rem;
+}
+
+.navLinksMobileNormal {
+  text-transform: uppercase;
+  font-size: 1.15rem;
+  letter-spacing: 1px;
+}
+
+.navLinksMobileNormal.navLinksMobile {
+  gap: 1.2rem;
+}
+
+.navLinksMobileAdmin {
+  text-transform: none;
+  font-size: 0.95rem;
+}
+
+.navLinksMobileNormal {
+  text-transform: uppercase;
+  font-size: 1.15rem;
+  letter-spacing: 1px;
 }

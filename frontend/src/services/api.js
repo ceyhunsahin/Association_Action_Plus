@@ -60,13 +60,4 @@ export const userService = {
   getUserEvents: () => api.get('/users/events'),
 };
 
-// Bağış işlemleri için API fonksiyonları
-export const donationService = {
-  // Bağış yap
-  makeDonation: (donationData) => api.post('/donations', donationData),
-  
-  // Bağış geçmişini getir
-  getDonationHistory: () => api.get('/donations/history'),
-};
-
 export default api; 

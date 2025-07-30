@@ -10,11 +10,11 @@ const MentionsLegales = () => {
         <section className={styles.legalSection}>
           <h2>1. Informations légales</h2>
           <p>
-            Ce site est édité par l'Association Culturelle, association loi 1901.<br />
-            Siège social : [Adresse de l'association]<br />
-            Téléphone : [Numéro de téléphone]<br />
-            Email : [Adresse email]<br />
-            Directeur de la publication : [Nom du directeur]
+            Ce site est édité par l'Association Action Plus, association loi 1901.<br />
+            Siège social : 3A rue des Jardiniers, 57000 METZ, France<br />
+            Téléphone : +33 3 87 56 75 00<br />
+            Email : contact@actionplusmetz.org<br />
+            Directeur de la publication : Cengiz Basbunar
           </p>
         </section>
         
@@ -22,7 +22,8 @@ const MentionsLegales = () => {
           <h2>2. Hébergement</h2>
           <p>
             Ce site est hébergé par [Nom de l'hébergeur], [Adresse de l'hébergeur].<br />
-            Téléphone : [Numéro de téléphone de l'hébergeur]
+            Téléphone : [Numéro de téléphone de l'hébergeur]<br />
+            Site web : https://actionplusmetz.org
           </p>
         </section>
         
@@ -46,7 +47,7 @@ const MentionsLegales = () => {
           <p>
             Les liens hypertextes mis en place dans le cadre du présent site internet 
             en direction d'autres ressources présentes sur le réseau Internet ne sauraient 
-            engager la responsabilité de l'Association Culturelle.
+            engager la responsabilité de l'Association Action Plus.
           </p>
         </section>
         
@@ -56,7 +57,7 @@ const MentionsLegales = () => {
             Conformément à la loi "Informatique et Libertés" du 6 janvier 1978 modifiée, 
             vous disposez d'un droit d'accès, de modification, de rectification et de 
             suppression des données vous concernant. Pour exercer ce droit, veuillez nous 
-            contacter à l'adresse suivante : [Adresse email de contact].
+            contacter à l'adresse suivante : contact@actionplusmetz.org
           </p>
         </section>
       </div>

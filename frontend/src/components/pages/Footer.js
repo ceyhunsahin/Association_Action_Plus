@@ -16,8 +16,8 @@ const Footer = () => {
       
       <div className={styles.footerContent}>
         <div className={styles.footerSection}>
-          <h3>Association Culturelle</h3>
-          <p>Notre association culturelle est dédiée à la promotion et à la préservation de la culture et des traditions.</p>
+          <h3>Action Plus</h3>
+          <p>Notre association vise à promouvoir le dialogue interculturel, la diversité et la solidarité à travers des actions éducatives, culturelles et sociales.</p>
           <div className={styles.socialIcons}>
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
               <FaFacebook />
@@ -40,7 +40,6 @@ const Footer = () => {
             <li><Link to="/">Accueil</Link></li>
             <li><Link to="/about">À propos</Link></li>
             <li><Link to="/events">Événements</Link></li>
-            <li><Link to="/donation">Faire un don</Link></li>
             <li><Link to="/contact">Contact</Link></li>
           </ul>
         </div>
@@ -48,9 +47,9 @@ const Footer = () => {
         <div className={styles.footerSection}>
           <h3>Contactez-nous</h3>
           <address className={styles.contactInfo}>
-            <p><FaMapMarkerAlt /> 123 Rue de la Culture, 75001 Paris, France</p>
-            <p><FaPhone /> +33 1 23 45 67 89</p>
-            <p><FaEnvelope /> contact@association-culturelle.fr</p>
+            <p><FaMapMarkerAlt /> 3A rue des Jardiniers, 57000 METZ, France</p>
+            <p><FaPhone /> +33 3 87 56 75 00</p>
+            <p><FaEnvelope /> contact@actionplusmetz.org</p>
           </address>
         </div>
         
@@ -66,7 +65,7 @@ const Footer = () => {
       
       <div className={styles.footerBottom}>
         <div className={styles.copyright}>
-          &copy; {currentYear} Association Culturelle. Tous droits réservés.
+          &copy; {currentYear} Action Plus. Tous droits réservés. | Numéro d'enregistrement: AA2025MET000109 | Site web: actionplusmetz.org
         </div>
         <div className={styles.footerBottomLinks}>
           <Link to="/confidentialite">Politique de confidentialité</Link>

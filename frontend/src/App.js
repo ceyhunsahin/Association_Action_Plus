@@ -19,13 +19,14 @@ import ProtectedRoute from './components/protectedRoute';
 import AdminRoute from './components/AdminRoute';
 import Layout from './components/Layout/Layout';
 import NotFoundPage from './components/pages/notFoundPage';
-import Donate from './components/pages/donate';
+
 import Confidentialite from './components/pages/Confidentialite';
 import Conditions from './components/pages/Conditions';
 import MentionsLegales from './components/pages/MentionsLegales';
 import Contact from './components/pages/Contact';
 import ForgotPassword from './components/pages/ForgotPassword';
 import EditEvent from './components/pages/EditEvent';
+import AdminMembershipManagement from './components/pages/AdminMembershipManagement';
 import './App.css';
 
 function App() {
@@ -42,7 +43,7 @@ function App() {
             <Route path="/register" element={<RegisterForm />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<EventDetail />} />
-            <Route path="/donate" element={<Donate />} />  {/* Bağış sayfası rotası */}
+
             
             {/* Admin route for creating events */}
             <Route 
@@ -80,6 +81,16 @@ function App() {
               element={
                 <ProtectedRoute adminOnly={true}>
                   <EditEvent />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Admin Membership Management sayfası */}
+            <Route 
+              path="/admin/memberships" 
+              element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminMembershipManagement />
                 </ProtectedRoute>
               } 
             />

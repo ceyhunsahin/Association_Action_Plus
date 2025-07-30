@@ -8,25 +8,27 @@ import { FaUser, FaEnvelope, FaCalendarAlt, FaEdit, FaHandHoldingHeart, FaEye, F
   FaHistory, FaTools, FaMusic, FaPalette, FaMicrophone, FaTheaterMasks, FaChartLine,
   FaBirthdayCake, FaStar, FaGem, FaAward, FaCrown, FaUserFriends, FaBookmark } from 'react-icons/fa';
 import styles from './ProfilePage.module.css';
-import { getUserDonations } from '../../services/donationService';
+
+
 
 const ProfilePage = () => {
   const { user, accessToken, logout, updateUserProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // overview, events, donations, settings
+  const [activeTab, setActiveTab] = useState('overview'); // overview, events, settings
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     profileImage: ''
   });
-  const [donationHistory, setDonationHistory] = useState([]);
+
   const [userEvents, setUserEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [showPastEvents, setShowPastEvents] = useState(false);
   const [animateProfile, setAnimateProfile] = useState(false);
+
   const profileRef = useRef(null);
   const navigate = useNavigate();
 
@@ -53,28 +55,11 @@ const ProfilePage = () => {
       });
     }
 
-    // Kullanıcının bağış geçmişini ve etkinliklerini getir
-    fetchDonationHistory();
+    // Kullanıcının etkinliklerini getir
     fetchUserEvents();
   }, [user, accessToken, navigate]);
 
-  // Kullanıcının bağış geçmişini getir
-  const fetchDonationHistory = async () => {
-    if (!user || !user.id) return;
-    
-    try {
-      setLoading(true);
-      const donations = await getUserDonations(user.id);
-      // API'dan gelen veri boş dizi olabilir, kontrol et
-      setDonationHistory(Array.isArray(donations) ? donations : []);
-      setLoading(false);
-    } catch (error) {
-      console.error('Bağış geçmişi alınamadı:', error);
-      // Hata durumunda boş dizi kullan
-      setDonationHistory([]);
-      setLoading(false);
-    }
-  };
+
 
   // Kullanıcının etkinliklerini getir
   const fetchUserEvents = async () => {
@@ -162,23 +147,13 @@ const ProfilePage = () => {
     navigate(`/events/${eventId}`);
   };
 
-  // Kullanıcının bağış seviyesini hesapla
-  const calculateDonationLevel = () => {
-    if (!donationHistory || donationHistory.length === 0) return { level: 'Débutant', icon: <FaHeart />, color: '#e91e63' };
-    
-    const totalAmount = donationHistory.reduce((total, donation) => total + donation.amount, 0);
-    
-    if (totalAmount >= 1000) return { level: 'Bienfaiteur Platine', icon: <FaCrown />, color: '#7986cb' };
-    if (totalAmount >= 500) return { level: 'Bienfaiteur Or', icon: <FaGem />, color: '#ffd700' };
-    if (totalAmount >= 200) return { level: 'Bienfaiteur Argent', icon: <FaAward />, color: '#c0c0c0' };
-    if (totalAmount >= 100) return { level: 'Bienfaiteur Bronze', icon: <FaMedal />, color: '#cd7f32' };
-    
-    return { level: 'Donateur', icon: <FaHeart />, color: '#e91e63' };
-  };
+
+
+
 
   // Kullanıcının üyelik süresini hesapla
   const calculateMembershipDuration = () => {
-    if (!user || !user.created_at) return '0 jour';
+   if (!user || !user.created_at) return '0 jour';
     
     const createdDate = new Date(user.created_at);
     const today = new Date();
@@ -198,101 +173,7 @@ const ProfilePage = () => {
     return `${years} an${years > 1 ? 's' : ''} et ${remainingMonths} mois`;
   };
 
-  // Bağış geçmişini render et
-  const renderDonationHistory = () => {
-    if (donationHistory.length === 0) {
-      return (
-        <div className={styles.emptyDonations}>
-          <p>Vous n'avez pas encore fait de dons.</p>
-          <Link to="/donate" className={styles.donateButton}>
-            <FaHandHoldingHeart /> Faire un don
-          </Link>
-        </div>
-      );
-    }
 
-    const donationLevel = calculateDonationLevel();
-    const totalAmount = donationHistory.reduce((total, donation) => total + donation.amount, 0);
-
-    return (
-      <div className={styles.donationHistoryContainer}>
-        <div className={styles.donationSummaryCards}>
-          <div className={styles.donationSummaryCard}>
-            <div className={styles.donationSummaryIcon}>
-              <FaChartLine />
-            </div>
-            <div className={styles.donationSummaryInfo}>
-              <span className={styles.donationSummaryTitle}>Total des dons</span>
-              <span className={styles.donationSummaryValue}>{totalAmount.toFixed(2)} €</span>
-            </div>
-          </div>
-          
-          <div className={styles.donationSummaryCard}>
-            <div className={styles.donationSummaryIcon} style={{ color: donationLevel.color }}>
-              {donationLevel.icon}
-            </div>
-            <div className={styles.donationSummaryInfo}>
-              <span className={styles.donationSummaryTitle}>Niveau</span>
-              <span className={styles.donationSummaryValue} style={{ color: donationLevel.color }}>
-                {donationLevel.level}
-              </span>
-            </div>
-          </div>
-          
-          <div className={styles.donationSummaryCard}>
-            <div className={styles.donationSummaryIcon}>
-              <FaCalendarAlt />
-            </div>
-            <div className={styles.donationSummaryInfo}>
-              <span className={styles.donationSummaryTitle}>Dernier don</span>
-              <span className={styles.donationSummaryValue}>
-                {new Date(donationHistory[0].created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-              </span>
-            </div>
-          </div>
-        </div>
-        
-        <div className={styles.donationTableContainer}>
-          <h3>Historique détaillé</h3>
-          <table className={styles.donationTable}>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Montant</th>
-                <th>Méthode</th>
-                <th>Statut</th>
-              </tr>
-            </thead>
-            <tbody>
-              {donationHistory.map((donation) => (
-                <tr key={donation.id}>
-                  <td>{new Date(donation.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</td>
-                  <td>{donation.amount} {donation.currency}</td>
-                  <td>{donation.payment_method}</td>
-                  <td>
-                    <span className={`${styles.status} ${styles[donation.status.toLowerCase()]}`}>
-                      {donation.status === 'COMPLETED' ? 'Complété' : 
-                       donation.status === 'PENDING' ? 'En attente' : 
-                       donation.status === 'FAILED' ? 'Échoué' : donation.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        <div className={styles.donationActions}>
-          <button 
-            className={styles.donateAgainButton}
-            onClick={() => navigate('/donate')}
-          >
-            <FaHandHoldingHeart /> Faire un nouveau don
-          </button>
-        </div>
-      </div>
-    );
-  };
 
   // Kullanıcının etkinliklerini render et
   const renderUserEvents = () => {
@@ -470,15 +351,7 @@ const ProfilePage = () => {
             </div>
           </div>
           
-          <div className={styles.statsCard}>
-            <div className={styles.statsIcon}>
-              <FaHandHoldingHeart />
-            </div>
-            <div className={styles.statsInfo}>
-              <span className={styles.statsValue}>{donationHistory.length}</span>
-              <span className={styles.statsLabel}>Dons</span>
-            </div>
-          </div>
+
           
           <div className={styles.statsCard}>
             <div className={styles.statsIcon}>
@@ -496,58 +369,15 @@ const ProfilePage = () => {
             <div className={styles.membershipSection}>
               <h2>Votre adhésion</h2>
               <div className={styles.membershipCard}>
-                <div className={styles.membershipStatus}>Membre actif</div>
+                <div className={styles.membershipStatus}>
+                  Membre actif
+                </div>
                 <div className={styles.membershipDetails}>
                   <p><strong>Numéro d'adhérent:</strong> {user.id}A{new Date().getFullYear()}</p>
-                  <p><strong>Date d'adhésion:</strong> {new Date(user.created_at || Date.now()).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                  <p><strong>Date de renouvellement:</strong> {new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  <p><strong>Date d'adhésion:</strong> {new Date(user.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  <p><strong>Statut:</strong> Actif</p>
                 </div>
-                <button className={styles.renewButton}>Renouveler mon adhésion</button>
               </div>
-            </div>
-            
-            <div className={styles.donationPreview}>
-              <h2><FaHandHoldingHeart /> Vos dons récents</h2>
-              {donationHistory.length > 0 ? (
-                <>
-                  <div className={styles.donationLevel}>
-                    <div className={styles.donationLevelIcon} style={{ color: calculateDonationLevel().color }}>
-                      {calculateDonationLevel().icon}
-                    </div>
-                    <div className={styles.donationLevelInfo}>
-                      <span className={styles.donationLevelTitle}>Niveau de donateur</span>
-                      <span className={styles.donationLevelName} style={{ color: calculateDonationLevel().color }}>
-                        {calculateDonationLevel().level}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className={styles.recentDonations}>
-                    {donationHistory.slice(0, 3).map(donation => (
-                      <div key={donation.id} className={styles.recentDonation}>
-                        <div className={styles.donationAmount}>{donation.amount} €</div>
-                        <div className={styles.donationDate}>
-                          {new Date(donation.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <button 
-                    className={styles.viewAllButton}
-                    onClick={() => setActiveTab('donations')}
-                  >
-                    Voir tout l'historique
-                  </button>
-                </>
-              ) : (
-                <div className={styles.emptyDonations}>
-                  <p>Vous n'avez pas encore fait de dons.</p>
-                  <Link to="/donate" className={styles.donateButton}>
-                    <FaHandHoldingHeart /> Faire un don
-                  </Link>
-                </div>
-              )}
             </div>
           </div>
           
@@ -752,11 +582,7 @@ const ProfilePage = () => {
                     <span className={styles.userBadge} title="Membre actif">
                         <FaUserFriends />
                     </span>
-                    {donationHistory.length > 0 && (
-                        <span className={styles.userBadge} title="Donateur" style={{ color: calculateDonationLevel().color }}>
-                            {calculateDonationLevel().icon}
-                        </span>
-                    )}
+
                     {userEvents.length > 5 && (
                         <span className={styles.userBadge} title="Participant régulier">
                             <FaStar />
@@ -797,12 +623,7 @@ const ProfilePage = () => {
             >
                 <FaCalendarCheck /> Événements
             </button>
-            <button 
-                className={`${styles.navButton} ${activeTab === 'donations' ? styles.activeTab : ''}`}
-                onClick={() => setActiveTab('donations')}
-            >
-                <FaHandHoldingHeart /> Dons
-            </button>
+
             <button 
                 className={`${styles.navButton} ${activeTab === 'settings' ? styles.activeTab : ''}`}
                 onClick={() => setActiveTab('settings')}
@@ -814,9 +635,10 @@ const ProfilePage = () => {
         <div className={styles.profileContent}>
             {activeTab === 'overview' && renderOverview()}
             {activeTab === 'events' && renderUserEvents()}
-            {activeTab === 'donations' && renderDonationHistory()}
             {activeTab === 'settings' && renderSettings()}
         </div>
+
+
     </div>
   );
 };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Navbar.module.css';
-import { FaUser, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaCalendarPlus, FaBars, FaTimes, FaEnvelope } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaCalendarPlus, FaBars, FaTimes, FaEnvelope, FaUsers } from 'react-icons/fa';
 
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
@@ -28,7 +28,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
+      navigate('/');
       setIsOpen(false);
     } catch (error) {
       console.error('Logout error:', error);
@@ -66,7 +66,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className={`${styles.navbar} ${scrolled ? styles.navbarScrolled : ''}`}>
+    <nav className={`${styles.navbar} ${scrolled ? styles.navbarScrolled : ''} ${isAdmin ? styles.navbarAdmin : styles.navbarNormal}`}>
       <div className={styles.navbarContainer}>
         {/* Logo Bölümü */}
         <div className={styles.logoSection}>
@@ -108,13 +108,22 @@ const Navbar = () => {
               <FaEnvelope className={styles.navIcon} /> Contact
             </NavLink>
             {isAdmin && (
-              <NavLink 
-                to="/events/create" 
-                className={({ isActive }) => isActive ? styles.activeLink : styles.navLink}
-                onClick={closeMenu}
-              >
-                <FaCalendarPlus /> Créer un événement
-              </NavLink>
+              <>
+                <NavLink 
+                  to="/events/create" 
+                  className={({ isActive }) => isActive ? styles.activeLink : styles.navLink}
+                  onClick={closeMenu}
+                >
+                  <FaCalendarPlus /> Créer un événement
+                </NavLink>
+                <NavLink 
+                  to="/admin/memberships" 
+                  className={({ isActive }) => isActive ? styles.activeLink : styles.navLink}
+                  onClick={closeMenu}
+                >
+                  <FaUsers /> Gestion des Adhésions
+                </NavLink>
+              </>
             )}
           </div>
         </div>
@@ -160,7 +169,7 @@ const Navbar = () => {
       {/* Mobil Menü */}
       {isOpen && (
         <div className={`${styles.navbarMobile} ${isOpen ? styles.navbarMobileActive : ''}`}>
-          <div className={styles.navLinksMobile}>
+          <div className={`${isAdmin ? styles.navLinksMobileAdmin : styles.navLinksMobileNormal} ${styles.navLinksMobile}`}>
             <NavLink 
               to="/" 
               className={({ isActive }) => isActive ? styles.activeLinkMobile : styles.navLinkMobile}

@@ -39,22 +39,22 @@ const About = () => {
   // Ekip üyeleri
   const teamMembers = [
     {
-      name: 'Sophie Laurent',
-      role: 'Fondatrice & Présidente',
-      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
-      bio: 'Passionnée par l\'éducation interculturelle depuis plus de 15 ans, Sophie a fondé ACTION+ avec la vision de créer des ponts entre les cultures.'
-    },
-    {
-      name: 'Marc Dubois',
-      role: 'Directeur des Programmes',
+      name: 'CENGIZ BASBUNAR',
+      role: 'Président',
       image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
-      bio: 'Avec une expérience de 10 ans dans le développement de programmes éducatifs, Marc supervise toutes nos initiatives culturelles.'
+      bio: 'Président de l\'association Action Plus, dédié à la promotion du dialogue interculturel et à la diversité.'
     },
     {
-      name: 'Amina Ndiaye',
-      role: 'Coordinatrice des Événements',
+      name: 'AHMET OZTURK',
+      role: 'Secrétaire',
+      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+      bio: 'Secrétaire de l\'association, responsable de la coordination administrative et de la communication.'
+    },
+    {
+      name: 'CEYHUN SAHIN',
+      role: 'Vice-Président',
       image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
-      bio: 'Amina apporte son expertise en gestion d\'événements et sa passion pour la diversité culturelle à chaque projet qu\'elle coordonne.'
+      bio: 'Vice-Président, engagé dans le renforcement des liens entre les générations et l\'inclusion sociale.'
     }
   ];
 
@@ -82,7 +82,7 @@ const About = () => {
             À Propos de <span>ACTION+</span>
           </h1>
           <p className={styles.heroSubtitle}>
-            Construire des ponts entre les cultures depuis 2010
+            Construire des ponts entre les cultures depuis 2025
           </p>
         </div>
       </div>
@@ -94,10 +94,10 @@ const About = () => {
             <h2 className={styles.sectionTitle}>Notre Mission</h2>
             <div className={styles.separator}></div>
             <p className={styles.missionText}>
-              ACTION+ est une association culturelle dédiée à la promotion de la diversité culturelle et à la création d'espaces de dialogue interculturel. Nous croyons au pouvoir transformateur des échanges culturels et travaillons à construire des ponts entre les différentes communautés.
+              Action Plus vise à promouvoir le dialogue interculturel, la diversité et la solidarité à travers des actions éducatives, culturelles et sociales. Nous organisons des activités pour transmettre les savoirs, renforcer les liens entre les générations, encourager la tolérance et la citoyenneté, et soutenir l'inclusion sociale.
             </p>
             <p className={styles.missionText}>
-              À travers nos événements, ateliers et programmes éducatifs, nous visons à favoriser la compréhension mutuelle, célébrer la richesse de la diversité et encourager l'inclusion sociale. Notre approche est basée sur le respect, l'ouverture d'esprit et l'engagement communautaire.
+              Nous collaborons avec des acteurs locaux pour construire une société plus solidaire et inclusive. Notre approche est basée sur le respect, l'ouverture d'esprit et l'engagement communautaire.
             </p>
           </div>
         </div>
@@ -115,8 +115,8 @@ const About = () => {
                 <FaHistory />
               </div>
               <div className={styles.timelineContent}>
-                <h3>2010</h3>
-                <p>Fondation d'ACTION+ par Sophie Laurent avec une vision claire : créer des espaces de dialogue interculturel.</p>
+                <h3>04/04/2025</h3>
+                <p>Adoption des statuts de l'association Action Plus.</p>
               </div>
             </div>
             
@@ -125,8 +125,8 @@ const About = () => {
                 <FaHistory />
               </div>
               <div className={styles.timelineContent}>
-                <h3>2013</h3>
-                <p>Lancement de notre premier festival interculturel, réunissant plus de 500 participants de diverses origines.</p>
+                <h3>27/05/2025</h3>
+                <p>Inscription de l'association au Tribunal judiciaire de METZ - Registre des associations.</p>
               </div>
             </div>
             
@@ -135,18 +135,8 @@ const About = () => {
                 <FaHistory />
               </div>
               <div className={styles.timelineContent}>
-                <h3>2016</h3>
-                <p>Expansion de nos programmes éducatifs dans les écoles locales, touchant plus de 1000 jeunes chaque année.</p>
-              </div>
-            </div>
-            
-            <div className={styles.timelineItem}>
-              <div className={styles.timelineIcon}>
-                <FaHistory />
-              </div>
-              <div className={styles.timelineContent}>
-                <h3>2019</h3>
-                <p>Reconnaissance nationale pour notre travail avec le Prix de l'Innovation Sociale.</p>
+                <h3>28/05/2025</h3>
+                <p>Émission de l'attestation d'inscription avec le numéro de référence R2025MET001009.</p>
               </div>
             </div>
             
@@ -156,7 +146,7 @@ const About = () => {
               </div>
               <div className={styles.timelineContent}>
                 <h3>Aujourd'hui</h3>
-                <p>ACTION+ continue de grandir, avec une équipe dévouée et des partenariats stratégiques pour maximiser notre impact social.</p>
+                <p>Action Plus commence ses activités avec une équipe dévouée et une vision claire pour promouvoir le dialogue interculturel.</p>
               </div>
             </div>
           </div>
@@ -198,9 +188,6 @@ const About = () => {
           <div className={styles.teamGrid}>
             {teamMembers.map((member, index) => (
               <div key={index} className={styles.teamCard}>
-                <div className={styles.teamImageContainer}>
-                  <img src={member.image} alt={member.name} className={styles.teamImage} />
-                </div>
                 <h3 className={styles.teamName}>{member.name}</h3>
                 <p className={styles.teamRole}>{member.role}</p>
                 <p className={styles.teamBio}>{member.bio}</p>
