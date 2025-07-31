@@ -88,7 +88,7 @@ const HomePage = () => {
       try {
         const response = await axios.get('http://localhost:8000/api/events');
         // Son 4 etkinliği al
-        const latest = response.data.slice(0, 4);
+        const latest = response.data.slice(0, 3);
         setLatestEvents(latest);
         setLoading(false);
       } catch (err) {
