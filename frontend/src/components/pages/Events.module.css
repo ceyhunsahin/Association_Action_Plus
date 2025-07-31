@@ -744,6 +744,114 @@
   }
 }
 
+/* iPhone 12 Pro Responsive */
+@media (max-width: 390px) {
+  .container {
+    padding: 0.5rem;
+  }
+  
+  .eventsGrid {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.8rem;
+    padding: 0.5rem 0;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .eventsGrid::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .eventsGrid::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+  }
+  
+  .eventsGrid::-webkit-scrollbar-thumb {
+    background: #c8a97e;
+    border-radius: 2px;
+  }
+  
+  .eventCard {
+    min-width: 280px;
+    max-width: 280px;
+    height: 400px;
+    margin: 0;
+    flex-shrink: 0;
+  }
+  
+  .eventImageContainer {
+    height: 180px;
+  }
+  
+  .eventContent {
+    padding: 1rem;
+  }
+  
+  .eventTitle {
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+    height: 2.2em;
+  }
+  
+  .eventDate {
+    font-size: 0.8rem;
+  }
+  
+  .eventDescription {
+    font-size: 0.8rem;
+    margin-bottom: 0.8rem;
+    height: 3.6em;
+  }
+  
+  .joinButtonContainer {
+    margin-top: 0.5rem;
+  }
+  
+  .joinButton {
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .createEventButton {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .adminActions {
+    gap: 0.5rem;
+  }
+  
+  .editButton, .deleteButton {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  
+  .actionButton {
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+    width: 100px;
+    height: 35px;
+  }
+  
+  .navButton {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  
+  .carouselContainer {
+    padding: 0 5px;
+  }
+}
+
 /* Yaratıcı Katıl/Ayrıl Butonu Stilleri */
 .actionButton {
   margin: 0;

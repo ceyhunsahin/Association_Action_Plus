@@ -41,7 +41,13 @@ const AdminMembershipManagement = () => {
 
   // Üyeliği yenile (admin tarafından)
   const handleRenewMembership = async () => {
-    if (!selectedMember) return;
+    console.log('handleRenewMembership çağrıldı');
+    console.log('selectedMember:', selectedMember);
+    console.log('renewalData:', renewalData);
+    if (!selectedMember) {
+      console.log('selectedMember yok, işlem durduruluyor');
+      return;
+    }
     
     try {
       const response = await fetch(`http://localhost:8000/api/admin/members/${selectedMember.id}/renew`, {
@@ -59,18 +65,20 @@ const AdminMembershipManagement = () => {
         alert('Adhésion renouvelée avec succès!');
         setShowRenewalModal(false);
         
-        // Eğer payment_id varsa, üyeyi güncelle
-        if (result.payment_id) {
+        // Eğer membership_id varsa, üyeyi güncelle
+        if (result.membership_id) {
+          console.log('Membership ID güncelleniyor:', result.membership_id);
           setMembers(prevMembers => 
             prevMembers.map(member => 
               member.id === selectedMember.id 
-                ? { ...member, lastPaymentId: result.payment_id }
+                ? { ...member, lastMembershipId: result.membership_id }
                 : member
             )
           );
         }
         
-        fetchAllMembers(); // Listeyi yenile
+        // State'i güncelle, API çağrısı yapma
+        console.log('State güncellendi, PDF butonu çıkmalı');
       } else {
         alert('Erreur lors du renouvellement');
       }
@@ -95,6 +103,34 @@ const AdminMembershipManagement = () => {
         const link = document.createElement('a');
         link.href = url;
         link.setAttribute('download', `facture_${paymentId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        alert('Erreur lors du téléchargement de la facture');
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('Erreur lors du téléchargement de la facture');
+    }
+  };
+
+  // Membership ID ile fatura indir
+  const handleDownloadInvoiceMembership = async (membershipId) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/admin/download-invoice-membership/${membershipId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `facture_membership_${membershipId}.pdf`);
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -199,6 +235,7 @@ const AdminMembershipManagement = () => {
                   <button 
                     className={styles.actionButton}
                     onClick={() => {
+                      console.log('Renouveler butonu tıklandı, member:', member);
                       setSelectedMember(member);
                       setShowRenewalModal(true);
                     }}
@@ -206,10 +243,10 @@ const AdminMembershipManagement = () => {
                   >
                     <FaAccessibleIcon />
                   </button>
-                  {member.lastPaymentId && (
+                  {member.lastMembershipId && (
                     <button 
                       className={styles.actionButton}
-                      onClick={() => handleDownloadInvoice(member.lastPaymentId)}
+                      onClick={() => handleDownloadInvoiceMembership(member.lastMembershipId)}
                       title="Télécharger la facture"
                     >
                       <FaDownload />

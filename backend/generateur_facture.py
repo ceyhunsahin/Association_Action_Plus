@@ -59,35 +59,35 @@ class GenerateurFacture:
         story = []
         
         # En-tête avec logo et informations de l'association
-        story.append(self.creer_en_tete())
-        story.append(Spacer(1, 20))
+        story.extend(self.creer_en_tete())
+        story.append(Spacer(1, 10))
         
         # Titre principal
         story.append(Paragraph("FACTURE D'ADHÉSION", self.styles['TitrePrincipal']))
-        story.append(Spacer(1, 20))
+        story.append(Spacer(1, 10))
         
         # Informations de la facture
-        story.append(self.creer_informations_facture(payment_data))
-        story.append(Spacer(1, 20))
+        story.extend(self.creer_informations_facture(payment_data))
+        story.append(Spacer(1, 10))
         
         # Informations du membre
-        story.append(self.creer_informations_membre(user_data))
-        story.append(Spacer(1, 20))
+        story.extend(self.creer_informations_membre(user_data))
+        story.append(Spacer(1, 10))
         
         # Détails de l'adhésion
-        story.append(self.creer_details_adhesion(membership_data, payment_data))
-        story.append(Spacer(1, 30))
+        story.extend(self.creer_details_adhesion(membership_data, payment_data))
+        story.append(Spacer(1, 15))
         
         # Tableau des services
-        story.append(self.creer_tableau_services(payment_data))
-        story.append(Spacer(1, 30))
+        story.extend(self.creer_tableau_services(payment_data))
+        story.append(Spacer(1, 15))
         
         # Total et conditions
-        story.append(self.creer_total_et_conditions(payment_data))
-        story.append(Spacer(1, 30))
+        story.extend(self.creer_total_et_conditions(payment_data))
+        story.append(Spacer(1, 15))
         
         # Pied de page
-        story.append(self.creer_pied_de_page())
+        story.extend(self.creer_pied_de_page())
         
         # Générer le PDF
         doc.build(story)
@@ -98,17 +98,14 @@ class GenerateurFacture:
         elements = []
         
         # Titre de l'association
-        elements.append(Paragraph("ASSOCIATION CULTURELLE FRANCO-TURQUE", self.styles['SousTitre']))
-        elements.append(Spacer(1, 10))
+        elements.append(Paragraph("ACTION PLUS", self.styles['SousTitre']))
+        elements.append(Spacer(1, 5))
         
         # Informations de l'association
         info_association = [
-            "123 Rue de la Culture",
-            "75001 Paris, France",
-            "Téléphone: +33 1 23 45 67 89",
-            "Email: contact@association-culturelle.fr",
-            "SIRET: 123 456 789 00012",
-            "Association loi 1901"
+            "3A rue des Jardiniers, 57000 METZ, France",
+            "Tél: +33 3 87 56 75 00 | Email: contact@actionplusmetz.org",
+            "N° d'enregistrement: AA2025MET000109 | Association loi 1901"
         ]
         
         for info in info_association:
@@ -120,16 +117,22 @@ class GenerateurFacture:
         """Crée les informations de la facture"""
         elements = []
         
-        # Numéro de facture et date
+        # Style pour les informations de facture (aligné à droite)
+        facture_style = ParagraphStyle(
+            name='FactureInfo',
+            parent=self.styles['Normal'],
+            fontSize=12,
+            spaceAfter=8,
+            alignment=TA_RIGHT
+        )
+        
+        # Numéro de facture et date (yanyana)
         facture_info = [
-            f"<b>Numéro de facture:</b> FAC-{payment_data.get('id', '001')}",
-            f"<b>Date de facturation:</b> {datetime.now().strftime('%d/%m/%Y')}",
-            f"<b>Date d'échéance:</b> {datetime.now().strftime('%d/%m/%Y')}",
-            f"<b>Méthode de paiement:</b> Carte bancaire"
+            f"<b>N° Facture:</b> FAC-{payment_data.get('id', '001')} | <b>Date:</b> {datetime.now().strftime('%d/%m/%Y')} | <b>Paiement:</b> Carte bancaire"
         ]
         
         for info in facture_info:
-            elements.append(Paragraph(info, self.styles['TexteNormal']))
+            elements.append(Paragraph(info, facture_style))
         
         return elements
 
@@ -138,17 +141,24 @@ class GenerateurFacture:
         elements = []
         
         elements.append(Paragraph("INFORMATIONS DU MEMBRE", self.styles['SousTitre']))
-        elements.append(Spacer(1, 10))
+        elements.append(Spacer(1, 5))
+        
+        # Style pour les informations du membre (aligné à gauche)
+        membre_style = ParagraphStyle(
+            name='MembreInfo',
+            parent=self.styles['Normal'],
+            fontSize=12,
+            spaceAfter=8,
+            alignment=TA_LEFT
+        )
         
         membre_info = [
-            f"<b>Nom complet:</b> {user_data.get('firstName', '')} {user_data.get('lastName', '')}",
-            f"<b>Email:</b> {user_data.get('email', '')}",
-            f"<b>Numéro de membre:</b> {user_data.get('id', '')}A{datetime.now().year}",
-            f"<b>Date d'adhésion:</b> {datetime.now().strftime('%d/%m/%Y')}"
+            f"<b>Membre:</b> {user_data.get('firstName', '')} {user_data.get('lastName', '')} | <b>Email:</b> {user_data.get('email', '')}",
+            f"<b>N° Membre:</b> {user_data.get('id', '')}A{datetime.now().year} | <b>Date:</b> {datetime.now().strftime('%d/%m/%Y')}"
         ]
         
         for info in membre_info:
-            elements.append(Paragraph(info, self.styles['TexteNormal']))
+            elements.append(Paragraph(info, membre_style))
         
         return elements
 
@@ -157,18 +167,42 @@ class GenerateurFacture:
         elements = []
         
         elements.append(Paragraph("DÉTAILS DE L'ADHÉSION", self.styles['SousTitre']))
-        elements.append(Spacer(1, 10))
+        elements.append(Spacer(1, 5))
+        
+        # Style pour les détails d'adhésion (aligné à gauche)
+        adhesion_style = ParagraphStyle(
+            name='AdhesionInfo',
+            parent=self.styles['Normal'],
+            fontSize=12,
+            spaceAfter=8,
+            alignment=TA_LEFT
+        )
+        
+        # Tarihleri düzgün formata çevir
+        start_date = membership_data.get('start_date', '')
+        end_date = membership_data.get('end_date', '')
+        
+        try:
+            if start_date and 'T' in start_date:
+                start_date = start_date.split('T')[0]
+                start_date = datetime.strptime(start_date, '%Y-%m-%d').strftime('%d/%m/%Y')
+        except:
+            start_date = datetime.now().strftime('%d/%m/%Y')
+            
+        try:
+            if end_date and 'T' in end_date:
+                end_date = end_date.split('T')[0]
+                end_date = datetime.strptime(end_date, '%Y-%m-%d').strftime('%d/%m/%Y')
+        except:
+            end_date = 'N/A'
         
         adhesion_info = [
-            f"<b>Type d'adhésion:</b> {payment_data.get('plan_type', 'Standard')}",
-            f"<b>Durée:</b> {payment_data.get('duration_months', 12)} mois",
-            f"<b>Date de début:</b> {membership_data.get('start_date', datetime.now().strftime('%d/%m/%Y'))}",
-            f"<b>Date de fin:</b> {membership_data.get('end_date', 'N/A')}",
-            f"<b>Statut:</b> Actif"
+            f"<b>Type:</b> {payment_data.get('plan_type', 'Standard')} | <b>Durée:</b> {payment_data.get('duration_months', 12)} mois | <b>Statut:</b> Actif",
+            f"<b>Début:</b> {start_date} | <b>Fin:</b> {end_date}"
         ]
         
         for info in adhesion_info:
-            elements.append(Paragraph(info, self.styles['TexteNormal']))
+            elements.append(Paragraph(info, adhesion_style))
         
         return elements
 
@@ -177,7 +211,7 @@ class GenerateurFacture:
         elements = []
         
         elements.append(Paragraph("DÉTAIL DES SERVICES", self.styles['SousTitre']))
-        elements.append(Spacer(1, 10))
+        elements.append(Spacer(1, 5))
         
         # Données du tableau
         data = [
@@ -213,34 +247,47 @@ class GenerateurFacture:
         # Total
         total = payment_data.get('amount', 0)
         elements.append(Paragraph(f"<b>TOTAL TTC:</b> {total:.2f} €", self.styles['InfoImportante']))
-        elements.append(Spacer(1, 20))
+        elements.append(Spacer(1, 10))
         
         # Conditions
         elements.append(Paragraph("CONDITIONS", self.styles['SousTitre']))
-        elements.append(Spacer(1, 10))
+        elements.append(Spacer(1, 5))
+        
+        # Style pour les conditions (aligné à gauche)
+        condition_style = ParagraphStyle(
+            name='ConditionInfo',
+            parent=self.styles['Normal'],
+            fontSize=11,
+            spaceAfter=6,
+            alignment=TA_LEFT,
+            leftIndent=20
+        )
         
         conditions = [
-            "• Cette facture est payable immédiatement",
-            "• L'adhésion est valable pour la durée indiquée",
-            "• Aucun remboursement ne sera effectué",
-            "• L'association se réserve le droit de modifier les conditions",
-            "• En cas de retard de paiement, des frais de 5% seront appliqués"
+            "• Payable immédiatement | Aucun remboursement | Valable pour la durée indiquée | Retard: frais 5% | Action Plus se réserve le droit de modifier les conditions"
         ]
         
         for condition in conditions:
-            elements.append(Paragraph(condition, self.styles['TexteNormal']))
+            elements.append(Paragraph(condition, condition_style))
         
         return elements
 
     def creer_pied_de_page(self):
-        """Crée le pied de page"""
+        """Crée le pied de page avec signature"""
         elements = []
         
-        elements.append(Spacer(1, 30))
+        elements.append(Spacer(1, 10))
         elements.append(Paragraph("Merci pour votre confiance !", self.styles['TexteNormal']))
         elements.append(Spacer(1, 10))
-        elements.append(Paragraph("Association Culturelle Franco-Turque", self.styles['TexteNormal']))
-        elements.append(Paragraph("Promouvoir la culture et l'amitié entre nos deux pays", self.styles['TexteNormal']))
+        
+        # Signature
+        elements.append(Paragraph("Signature du Président:", self.styles['TexteNormal']))
+        elements.append(Spacer(1, 15))
+        elements.append(Paragraph("_________________________", self.styles['TexteNormal']))
+        elements.append(Paragraph("Monsieur CENGIZ BASBUNAR - Président d'Action Plus", self.styles['TexteNormal']))
+        
+        elements.append(Spacer(1, 5))
+        elements.append(Paragraph("Action Plus - Promouvoir le dialogue interculturel, la diversité et la solidarité", self.styles['TexteNormal']))
         
         return elements
 

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import styles from './HomePage.module.css';
 import { Helmet } from 'react-helmet';
-import { FaCalendarAlt, FaUsers, FaGlobeAmericas, FaMapMarkerAlt, FaArrowRight, FaHandHoldingHeart, FaTicketAlt } from 'react-icons/fa';
+import { FaCalendarAlt, FaUsers, FaGlobeAmericas, FaMapMarkerAlt, FaArrowRight, FaHandHoldingHeart, FaTicketAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 
 const HomePage = () => {
@@ -17,12 +17,78 @@ const HomePage = () => {
     countries: 25
   });
 
+  // Scroll refs
+  const statsScrollRef = useRef(null);
+  const eventsScrollRef = useRef(null);
+  const testimonialsScrollRef = useRef(null);
+
+  // Scroll functions - Card'ları tam görünür yap
+  const scrollLeft = (ref) => {
+    if (ref.current) {
+      const container = ref.current;
+      const cards = container.children;
+      const cardCount = cards.length;
+      
+      if (cardCount <= 1) return;
+      
+      const isMobile = window.innerWidth <= 390;
+      const cardWidth = isMobile ? 180 : 180; // Stats card genişliği
+      const gap = isMobile ? 24 : 24; // Gap değeri
+      const totalCardWidth = cardWidth + gap;
+      
+      // Mevcut scroll pozisyonu
+      const currentScroll = container.scrollLeft;
+      
+      // Hangi card'dayız?
+      const currentCardIndex = Math.floor(currentScroll / totalCardWidth);
+      
+      // Bir önceki card'a git
+      const newCardIndex = Math.max(0, currentCardIndex - 1);
+      const newScroll = newCardIndex * totalCardWidth;
+      
+      container.scrollTo({
+        left: newScroll,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const scrollRight = (ref) => {
+    if (ref.current) {
+      const container = ref.current;
+      const cards = container.children;
+      const cardCount = cards.length;
+      
+      if (cardCount <= 1) return;
+      
+      const isMobile = window.innerWidth <= 390;
+      const cardWidth = isMobile ? 180 : 180; // Stats card genişliği
+      const gap = isMobile ? 24 : 24; // Gap değeri
+      const totalCardWidth = cardWidth + gap;
+      
+      // Mevcut scroll pozisyonu
+      const currentScroll = container.scrollLeft;
+      
+      // Hangi card'dayız?
+      const currentCardIndex = Math.floor(currentScroll / totalCardWidth);
+      
+      // Bir sonraki card'a git
+      const newCardIndex = Math.min(cardCount - 1, currentCardIndex + 1);
+      const newScroll = newCardIndex * totalCardWidth;
+      
+      container.scrollTo({
+        left: newScroll,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   useEffect(() => {
     const fetchLatestEvents = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/events');
-        // Son 3 etkinliği al
-        const latest = response.data.slice(0, 3);
+        // Son 4 etkinliği al
+        const latest = response.data.slice(0, 4);
         setLatestEvents(latest);
         setLoading(false);
       } catch (err) {
@@ -107,7 +173,7 @@ const HomePage = () => {
 
         {/* Stats Section - Yeniden Tasarlandı */}
         <section className={styles.statsSection}>
-          <div className={styles.statsContainer}>
+          <div className={styles.statsContainer} ref={statsScrollRef}>
             <div className={styles.statItem}>
               <div className={styles.statIcon}>
                 <FaCalendarAlt />
@@ -132,6 +198,23 @@ const HomePage = () => {
               <div className={styles.statLabel}>Pays représentés</div>
             </div>
           </div>
+          
+          <div className={styles.scrollButtons}>
+            <button 
+              className={styles.scrollButton} 
+              onClick={() => scrollLeft(statsScrollRef)}
+              aria-label="Scroll left"
+            >
+              <FaChevronLeft />
+            </button>
+            <button 
+              className={styles.scrollButton} 
+              onClick={() => scrollRight(statsScrollRef)}
+              aria-label="Scroll right"
+            >
+              <FaChevronRight />
+            </button>
+          </div>
         </section>
 
         {/* Prochains Événements Section */}
@@ -147,7 +230,7 @@ const HomePage = () => {
             <div className={styles.error}>{error}</div>
           ) : (
             <div className={styles.eventsContainer}>
-              <div className={styles.eventCards}>
+              <div className={styles.eventCards} ref={eventsScrollRef}>
                 {latestEvents.map(event => (
                   <div key={event.id} className={styles.eventCard}>
                     <div className={styles.eventCardImageContainer}>
@@ -181,6 +264,23 @@ const HomePage = () => {
                 ))}
               </div>
               
+              <div className={styles.scrollButtons}>
+                <button 
+                  className={styles.scrollButton} 
+                  onClick={() => scrollLeft(eventsScrollRef)}
+                  aria-label="Scroll left"
+                >
+                  <FaChevronLeft />
+                </button>
+                <button 
+                  className={styles.scrollButton} 
+                  onClick={() => scrollRight(eventsScrollRef)}
+                  aria-label="Scroll right"
+                >
+                  <FaChevronRight />
+                </button>
+              </div>
+              
               <Link to="/events" className={styles.viewAllEventsButton}>
                 Voir tous les événements
                 <FaArrowRight />
@@ -194,7 +294,7 @@ const HomePage = () => {
           <h2 className={styles.sectionTitle}>Témoignages</h2>
           <div className={styles.sectionSubtitle}>Ce que disent nos membres</div>
           
-          <div className={styles.testimonials}>
+          <div className={styles.testimonials} ref={testimonialsScrollRef}>
             <div className={styles.testimonialCard}>
               <div className={styles.testimonialQuote}>"</div>
               <div className={styles.testimonialContent}>
@@ -236,6 +336,23 @@ const HomePage = () => {
                 </div>
               </div>
             </div>
+          </div>
+          
+          <div className={styles.scrollButtons}>
+            <button 
+              className={styles.scrollButton} 
+              onClick={() => scrollLeft(testimonialsScrollRef)}
+              aria-label="Scroll left"
+            >
+              <FaChevronLeft />
+            </button>
+            <button 
+              className={styles.scrollButton} 
+              onClick={() => scrollRight(testimonialsScrollRef)}
+              aria-label="Scroll right"
+            >
+              <FaChevronRight />
+            </button>
           </div>
         </section>
 

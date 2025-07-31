@@ -20,6 +20,9 @@ const CreateEvent = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Admin değilse, ana sayfaya yönlendir
   React.useEffect(() => {
@@ -36,6 +39,54 @@ const CreateEvent = () => {
     });
   };
 
+  const handleImagesChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      // Yeni dosyaları mevcut listeye ekle
+      setImageFiles(prevFiles => [...prevFiles, ...files]);
+      
+      // Preview'ları oluştur
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImagePreviews(prevPreviews => [...prevPreviews, e.target.result]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeImage = (index) => {
+    setImageFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+    setImagePreviews(prevPreviews => prevPreviews.filter((_, i) => i !== index));
+  };
+
+  const uploadImages = async () => {
+    if (imageFiles.length === 0) return [];
+    
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      imageFiles.forEach(file => {
+        formData.append('files', file);
+      });
+      
+      const response = await axios.post('http://localhost:8000/api/upload-multiple-images', formData, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      setUploadingImage(false);
+      return response.data.uploaded_files.map(file => file.image_url);
+    } catch (error) {
+      console.error('Images upload error:', error);
+      setUploadingImage(false);
+      throw new Error('Resim yükleme hatası');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -45,11 +96,24 @@ const CreateEvent = () => {
       console.log("Sending event data:", formData);
       console.log("Using token:", accessToken);
       
-      // Doğrudan URL'yi belirtelim
+      // Eğer resim dosyaları varsa önce yükle
+      let imageUrls = formData.image ? [formData.image] : [];
+      if (imageFiles.length > 0) {
+        const uploadedImageUrls = await uploadImages();
+        imageUrls = uploadedImageUrls;
+      }
+      
+      // Event verilerini hazırla
+      const eventData = {
+        ...formData,
+        image: imageUrls[0] || '', // İlk resmi ana resim olarak kullan
+        images: imageUrls // Tüm resimleri images array'inde sakla
+      };
+      
       const response = await axios({
         method: 'post',
         url: 'http://localhost:8000/api/events',
-        data: formData,
+        data: eventData,
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
@@ -144,15 +208,49 @@ const CreateEvent = () => {
         <div className={styles.formRow}>
           <div className={styles.formGroup}>
             <label htmlFor="image">
-              <FaImage className={styles.inputIcon} /> URL de l'image
+              <FaImage className={styles.inputIcon} /> Images de l'événement
             </label>
+            <div className={styles.imageUploadContainer}>
+              <input
+                type="file"
+                id="image"
+                name="image"
+                accept="image/*"
+                onChange={handleImagesChange}
+                className={styles.fileInput}
+              />
+              <label htmlFor="image" className={styles.fileInputLabel}>
+                Ajouter une image
+              </label>
+              {imagePreviews.length > 0 && (
+                <div className={styles.multipleImagePreview}>
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className={styles.previewItem}>
+                      <img src={preview} alt={`Preview ${index + 1}`} />
+                      <span className={styles.previewLabel}>{imageFiles[index]?.name}</span>
+                      <button 
+                        type="button" 
+                        className={styles.removeButton}
+                        onClick={() => removeImage(index)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className={styles.imageCount}>
+                {imageFiles.length > 0 && `${imageFiles.length} image(s) sélectionnée(s)`}
+              </div>
+            </div>
+            
             <input
               type="url"
-              id="image"
               name="image"
               value={formData.image}
               onChange={handleInputChange}
-              placeholder="URL de l'image (optionnel)"
+              placeholder="Ou entrer une URL d'image (optionnel)"
+              className={styles.urlInput}
             />
           </div>
           
@@ -183,9 +281,9 @@ const CreateEvent = () => {
           <button 
             type="submit" 
             className={styles.submitButton}
-            disabled={loading}
+            disabled={loading || uploadingImage}
           >
-            {loading ? 'Création...' : (
+            {loading || uploadingImage ? 'Création...' : (
               <>
                 <FaCheck /> Créer l'événement
               </>

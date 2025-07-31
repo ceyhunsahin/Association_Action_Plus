@@ -1,5 +1,5 @@
 # main.py
-from fastapi import FastAPI, Request, Response, HTTPException, Depends, status, Body
+from fastapi import FastAPI, Request, Response, HTTPException, Depends, status, Body, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -16,6 +16,7 @@ import uvicorn
 from pydantic import BaseModel
 from datetime import datetime
 from generateur_facture import generer_facture_utilisateur
+import shutil
 
 # FastAPI uygulamasını oluştur
 app = FastAPI()
@@ -33,6 +34,14 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/api/auth")
 app.include_router(events_router, prefix="/api/events")
 app.include_router(users_router, prefix="/api/users")
+
+# Statik dosyalar için klasör oluştur
+UPLOAD_DIR = "uploads"
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
+
+# Statik dosyaları serve et
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # Üyelik endpoint'leri
 @app.get("/api/membership/my-membership")
@@ -195,6 +204,7 @@ async def admin_renew_membership_endpoint(user_id: int, renewal_data: dict = Bod
         return {
             "message": "Adhésion renouvelée avec succès par l'administrateur!",
             "membership": result,
+            "membership_id": result.get('id') if result else None,
             "payment_id": latest_payment.get('id') if latest_payment else None,
             "invoice_available": invoice_path is not None
         }
@@ -247,6 +257,85 @@ async def admin_download_invoice_endpoint(payment_id: int, current_admin: dict =
             detail=f"Erreur lors de la génération de la facture: {str(e)}"
         )
 
+@app.get("/api/admin/download-invoice-membership/{membership_id}")
+async def admin_download_invoice_membership_endpoint(membership_id: int, current_admin: dict = Depends(get_current_admin)):
+    """Admin tarafından membership_id ile fatura indirme"""
+    try:
+        # Üyelik bilgilerini getir
+        from database import get_user_by_id, get_db_connection
+        conn = get_db_connection()
+        if not conn:
+            raise HTTPException(status_code=500, detail="Database connection error")
+        
+        try:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT * FROM memberships WHERE id = ?
+            ''', (membership_id,))
+            membership_data = cursor.fetchone()
+            
+            if membership_data:
+                membership_data = dict(zip([col[0] for col in cursor.description], membership_data))
+            else:
+                raise HTTPException(status_code=404, detail="Adhésion non trouvée")
+        finally:
+            conn.close()
+        
+        if not membership_data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Adhésion non trouvée"
+            )
+        
+        # Kullanıcı bilgileri
+        user_data = get_user_by_id(membership_data['user_id'])
+        if not user_data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Utilisateur non trouvé"
+            )
+        
+        # Sahte ödeme verisi oluştur
+        fake_payment_data = {
+            'id': f"membership_{membership_id}",
+            'amount': 25.0,
+            'payment_type': 'renewal',
+            'plan_type': membership_data.get('membership_type', 'standard'),
+            'duration_months': 12,
+            'payment_date': membership_data.get('start_date', datetime.now().isoformat())
+        }
+        
+        # Fatura oluştur
+        from generateur_facture import GenerateurFacture
+        import os
+        
+        # Fatura klasörünü oluştur
+        output_dir = "factures"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
+        # Fatura dosya adı
+        invoice_filename = f"facture_adhésion_{membership_id}.pdf"
+        invoice_path = os.path.join(output_dir, invoice_filename)
+        
+        # Fatura oluştur
+        generateur = GenerateurFacture()
+        invoice_path = generateur.generer_facture_adhésion(user_data, membership_data, fake_payment_data, invoice_path)
+        
+        # PDF dosyasını döndür
+        return FileResponse(
+            path=invoice_path,
+            filename=f"facture_adhésion_{membership_id}.pdf",
+            media_type="application/pdf"
+        )
+        
+    except Exception as e:
+        print(f"Admin membership fatura oluşturma hatası: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de la génération de la facture: {str(e)}"
+        )
+
 # Veritabanını başlat
 @app.on_event("startup")
 async def startup_event():
@@ -261,6 +350,98 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+
+# Dosya yükleme endpoint'i
+@app.post("/api/upload-image")
+async def upload_image(file: UploadFile = File(...), current_admin: dict = Depends(get_current_admin)):
+    """Tek resim dosyası yükle (sadece admin)"""
+    try:
+        # Dosya türünü kontrol et
+        if not file.content_type.startswith('image/'):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Sadece resim dosyaları kabul edilir"
+            )
+        
+        # Dosya boyutunu kontrol et (5MB limit)
+        if file.size > 5 * 1024 * 1024:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Dosya boyutu 5MB'dan büyük olamaz"
+            )
+        
+        # Benzersiz dosya adı oluştur
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        file_extension = os.path.splitext(file.filename)[1]
+        filename = f"event_{timestamp}{file_extension}"
+        file_path = os.path.join(UPLOAD_DIR, filename)
+        
+        # Dosyayı kaydet
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # URL'yi döndür
+        image_url = f"/uploads/{filename}"
+        
+        return {
+            "message": "Resim başarıyla yüklendi",
+            "image_url": image_url,
+            "filename": filename
+        }
+        
+    except Exception as e:
+        print(f"Dosya yükleme hatası: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Dosya yükleme hatası: {str(e)}"
+        )
+
+# Çoklu dosya yükleme endpoint'i
+@app.post("/api/upload-multiple-images")
+async def upload_multiple_images(files: List[UploadFile] = File(...), current_admin: dict = Depends(get_current_admin)):
+    """Birden fazla resim dosyası yükle (sadece admin)"""
+    try:
+        uploaded_files = []
+        
+        for file in files:
+            # Dosya türünü kontrol et
+            if not file.content_type.startswith('image/'):
+                continue  # Bu dosyayı atla
+            
+            # Dosya boyutunu kontrol et (5MB limit)
+            if file.size > 5 * 1024 * 1024:
+                continue  # Bu dosyayı atla
+            
+            # Benzersiz dosya adı oluştur
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")  # Mikrosaniye ekle
+            file_extension = os.path.splitext(file.filename)[1]
+            filename = f"event_{timestamp}{file_extension}"
+            file_path = os.path.join(UPLOAD_DIR, filename)
+            
+            # Dosyayı kaydet
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+            
+            # URL'yi listeye ekle
+            image_url = f"/uploads/{filename}"
+            uploaded_files.append({
+                "original_name": file.filename,
+                "image_url": image_url,
+                "filename": filename
+            })
+        
+        return {
+            "message": f"{len(uploaded_files)} resim başarıyla yüklendi",
+            "uploaded_files": uploaded_files,
+            "total_uploaded": len(uploaded_files)
+        }
+        
+    except Exception as e:
+        print(f"Çoklu dosya yükleme hatası: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Çoklu dosya yükleme hatası: {str(e)}"
+        )
 
 @app.options("/{full_path:path}")
 async def options_route(request: Request, full_path: str):

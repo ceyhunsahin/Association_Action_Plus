@@ -93,7 +93,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        cursor.execute("SELECT id, email, firstName, lastName, username, password, role FROM users WHERE email = ?", (email,))
         user = cursor.fetchone()
         
         if not user:
@@ -102,14 +102,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
                 detail="Invalid credentials"
             )
         
-        # Kullanıcı bilgilerini düzenle
+        # Kullanıcı bilgilerini düzenle - veritabanındaki role bilgisini kullan
         user_dict = {
-            "id": user[0],
-            "email": user[1],
-            "firstName": user[2],
-            "lastName": user[3],
-            "username": user[4],
-            "role": user[6] if len(user) > 6 else "user"  # role bilgisi varsa al, yoksa "user" olarak ayarla
+            "id": user[0],      # id
+            "email": user[1],   # email
+            "firstName": user[2], # firstName
+            "lastName": user[3],  # lastName
+            "username": user[4],  # username
+            "role": user[6] if len(user) > 6 else "user"  # role (6. sütun)
         }
         print(f"User found: {user_dict}")
         return user_dict

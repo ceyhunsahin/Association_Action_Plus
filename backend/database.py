@@ -153,19 +153,28 @@ def init_db():
 
 def get_db_connection():
     """SQLite veritabanı bağlantısı oluştur"""
-    conn = None
-    try:
-        conn = sqlite3.connect(DATABASE_PATH, timeout=30.0)
-        conn.row_factory = sqlite3.Row  # Sonuçları dict olarak al
-        # WAL modunu etkinleştir
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA synchronous=NORMAL")
-        conn.execute("PRAGMA cache_size=10000")
-        return conn
-    except Error as e:
-        print(f"Veritabanı bağlantı hatası: {e}")
+    import time
     
-    return conn
+    conn = None
+    retries = 5
+    for i in range(retries):
+        try:
+            conn = sqlite3.connect(DATABASE_PATH, timeout=60.0)
+            conn.row_factory = sqlite3.Row  # Sonuçları dict olarak al
+            # WAL modunu etkinleştir
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA synchronous=NORMAL")
+            conn.execute("PRAGMA cache_size=10000")
+            conn.execute("PRAGMA busy_timeout=30000")
+            conn.execute("PRAGMA temp_store=MEMORY")
+            return conn
+        except Error as e:
+            print(f"Veritabanı bağlantı hatası (deneme {i+1}/{retries}): {e}")
+            if conn:
+                conn.close()
+            time.sleep(1 * (i + 1))
+    print(f"Tüm {retries} denemeden sonra veritabanı bağlantısı kurulamadı.")
+    return None
 
 # Üyelik fonksiyonları
 def get_user_membership(user_id):
@@ -279,9 +288,9 @@ def renew_membership(user_id, plan_type='standard', duration_months=12, amount=2
         
         membership_id = cursor.lastrowid
         
-        # Ödeme kaydını atla (geçici çözüm)
+        # Ödeme kaydını geçici olarak atla
         payment_id = None
-        print("Ödeme kaydı atlandı (geçici çözüm)")
+        print("Ödeme kaydı geçici olarak atlandı")
         
         conn.commit()
         
@@ -326,37 +335,49 @@ def get_membership_history(user_id):
 def create_membership_payment(user_id, membership_id, amount, plan_type, duration_months):
     """Üyelik ödemesi kaydı oluştur"""
     import time
+    import threading
     
-    # Birkaç kez deneme yap
-    for attempt in range(3):
-        conn = get_db_connection()
-        if not conn:
-            time.sleep(0.1)
-            continue
-        
-        try:
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO membership_payments (user_id, membership_id, amount, plan_type, duration_months, payment_status)
-                VALUES (?, ?, ?, ?, ?, 'completed')
-            ''', (user_id, membership_id, amount, plan_type, duration_months))
-            
-            payment_id = cursor.lastrowid
-            conn.commit()
-            conn.close()
-            
-            print(f"Ödeme kaydı başarıyla oluşturuldu: {payment_id}")
-            return payment_id
-        
-        except Exception as e:
-            print(f"Ödeme kaydı oluşturma hatası (deneme {attempt + 1}): {e}")
-            if conn:
-                conn.rollback()
-                conn.close()
-            time.sleep(0.2)  # Kısa bekleme
+    # Thread-safe lock kullan
+    lock = threading.Lock()
     
-    print("Ödeme kaydı oluşturulamadı, tüm denemeler başarısız")
-    return None
+    with lock:
+        # Birkaç kez deneme yap
+        for attempt in range(5):
+            conn = get_db_connection()
+            if not conn:
+                print(f"Veritabanı bağlantısı kurulamadı (deneme {attempt + 1})")
+                time.sleep(1)
+                continue
+            
+            try:
+                cursor = conn.cursor()
+                cursor.execute('''
+                    INSERT INTO membership_payments (user_id, membership_id, amount, payment_type, plan_type, duration_months, payment_status)
+                    VALUES (?, ?, ?, ?, ?, ?, 'completed')
+                ''', (user_id, membership_id, amount, 'renewal', plan_type, duration_months))
+                
+                payment_id = cursor.lastrowid
+                conn.commit()
+                
+                print(f"Ödeme kaydı başarıyla oluşturuldu: {payment_id}")
+                return payment_id
+            
+            except Exception as e:
+                print(f"Ödeme kaydı oluşturma hatası (deneme {attempt + 1}): {e}")
+                if conn:
+                    conn.rollback()
+                
+                if attempt < 4:  # Son deneme değilse bekle
+                    time.sleep(2 ** attempt)  # Exponential backoff
+                    continue
+                else:
+                    print("Maksimum deneme sayısına ulaşıldı")
+                    return None
+            finally:
+                if conn:
+                    conn.close()
+        
+        return None
 
 def get_user_payment_history(user_id):
     """Kullanıcının ödeme geçmişini getir"""
