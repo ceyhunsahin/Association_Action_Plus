@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: association-frontend
+    env: node
+    plan: free
+    branch: master
+    rootDir: .
+    buildCommand: yarn install && yarn build
+    startCommand: npx serve -s build
