@@ -8,7 +8,7 @@ import { FaCalendarAlt, FaUsers, FaChevronLeft, FaChevronRight, FaSignInAlt, FaS
 // Loader fonksiyonu
 export async function loader({ params }) {
   try {
-    const response = await axios.get(`http://localhost:8000/events/${params.id}`);
+    const response = await axios.get(`https://association-action-plus.onrender.com/events/${params.id}`);
     return response.data;  // Backend'den gelen veriyi döndür
   } catch (error) {
     throw new Response("Event not found", { status: 404 });
@@ -43,7 +43,7 @@ const EventDetail = () => {
       try {
         console.log("Checking registration for user:", user.id, "event:", id);
         const response = await axios.get(
-          `http://localhost:8000/api/events/${id}/check-registration`,
+          `https://association-action-plus.onrender.com/api/events/${id}/check-registration`,
           {
             headers: {
               'Authorization': `Bearer ${accessToken}`
@@ -61,7 +61,7 @@ const EventDetail = () => {
   // Etkinlik detaylarını yükle
   const fetchEventDetails = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/events/${id}`);
+      const response = await axios.get(`https://association-action-plus.onrender.com/api/events/${id}`);
       setEvent(response.data);
       setLoading(false);
       
@@ -106,7 +106,7 @@ const EventDetail = () => {
       // Etkinliğe katıl - localStorage'dan token'ı kullan
       const response = await axios({
         method: 'post',
-        url: `http://localhost:8000/api/events/${id}/join`,
+        url: `https://association-action-plus.onrender.com/api/events/${id}/join`,
         headers: {
           'Authorization': `Bearer ${localToken}`,
           'Content-Type': 'application/json'
@@ -151,7 +151,7 @@ const EventDetail = () => {
       console.log(`Unregistering from event ${id}`);
       
       const response = await axios.delete(
-        `http://localhost:8000/api/events/${id}/register`,
+        `https://association-action-plus.onrender.com/api/events/${id}/register`,
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`
@@ -224,7 +224,7 @@ const EventDetail = () => {
   const handleDeleteEvent = async () => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cet événement?')) {
       try {
-        await axios.delete(`http://localhost:8000/api/events/${id}`, {
+        await axios.delete(`https://association-action-plus.onrender.com/api/events/${id}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`
           }

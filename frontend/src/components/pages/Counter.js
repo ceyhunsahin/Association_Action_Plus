@@ -15,13 +15,13 @@ const Counter = () => {
         setIp(ipData.ip);
 
         // Backend'e IP'yi gönder ve sayaç değerini al
-        const trackResponse = await fetch('http://localhost:8000/counter/track-ip', {
+        const trackResponse = await fetch('https://association-action-plus.onrender.com/counter/track-ip', {
           method: 'POST',
         });
         const trackData = await trackResponse.json();
 
         // Global sayacı al
-        const counterResponse = await fetch('http://localhost:8000/counter');
+        const counterResponse = await fetch('https://association-action-plus.onrender.com/counter');
         const counterData = await counterResponse.json();
         setCount(counterData.global_counter);
       } catch (error) {

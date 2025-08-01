@@ -43,9 +43,9 @@ const RegisterForm = () => {
     setError('');
     
     try {
-      console.log('Sending registration request to:', 'http://localhost:8000/api/auth/register');
+      console.log('Sending registration request to:', 'https://association-action-plus.onrender.com/api/auth/register');
       
-      const response = await axios.post('http://localhost:8000/api/auth/register', {
+      const response = await axios.post('https://association-action-plus.onrender.com/api/auth/register', {
         firstName: formData.firstName,
         lastName: formData.lastName,
         username: formData.username,

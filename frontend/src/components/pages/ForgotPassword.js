@@ -18,7 +18,7 @@ const ForgotPassword = () => {
 
     try {
       // API isteği - backend'e şifre sıfırlama talebi gönder
-      const response = await axios.post('http://localhost:8000/api/auth/reset-password-request', { email });
+      const response = await axios.post('https://association-action-plus.onrender.com/api/auth/reset-password-request', { email });
       
       setMessage('Un e-mail de réinitialisation a été envoyé à votre adresse e-mail si elle existe dans notre système.');
       setSubmitted(true);

@@ -69,7 +69,7 @@ const ProfilePage = () => {
       setLoading(true);
       
       // Doğrudan tüm etkinlikleri getir ve kullanıcının katıldıklarını işaretle
-      const allEventsResponse = await axios.get('http://localhost:8000/api/events');
+      const allEventsResponse = await axios.get('https://association-action-plus.onrender.com/api/events');
       console.log('All events response:', allEventsResponse.data);
       
       // Tüm etkinlikleri al
@@ -78,7 +78,7 @@ const ProfilePage = () => {
       
       // Kullanıcının katıldığı etkinlikleri kontrol et
       try {
-        const userEventsResponse = await axios.get('http://localhost:8000/api/users/me/events', {
+        const userEventsResponse = await axios.get('https://association-action-plus.onrender.com/api/users/me/events', {
           headers: {
             'Authorization': `Bearer ${accessToken}`
           }
@@ -539,7 +539,7 @@ const ProfilePage = () => {
   const handleUnregister = async (eventId) => {
     try {
         const response = await axios.delete(
-            `http://localhost:8000/api/events/${eventId}/register`,
+            `https://association-action-plus.onrender.com/api/events/${eventId}/register`,
             {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`

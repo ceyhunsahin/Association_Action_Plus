@@ -32,7 +32,7 @@ const EditEvent = () => {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/events/${id}`);
+        const response = await axios.get(`https://association-action-plus.onrender.com/api/events/${id}`);
         const eventData = response.data;
         
         // Tarih formatını düzelt (YYYY-MM-DD)
@@ -79,7 +79,7 @@ const EditEvent = () => {
       console.log("Sending updated event data:", formData);
       
       const response = await axios.put(
-        `http://localhost:8000/api/events/${id}`,
+        `https://association-action-plus.onrender.com/api/events/${id}`,
         formData,
         {
           headers: {

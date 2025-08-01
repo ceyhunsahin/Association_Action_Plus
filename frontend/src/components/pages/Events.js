@@ -34,7 +34,7 @@ const Events = () => {
             
             console.log('Fetching user events...');
             
-            const response = await axios.get('http://localhost:8000/api/users/me/events', {
+            const response = await axios.get('https://association-action-plus.onrender.com/api/users/me/events', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -58,7 +58,7 @@ const Events = () => {
     const fetchEvents = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('http://localhost:8000/api/events');
+            const response = await axios.get('https://association-action-plus.onrender.com/api/events');
             
             if (response.data) {
                 const allEvents = Array.isArray(response.data) ? response.data : [];
@@ -179,7 +179,7 @@ const Events = () => {
                 
                 console.log('Using token for checking participation:', token);
                 
-                const response = await axios.get('http://localhost:8000/api/users/me/events', {
+                const response = await axios.get('https://association-action-plus.onrender.com/api/users/me/events', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -212,7 +212,7 @@ const Events = () => {
                 console.error('Error fetching user events, using alternative method:', error);
                 
                 // Alternatif olarak, tüm etkinlikleri getir
-                const allEventsResponse = await axios.get('http://localhost:8000/api/events');
+                const allEventsResponse = await axios.get('https://association-action-plus.onrender.com/api/events');
                 const allEvents = allEventsResponse.data;
                 
                 // Etkinlikleri güncelle
@@ -250,7 +250,7 @@ const Events = () => {
                 try {
                     const response = await axios({
                         method: 'delete',
-                        url: `http://localhost:8000/api/events/${eventId}/register`,
+                        url: `https://association-action-plus.onrender.com/api/events/${eventId}/register`,
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
@@ -302,7 +302,7 @@ const Events = () => {
                 try {
                     const response = await axios({
                         method: 'post',
-                        url: `http://localhost:8000/api/events/${eventId}/join`,
+                        url: `https://association-action-plus.onrender.com/api/events/${eventId}/join`,
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
@@ -360,7 +360,7 @@ const Events = () => {
         if (!eventToDelete) return;
 
         try {
-            await axios.delete(`http://localhost:8000/api/events/${eventToDelete}`, {
+            await axios.delete(`https://association-action-plus.onrender.com/api/events/${eventToDelete}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
@@ -492,7 +492,7 @@ const Events = () => {
     const handleDeleteEvent = async (eventId) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cet événement?')) {
             try {
-                await axios.delete(`http://localhost:8000/api/events/${eventId}`, {
+                await axios.delete(`https://association-action-plus.onrender.com/api/events/${eventId}`, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`
                     }

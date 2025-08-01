@@ -71,7 +71,7 @@ const CreateEvent = () => {
         formData.append('files', file);
       });
       
-      const response = await axios.post('http://localhost:8000/api/upload-multiple-images', formData, {
+      const response = await axios.post('https://association-action-plus.onrender.com/api/upload-multiple-images', formData, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'multipart/form-data'
@@ -112,7 +112,7 @@ const CreateEvent = () => {
       
       const response = await axios({
         method: 'post',
-        url: 'http://localhost:8000/api/events',
+        url: 'https://association-action-plus.onrender.com/api/events',
         data: eventData,
         headers: {
           'Authorization': `Bearer ${accessToken}`,

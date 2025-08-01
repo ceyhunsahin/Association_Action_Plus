@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:8000",
+  "proxy": "https://association-action-plus.onrender.com",
   "dependencies": {
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
