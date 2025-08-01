@@ -24,7 +24,7 @@ app = FastAPI()
 # CORS ayarları
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Tüm originlere izin ver (geliştirme için)
+    allow_origins=["https://www.actionplusmetz.org"],  # Tüm originlere izin ver (geliştirme için)
     allow_credentials=True,
     allow_methods=["*"],  # Tüm HTTP metodlarına izin ver
     allow_headers=["*"],  # Tüm headerlara izin ver
