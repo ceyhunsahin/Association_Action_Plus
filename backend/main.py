@@ -17,6 +17,13 @@ from pydantic import BaseModel
 from datetime import datetime
 from generateur_facture import generer_facture_utilisateur
 import shutil
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
+
+# .env dosyasını yükle
+load_dotenv()
 
 # FastAPI uygulamasını oluştur
 app = FastAPI()
@@ -24,7 +31,7 @@ app = FastAPI()
 # CORS ayarları
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://www.actionplusmetz.org"],  # Tüm originlere izin ver (geliştirme için)
+    allow_origins=["*"],  # Tüm originlere izin ver (geliştirme için)
     allow_credentials=True,
     allow_methods=["*"],  # Tüm HTTP metodlarına izin ver
     allow_headers=["*"],  # Tüm headerlara izin ver
@@ -39,6 +46,51 @@ app.include_router(users_router, prefix="/api/users")
 UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
+
+# Email gönderme fonksiyonu
+def send_email(to_email, subject, message):
+    """Email gönderme fonksiyonu - Hostinger SMTP"""
+    try:
+        from email.message import EmailMessage
+        
+        # Email mesajı oluştur
+        msg = EmailMessage()
+        msg["Subject"] = subject
+        msg["From"] = "contact@actionplusmetz.org"
+        msg["To"] = to_email
+        msg.set_content(message, charset='utf-8')
+        
+        # Hostinger SMTP ayarları (.env'den oku)
+        smtp_server = os.getenv("EMAIL_HOST", "smtp.hostinger.com")
+        smtp_port = int(os.getenv("EMAIL_PORT", "465"))  # SSL port
+        sender_email = os.getenv("EMAIL_USER", "contact@actionplusmetz.org")
+        sender_password = os.getenv("EMAIL_PASSWORD", "")  # .env'den şifreyi oku
+        
+        # SMTP bağlantısı ve email gönderme
+        print(f"Attempting to connect to {smtp_server}:{smtp_port}")
+        print(f"Using email: {sender_email}")
+        print(f"Password length: {len(sender_password)}")
+        
+        try:
+            with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+                print("SMTP connection established")
+                server.login(sender_email, sender_password)
+                print("SMTP login successful")
+                server.send_message(msg)
+                print("Email message sent")
+            
+            print(f"Email sent successfully to {to_email}")
+            return True
+        except smtplib.SMTPAuthenticationError as e:
+            print(f"SMTP Authentication Error: {e}")
+            return False
+        except smtplib.SMTPException as e:
+            print(f"SMTP Error: {e}")
+            return False
+        
+    except Exception as e:
+        print(f"Email sending error: {str(e)}")
+        return False
 
 # Statik dosyaları serve et
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
@@ -351,6 +403,12 @@ def read_root():
 def health_check():
     return {"status": "healthy"}
 
+@app.post("/api/test-create-user")
+async def test_create_user_endpoint(user_data: dict = Body(...)):
+    """Test endpoint for user creation"""
+    print(f"Test create user called with data: {user_data}")
+    return {"message": "Test endpoint working", "data": user_data}
+
 # Dosya yükleme endpoint'i
 @app.post("/api/upload-image")
 async def upload_image(file: UploadFile = File(...), current_admin: dict = Depends(get_current_admin)):
@@ -446,6 +504,300 @@ async def upload_multiple_images(files: List[UploadFile] = File(...), current_ad
 @app.options("/{full_path:path}")
 async def options_route(request: Request, full_path: str):
     return Response(status_code=200)
+
+# Admin endpoint'leri
+@app.post("/api/admin/create-user")
+async def create_user_endpoint(user_data: dict = Body(...), current_admin: dict = Depends(get_current_admin)):
+    """Admin tarafından yeni kullanıcı oluştur"""
+    try:
+        print(f"[DEBUG] Creating user with data: {user_data}")
+        
+        from passlib.context import CryptContext
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        
+        conn = get_db()
+        if not conn:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Database connection failed"
+            )
+        
+        cursor = conn.cursor()
+        
+        # Email ve username kontrolü
+        cursor.execute("SELECT id FROM users WHERE email = ? OR username = ?", 
+                      (user_data['email'], user_data['username']))
+        existing_user = cursor.fetchone()
+        
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email ou nom d'utilisateur déjà utilisé"
+            )
+        
+        # Şifreyi hash'le
+        hashed_password = pwd_context.hash(user_data['password'])
+        print(f"[DEBUG] Password hashed successfully")
+        
+        # Kullanıcıyı oluştur
+        insert_query = '''
+            INSERT INTO users (firstName, lastName, email, username, password, role, created_at, last_login)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        '''
+        insert_values = (
+            user_data['firstName'],
+            user_data['lastName'],
+            user_data['email'],
+            user_data['username'],
+            hashed_password,
+            user_data.get('role', 'user'),
+            datetime.now().isoformat(),
+            datetime.now().isoformat()  # last_login için şu anki zaman
+        )
+        
+        print(f"[DEBUG] Executing insert query: {insert_query}")
+        print(f"[DEBUG] Insert values: {insert_values}")
+        
+        cursor.execute(insert_query, insert_values)
+        
+        user_id = cursor.lastrowid
+        print(f"[DEBUG] User created with ID: {user_id}")
+        
+        conn.commit()
+        print(f"[DEBUG] Database committed successfully")
+        
+        # Yeni kullanıcıyı getir
+        cursor.execute("SELECT id, firstName, lastName, email, username, role, created_at FROM users WHERE id = ?", (user_id,))
+        new_user = cursor.fetchone()
+        
+        conn.close()
+        print(f"[DEBUG] User creation completed successfully")
+        
+        return dict(new_user)
+        
+    except HTTPException:
+        # HTTPException'ları yeniden fırlat
+        raise
+    except Exception as e:
+        print(f"[ERROR] Kullanıcı oluşturma hatası: {str(e)}")
+        print(f"[ERROR] Error type: {type(e)}")
+        import traceback
+        print(f"[ERROR] Traceback: {traceback.format_exc()}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create user: {str(e)}"
+        )
+
+# Yeni üyelik oluşturma endpoint'i
+@app.post("/api/admin/create-membership")
+async def create_membership_endpoint(membership_data: dict = Body(...), current_admin: dict = Depends(get_current_admin)):
+    """Admin tarafından yeni üyelik oluştur"""
+    try:
+        from datetime import datetime, timedelta
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Kullanıcının var olup olmadığını kontrol et
+        cursor.execute("SELECT id FROM users WHERE id = ?", (membership_data['userId'],))
+        user = cursor.fetchone()
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Utilisateur non trouvé"
+            )
+        
+        # Üyelik süresini hesapla
+        start_date = datetime.now()
+        end_date = start_date + timedelta(days=membership_data['duration'] * 30)
+        
+        # Üyeliği oluştur
+        cursor.execute('''
+            INSERT INTO memberships (user_id, membership_type, start_date, end_date, status, renewal_count, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            membership_data['userId'],
+            membership_data['membershipType'],
+            start_date.isoformat(),
+            end_date.isoformat(),
+            'active',
+            0,
+            datetime.now().isoformat()
+        ))
+        
+        membership_id = cursor.lastrowid
+        conn.commit()
+        
+        # Yeni üyeliği getir
+        cursor.execute('''
+            SELECT m.*, u.firstName, u.lastName, u.email
+            FROM memberships m
+            JOIN users u ON m.user_id = u.id
+            WHERE m.id = ?
+        ''', (membership_id,))
+        
+        new_membership = cursor.fetchone()
+        conn.close()
+        
+        return {
+            "membership_id": membership_id,
+            "membership": dict(new_membership)
+        }
+    except Exception as e:
+        print(f"Membership creation error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create membership: {str(e)}"
+        )
+
+@app.post("/api/contact")
+async def contact_endpoint(contact_data: dict = Body(...)):
+    """Contact form endpoint"""
+    try:
+        print(f"Contact form received: {contact_data}")
+        
+        # Email bilgilerini al
+        name = contact_data.get('name', '')
+        email = contact_data.get('email', '')
+        subject = contact_data.get('subject', 'Nouveau message de contact')
+        message = contact_data.get('message', '')
+        
+        # Subject'i ASCII-safe yap
+        subject = subject.encode('ascii', 'ignore').decode('ascii')
+        
+        # Email içeriğini oluştur
+        email_content = f"""
+        Nouveau message de contact reçu:
+        
+        Nom: {name}
+        Email: {email}
+        Sujet: {subject}
+        
+        Message:
+        {message}
+        
+        ---
+        Ce message a été envoyé depuis le formulaire de contact du site web.
+        """.encode('utf-8').decode('utf-8')
+        
+        # Mesajı database'e kaydet
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO contact_messages (name, email, subject, message, created_at)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (name, email, subject, message, datetime.now().isoformat()))
+        conn.commit()
+        conn.close()
+        
+        # Gerçek email gönderme işlemi
+        print("Starting email sending process...")
+        email_sent = send_email("contact@actionplusmetz.org", subject, email_content)
+        
+        if email_sent:
+            print(f"Email sent successfully to: contact@actionplusmetz.org")
+        else:
+            print(f"Failed to send email to: contact@actionplusmetz.org")
+            print("Check SMTP settings and credentials")
+        
+        print(f"Contact message saved to database from {name} ({email})")
+        
+        return {
+            "success": True,
+            "message": "Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais."
+        }
+    except Exception as e:
+        print(f"Contact form error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de l'envoi du message"
+        )
+
+@app.get("/api/admin/contact-messages")
+async def get_contact_messages_endpoint(current_admin: dict = Depends(get_current_admin)):
+    """Admin için contact mesajlarını getir"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT id, name, email, subject, message, created_at, status
+            FROM contact_messages
+            ORDER BY created_at DESC
+        ''')
+        
+        messages = []
+        rows = cursor.fetchall()
+        print(f"Found {len(rows)} contact messages")
+        
+        for row in rows:
+            try:
+                # Row'un tipini kontrol et
+                if isinstance(row, dict):
+                    # Dictionary formatında geliyorsa
+                    messages.append({
+                        "id": row.get("id"),
+                        "name": row.get("name"),
+                        "email": row.get("email"),
+                        "subject": row.get("subject"),
+                        "message": row.get("message"),
+                        "created_at": row.get("created_at"),
+                        "status": row.get("status")
+                    })
+                else:
+                    # Tuple formatında geliyorsa
+                    messages.append({
+                        "id": row[0],
+                        "name": row[1],
+                        "email": row[2],
+                        "subject": row[3],
+                        "message": row[4],
+                        "created_at": row[5],
+                        "status": row[6]
+                    })
+            except Exception as row_error:
+                print(f"Error processing row {row}: {row_error}")
+                continue
+        
+        conn.close()
+        
+        return {"messages": messages}
+        
+    except Exception as e:
+        print(f"Error fetching contact messages: {str(e)}")
+        print(f"Error type: {type(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch contact messages"
+        )
+
+@app.put("/api/admin/contact-messages/{message_id}/read")
+async def mark_message_as_read_endpoint(message_id: int, current_admin: dict = Depends(get_current_admin)):
+    """Mesajı okundu olarak işaretle"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE contact_messages 
+            SET status = 'read' 
+            WHERE id = ?
+        ''', (message_id,))
+        
+        conn.commit()
+        conn.close()
+        
+        return {"success": True, "message": "Message marked as read"}
+        
+    except Exception as e:
+        print(f"Error marking message as read: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to mark message as read"
+        )
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

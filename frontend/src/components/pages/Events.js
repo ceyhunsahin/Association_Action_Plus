@@ -24,6 +24,15 @@ const Events = () => {
     const upcomingCarouselRef = useRef(null);
     const pastCarouselRef = useRef(null);
 
+    // Resim URL'sini düzgün formata çevir
+    const getImageUrl = (imagePath) => {
+        if (!imagePath) return null;
+        if (imagePath.startsWith('/uploads/')) {
+            return `https://association-action-plus.onrender.com${imagePath}`;
+        }
+        return imagePath;
+    };
+
     // Kullanıcının etkinliklerini getir
     const fetchUserEvents = useCallback(async () => {
         if (!user) return;
@@ -576,7 +585,7 @@ const Events = () => {
                                     )}
                                     <div className={styles.eventImageContainer}>
                                         <img 
-                                            src={event.image || 'https://via.placeholder.com/300x200?text=Événement'} 
+                                            src={getImageUrl(event.image) || '/assets/default-image.jpg'} 
                                             alt={event.title} 
                                             className={styles.eventImage}
                                         />
@@ -686,7 +695,7 @@ const Events = () => {
                                 <div key={event._id} className={`${styles.eventCard} ${styles.pastEvent}`}>
                                     <div className={styles.eventImageContainer}>
                                         <img 
-                                            src={event.image || 'https://via.placeholder.com/300x200?text=Événement+Passé'} 
+                                            src={getImageUrl(event.image) || '/assets/default-image.jpg'} 
                                             alt={event.title} 
                                             className={styles.eventImage}
                                         />

@@ -13,13 +13,21 @@ import json
 import sqlite3
 import secrets
 import string
+from dotenv import load_dotenv
+
+# .env dosyasını yükle
+load_dotenv()
+from dotenv import load_dotenv
+
+# .env dosyasını yükle
+load_dotenv()
 
 
 
-# Güvenlik ayarları
-SECRET_KEY = "ceyhunsahin"  # Gerçek uygulamada güvenli bir şekilde saklayın
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# Güvenlik ayarları (.env'den oku)
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "ceyhunsahin")
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 # Şifre hash'leme için kullanılacak context
@@ -33,8 +41,8 @@ router = APIRouter(
     tags=["authentication"]
 )
 
-# Firebase API key
-FIREBASE_API_KEY = "AIzaSyAQxAEcxJB8A8Wmd5-uEKRf7mnry2wsEi4"
+# Firebase API key (.env'den oku)
+FIREBASE_API_KEY = os.getenv("FIREBASE_API_KEY", "AIzaSyAQxAEcxJB8A8Wmd5-uEKRf7mnry2wsEi4")
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)

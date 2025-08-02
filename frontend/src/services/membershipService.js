@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://association-action-plus.onrender.com';
+const API_BASE_URL = 'http://localhost:8000';
 
 // Token'ı header'a ekle
 const getAuthHeaders = () => {
@@ -71,6 +71,45 @@ export const downloadInvoice = async (paymentId) => {
     return true;
   } catch (error) {
     console.error('Error downloading invoice:', error);
+    throw error;
+  }
+};
+
+// Admin: Yeni kullanıcı oluştur
+export const createUser = async (userData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/admin/create-user`, userData, {
+      headers: getAuthHeaders()
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating user:', error);
+    throw error;
+  }
+};
+
+// Admin: Yeni üyelik oluştur
+export const createMembership = async (membershipData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/admin/create-membership`, membershipData, {
+      headers: getAuthHeaders()
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating membership:', error);
+    throw error;
+  }
+};
+
+// Test endpoint
+export const testCreateUser = async (userData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/test-create-user`, userData, {
+      headers: getAuthHeaders()
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error testing create user:', error);
     throw error;
   }
 }; 

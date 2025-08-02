@@ -24,7 +24,7 @@ const Contact = () => {
     }));
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Form doğrulama
@@ -37,21 +37,51 @@ const Contact = () => {
       return;
     }
     
-    // Burada gerçek bir API çağrısı yapılabilir
-    // Şimdilik başarılı olduğunu varsayalım
-    setFormStatus({
-      submitted: true,
-      error: false,
-      message: 'Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.'
-    });
-    
-    // Formu sıfırla
-    setFormData({
-      name: '',
-      email: '',
-      subject: '',
-      message: ''
-    });
+    try {
+      const response = await fetch('http://localhost:8000/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setFormStatus({
+          submitted: true,
+          error: false,
+          message: result.message || 'Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.'
+        });
+        
+        // Formu sıfırla
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        const errorData = await response.json();
+        setFormStatus({
+          submitted: false,
+          error: true,
+          message: errorData.detail || 'Erreur lors de l\'envoi du message.'
+        });
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      setFormStatus({
+        submitted: false,
+        error: true,
+        message: 'Erreur lors de l\'envoi du message. Veuillez réessayer.'
+      });
+    }
     
     // 5 saniye sonra mesajı temizle
     setTimeout(() => {

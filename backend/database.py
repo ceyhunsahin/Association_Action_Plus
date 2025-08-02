@@ -127,6 +127,19 @@ def init_db():
     )
     ''')
     
+    # Contact mesajları tablosu
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS contact_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        subject TEXT,
+        message TEXT NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        status TEXT DEFAULT 'unread'
+    )
+    ''')
+    
     # Üyelik ödemeleri tablosunu oluştur
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS membership_payments (

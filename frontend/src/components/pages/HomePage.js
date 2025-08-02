@@ -12,9 +12,9 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stats] = useState({
-    events: 120,
-    members: 450,
-    countries: 25
+    events: 1,
+    members: 45,
+    countries: 2
   });
 
   // Scroll refs
@@ -235,7 +235,7 @@ const HomePage = () => {
                   <div key={event.id} className={styles.eventCard}>
                     <div className={styles.eventCardImageContainer}>
                       <img 
-                        src={event.image || 'https://via.placeholder.com/300x200?text=Action+Plus'} 
+                        src={event.image || '/assets/default-image.jpg'} 
                         alt={event.title}
                         className={styles.eventCardImage}
                       />

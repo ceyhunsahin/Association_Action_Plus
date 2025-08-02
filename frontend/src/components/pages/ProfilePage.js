@@ -14,7 +14,7 @@ import styles from './ProfilePage.module.css';
 const ProfilePage = () => {
   const { user, accessToken, logout, updateUserProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // overview, events, settings
+  const [activeTab, setActiveTab] = useState('overview'); // overview, events, settings, messages
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -23,11 +23,19 @@ const ProfilePage = () => {
   });
 
   const [userEvents, setUserEvents] = useState([]);
+  const [contactMessages, setContactMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [showPastEvents, setShowPastEvents] = useState(false);
   const [animateProfile, setAnimateProfile] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [showReplyForm, setShowReplyForm] = useState(false);
+  const [replyData, setReplyData] = useState({
+    subject: '',
+    message: ''
+  });
 
   const profileRef = useRef(null);
   const navigate = useNavigate();
@@ -57,9 +65,101 @@ const ProfilePage = () => {
 
     // Kullanıcının etkinliklerini getir
     fetchUserEvents();
+    
+    // Admin ise contact mesajlarını getir
+    if (user && user.role === 'admin') {
+      fetchContactMessages();
+    }
   }, [user, accessToken, navigate]);
 
 
+
+  // Contact mesajlarını getir (admin için)
+  const fetchContactMessages = async () => {
+    if (!accessToken || user?.role !== 'admin') return;
+    
+    try {
+      const response = await axios.get('http://localhost:8000/api/admin/contact-messages', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      
+      setContactMessages(response.data.messages || []);
+    } catch (error) {
+      console.error('Error fetching contact messages:', error);
+    }
+  };
+
+  // Mesajı okundu olarak işaretle
+  const markMessageAsRead = async (messageId) => {
+    if (!accessToken || user?.role !== 'admin') return;
+    
+    try {
+      await axios.put(`http://localhost:8000/api/admin/contact-messages/${messageId}/read`, {}, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      
+      // Mesajları güncelle
+      setContactMessages(prevMessages => 
+        prevMessages.map(msg => 
+          msg.id === messageId ? { ...msg, status: 'read' } : msg
+        )
+      );
+    } catch (error) {
+      console.error('Error marking message as read:', error);
+    }
+  };
+
+  // Mesaj detayını göster
+  const showMessageDetail = (message) => {
+    setSelectedMessage(message);
+    setShowMessageModal(true);
+    
+    // Mesaj okundu olarak işaretle
+    if (message.status === 'unread') {
+      markMessageAsRead(message.id);
+    }
+  };
+
+  // Yanıtlama formunu aç
+  const openReplyForm = () => {
+    if (selectedMessage) {
+      setReplyData({
+        subject: `Re: ${selectedMessage.subject || 'Sans sujet'}`,
+        message: `\n\n--- Message original ---\nDe: ${selectedMessage.name} (${selectedMessage.email})\nDate: ${new Date(selectedMessage.created_at).toLocaleString('fr-FR')}\n\n${selectedMessage.message}`
+      });
+      setShowReplyForm(true);
+    }
+  };
+
+  // Yanıtlama formunu kapat
+  const closeReplyForm = () => {
+    setShowReplyForm(false);
+    setReplyData({ subject: '', message: '' });
+  };
+
+  // Yanıt gönder
+  const sendReply = () => {
+    if (selectedMessage && replyData.subject && replyData.message) {
+      // Email bilgilerini kopyala
+      const emailInfo = {
+        to: selectedMessage.email,
+        subject: replyData.subject,
+        body: replyData.message
+      };
+      
+      // Bilgileri clipboard'a kopyala
+      const emailText = `À: ${emailInfo.to}\nSujet: ${emailInfo.subject}\n\n${emailInfo.body}`;
+      navigator.clipboard.writeText(emailText).then(() => {
+        alert('Informations de réponse copiées dans le presse-papiers. Vous pouvez maintenant les coller dans votre client email.');
+      });
+      
+      closeReplyForm();
+    }
+  };
 
   // Kullanıcının etkinliklerini getir
   const fetchUserEvents = async () => {
@@ -466,6 +566,197 @@ const ProfilePage = () => {
   };
 
   // Kullanıcı ayarlarını render et
+  const renderContactMessages = () => {
+    if (user?.role !== 'admin') {
+      return (
+        <div className={styles.noAccess}>
+          <FaExclamationCircle />
+          <p>Vous n'avez pas accès à cette section.</p>
+        </div>
+      );
+    }
+
+    const unreadCount = contactMessages.filter(msg => msg.status === 'unread').length;
+
+    return (
+      <div className={styles.messagesSection}>
+        <div className={styles.messagesHeader}>
+          <h3>
+            <FaEnvelope /> Messages de Contact
+            {unreadCount > 0 && (
+              <span className={styles.unreadBadge}>{unreadCount}</span>
+            )}
+          </h3>
+        </div>
+        
+        {contactMessages.length === 0 ? (
+          <div className={styles.noMessages}>
+            <FaEnvelope />
+            <p>Aucun message pour le moment.</p>
+          </div>
+        ) : (
+          <div className={styles.messagesList}>
+            {contactMessages.map((message) => (
+              <div 
+                key={message.id} 
+                className={`${styles.messageCard} ${message.status === 'unread' ? styles.unreadMessage : ''}`}
+                onClick={() => showMessageDetail(message)}
+              >
+                <div className={styles.messageHeader}>
+                  <div className={styles.messageTitle}>
+                    <h4>{message.subject || 'Sans sujet'}</h4>
+                    {message.status === 'unread' && (
+                      <span className={styles.unreadDot}>●</span>
+                    )}
+                    {message.status === 'read' && (
+                      <span className={styles.readIcon}>✓</span>
+                    )}
+                  </div>
+                  <span className={styles.messageDate}>
+                    {new Date(message.created_at).toLocaleDateString('fr-FR')}
+                  </span>
+                </div>
+                
+                <div className={styles.messageInfo}>
+                  <p><strong>De:</strong> {message.name} ({message.email})</p>
+                </div>
+                
+                <div className={styles.messagePreview}>
+                  <p>
+                    {message.message.length > 100 
+                      ? `${message.message.substring(0, 100)}...` 
+                      : message.message}
+                  </p>
+                  {message.message.length > 100 && (
+                    <span className={styles.readMore}>Lire la suite →</span>
+                  )}
+                </div>
+                
+                <div className={styles.messageStatus}>
+                  <span className={`${styles.status} ${message.status === 'unread' ? styles.unread : styles.read}`}>
+                    {message.status === 'unread' ? 'Non lu' : 'Lu'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {/* Modal de détail du message */}
+        {showMessageModal && selectedMessage && (
+          <div className={styles.messageModal}>
+            <div className={styles.modalContent}>
+              <div className={styles.modalHeader}>
+                <h3>{selectedMessage.subject || 'Sans sujet'}</h3>
+                <button 
+                  className={styles.closeButton}
+                  onClick={() => setShowMessageModal(false)}
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className={styles.modalBody}>
+                <div className={styles.messageDetailInfo}>
+                  <p><strong>De:</strong> {selectedMessage.name}</p>
+                  <p><strong>Email:</strong> {selectedMessage.email}</p>
+                  <p><strong>Date:</strong> {new Date(selectedMessage.created_at).toLocaleString('fr-FR')}</p>
+                </div>
+                
+                <div className={styles.messageDetailContent}>
+                  <h4>Message:</h4>
+                  <p>{selectedMessage.message}</p>
+                </div>
+              </div>
+              
+              <div className={styles.modalFooter}>
+                <button 
+                  className={styles.replyButton}
+                  onClick={openReplyForm}
+                >
+                  <FaEnvelope /> Répondre
+                </button>
+                <button 
+                  className={styles.closeModalButton}
+                  onClick={() => setShowMessageModal(false)}
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Yanıtlama Formu Modal */}
+        {showReplyForm && selectedMessage && (
+          <div className={styles.messageModal}>
+            <div className={styles.modalContent}>
+              <div className={styles.modalHeader}>
+                <h3>Répondre à {selectedMessage.name}</h3>
+                <button 
+                  className={styles.closeButton}
+                  onClick={closeReplyForm}
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className={styles.modalBody}>
+                <div className={styles.replyForm}>
+                  <div className={styles.formGroup}>
+                    <label>À:</label>
+                    <input 
+                      type="email" 
+                      value={selectedMessage.email} 
+                      readOnly 
+                      className={styles.readOnlyInput}
+                    />
+                  </div>
+                  
+                  <div className={styles.formGroup}>
+                    <label>Sujet:</label>
+                    <input 
+                      type="text" 
+                      value={replyData.subject}
+                      onChange={(e) => setReplyData({...replyData, subject: e.target.value})}
+                      className={styles.formInput}
+                    />
+                  </div>
+                  
+                  <div className={styles.formGroup}>
+                    <label>Message:</label>
+                    <textarea 
+                      value={replyData.message}
+                      onChange={(e) => setReplyData({...replyData, message: e.target.value})}
+                      className={styles.formTextarea}
+                      rows={10}
+                      placeholder="Tapez votre réponse..."
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className={styles.modalFooter}>
+                <button 
+                  className={styles.sendButton}
+                  onClick={sendReply}
+                >
+                  <FaEnvelope /> Copier et Fermer
+                </button>
+                <button 
+                  className={styles.closeModalButton}
+                  onClick={closeReplyForm}
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderSettings = () => {
     return (
       <div className={styles.settingsContainer}>
@@ -630,12 +921,22 @@ const ProfilePage = () => {
             >
                 <FaEdit /> Paramètres
             </button>
+            
+            {user.role === 'admin' && (
+                <button 
+                    className={`${styles.navButton} ${activeTab === 'messages' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('messages')}
+                >
+                    <FaEnvelope /> Messages
+                </button>
+            )}
         </div>
         
         <div className={styles.profileContent}>
             {activeTab === 'overview' && renderOverview()}
             {activeTab === 'events' && renderUserEvents()}
             {activeTab === 'settings' && renderSettings()}
+            {activeTab === 'messages' && renderContactMessages()}
         </div>
 
 

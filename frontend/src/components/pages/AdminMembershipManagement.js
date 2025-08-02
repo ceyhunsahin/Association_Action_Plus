@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FaSearch, FaUser, FaCalendar, FaDownload, FaAccessibleIcon, FaEye } from 'react-icons/fa';
+import { FaSearch, FaUser, FaCalendar, FaDownload, FaAccessibleIcon, FaEye, FaPlus } from 'react-icons/fa';
 import styles from './AdminMembershipManagement.module.css';
+import { createUser, createMembership } from '../../services/membershipService';
 
 const AdminMembershipManagement = () => {
   const [members, setMembers] = useState([]);
@@ -9,16 +10,27 @@ const AdminMembershipManagement = () => {
   const [selectedMember, setSelectedMember] = useState(null);
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [showRenewalModal, setShowRenewalModal] = useState(false);
+  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [renewalData, setRenewalData] = useState({
     duration: 12,
     amount: 25
   });
+  const [newMemberData, setNewMemberData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    username: '',
+    membershipType: 'standard',
+    duration: 12,
+    amount: 25
+  });
+  const [addMemberLoading, setAddMemberLoading] = useState(false);
 
   // Tüm üyeleri getir
   const fetchAllMembers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('https://association-action-plus.onrender.com/api/admin/members', {
+      const response = await fetch('http://localhost:8000/api/admin/members', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
           'Content-Type': 'application/json'
@@ -50,7 +62,7 @@ const AdminMembershipManagement = () => {
     }
     
     try {
-      const response = await fetch(`https://association-action-plus.onrender.com/api/admin/members/${selectedMember.id}/renew`, {
+      const response = await fetch(`http://localhost:8000/api/admin/members/${selectedMember.id}/renew`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -88,10 +100,72 @@ const AdminMembershipManagement = () => {
     }
   };
 
+  // Yeni üye ekle
+  const handleAddMember = async () => {
+    setAddMemberLoading(true);
+    try {
+      console.log('Adding new member with data:', newMemberData);
+      
+      // Form validasyonu
+      if (!newMemberData.firstName || !newMemberData.lastName || !newMemberData.email || !newMemberData.username) {
+        throw new Error('Tous les champs obligatoires doivent être remplis');
+      }
+      
+      // Email formatı kontrolü
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(newMemberData.email)) {
+        throw new Error('Format d\'email invalide');
+      }
+      
+      // Önce kullanıcıyı oluştur
+      const userData = await createUser({
+        firstName: newMemberData.firstName,
+        lastName: newMemberData.lastName,
+        email: newMemberData.email,
+        username: newMemberData.username,
+        password: 'default123', // Varsayılan şifre
+        role: 'user'
+      });
+
+      console.log('Utilisateur créé:', userData);
+
+      // Sonra üyelik oluştur
+      const membershipData = await createMembership({
+        userId: userData.id,
+        membershipType: newMemberData.membershipType,
+        duration: newMemberData.duration,
+        amount: newMemberData.amount
+      });
+
+      console.log('Adhésion créée:', membershipData);
+
+      alert('Membre ajouté avec succès!');
+      setShowAddMemberModal(false);
+      setNewMemberData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        username: '',
+        membershipType: 'standard',
+        duration: 12,
+        amount: 25
+      });
+
+      // Üye listesini yenile
+      fetchAllMembers();
+
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du membre:', error);
+      alert('Erreur lors de l\'ajout du membre: ' + error.message);
+    } finally {
+      setAddMemberLoading(false);
+    }
+  };
+
   // Fatura indir
   const handleDownloadInvoice = async (paymentId) => {
     try {
-      const response = await fetch(`https://association-action-plus.onrender.com/api/admin/download-invoice/${paymentId}`, {
+      const response = await fetch(`http://localhost:8000/api/admin/download-invoice/${paymentId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         }
@@ -119,7 +193,7 @@ const AdminMembershipManagement = () => {
   // Membership ID ile fatura indir
   const handleDownloadInvoiceMembership = async (membershipId) => {
     try {
-      const response = await fetch(`https://association-action-plus.onrender.com/api/admin/download-invoice-membership/${membershipId}`, {
+      const response = await fetch(`http://localhost:8000/api/admin/download-invoice-membership/${membershipId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         }
@@ -175,6 +249,13 @@ const AdminMembershipManagement = () => {
       <div className={styles.header}>
         <h1>Gestion des Memberships</h1>
         <p>Gérez les memberships et générez des factures</p>
+        <button 
+          className={styles.addMemberButton}
+          onClick={() => setShowAddMemberModal(true)}
+          title="Nouveau membre"
+        >
+          <FaPlus />
+        </button>
       </div>
 
       {/* Arama */}
@@ -330,6 +411,124 @@ const AdminMembershipManagement = () => {
                 <button onClick={() => setShowRenewalModal(false)}>Annuler</button>
                 <button onClick={handleRenewMembership} className={styles.confirmButton}>
                   Renouveler
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Yeni Üye Ekleme Modal */}
+      {showAddMemberModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <div className={styles.modalHeader}>
+              <h2>Ajouter un Nouveau Membre</h2>
+              <button onClick={() => setShowAddMemberModal(false)}>×</button>
+            </div>
+            <div className={styles.modalContent}>
+              <div className={styles.addMemberForm}>
+                <div className={styles.formGroup}>
+                  <label>Prénom *</label>
+                  <input 
+                    type="text" 
+                    value={newMemberData.firstName}
+                    onChange={(e) => setNewMemberData({...newMemberData, firstName: e.target.value})}
+                    required
+                  />
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label>Nom *</label>
+                  <input 
+                    type="text" 
+                    value={newMemberData.lastName}
+                    onChange={(e) => setNewMemberData({...newMemberData, lastName: e.target.value})}
+                    required
+                  />
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label>Email *</label>
+                  <input 
+                    type="email" 
+                    value={newMemberData.email}
+                    onChange={(e) => setNewMemberData({...newMemberData, email: e.target.value})}
+                    required
+                  />
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label>Nom d'utilisateur *</label>
+                  <input 
+                    type="text" 
+                    value={newMemberData.username}
+                    onChange={(e) => setNewMemberData({...newMemberData, username: e.target.value})}
+                    required
+                  />
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label>Type d'adhésion</label>
+                  <select 
+                    value={newMemberData.membershipType}
+                    onChange={(e) => setNewMemberData({...newMemberData, membershipType: e.target.value})}
+                  >
+                    <option value="standard">Standard</option>
+                    <option value="premium">Premium</option>
+                    <option value="vip">VIP</option>
+                  </select>
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label>Durée (mois)</label>
+                  <select 
+                    value={newMemberData.duration}
+                    onChange={(e) => {
+                      const duration = parseInt(e.target.value);
+                      let amount = 25;
+                      if (duration === 6) amount = 15;
+                      else if (duration === 24) amount = 45;
+                      else if (duration === 36) amount = 65;
+                      
+                      setNewMemberData({
+                        ...newMemberData, 
+                        duration: duration,
+                        amount: amount
+                      });
+                    }}
+                  >
+                    <option value={6}>6 mois (15€)</option>
+                    <option value={12}>1 an (25€)</option>
+                    <option value={24}>2 ans (45€)</option>
+                    <option value={36}>3 ans (65€)</option>
+                  </select>
+                </div>
+                
+                <div className={styles.formGroup}>
+                  <label>Montant (€)</label>
+                  <input 
+                    type="number" 
+                    value={newMemberData.amount}
+                    onChange={(e) => setNewMemberData({...newMemberData, amount: parseFloat(e.target.value)})}
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+                
+                <div className={styles.formNote}>
+                  <p><strong>Note:</strong> Le mot de passe par défaut sera "default123". L'utilisateur pourra le changer lors de sa première connexion.</p>
+                </div>
+              </div>
+              
+              <div className={styles.modalActions}>
+                <button onClick={() => setShowAddMemberModal(false)}>Annuler</button>
+                <button 
+                  onClick={handleAddMember} 
+                  className={styles.confirmButton}
+                  disabled={addMemberLoading || !newMemberData.firstName || !newMemberData.lastName || !newMemberData.email || !newMemberData.username}
+                >
+                  {addMemberLoading ? 'Ajout en cours...' : 'Ajouter le membre'}
                 </button>
               </div>
             </div>

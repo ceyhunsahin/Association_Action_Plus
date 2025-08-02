@@ -28,14 +28,29 @@ const EventDetail = () => {
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
 
-  // Örnek resim galerisi - gerçek uygulamada bu verileri API'den alabilirsiniz
-  const eventImages = [
-    "https://picsum.photos/800/400?random=1",
-    "https://picsum.photos/800/400?random=2",
-    "https://picsum.photos/800/400?random=3",
-    "https://picsum.photos/800/400?random=4",
-    "https://picsum.photos/800/400?random=5",
-  ];
+  // Resim URL'sini düzgün formata çevir
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith('/uploads/')) {
+      return `https://association-action-plus.onrender.com${imagePath}`;
+    }
+    return imagePath;
+  };
+
+  // Etkinlik resimlerini hazırla - sadece admin'in yüklediği gerçek resimler
+  const getEventImages = () => {
+    if (event && event.images && event.images.length > 0) {
+      // Backend'den gelen resim URL'lerini tam URL'ye çevir
+      return event.images.map(img => getImageUrl(img)).filter(Boolean);
+    } else if (event && event.image) {
+      // Tek resim varsa onu kullan
+      const imageUrl = getImageUrl(event.image);
+      return imageUrl ? [imageUrl] : [];
+    } else {
+      // Hiç resim yoksa boş array döndür
+      return [];
+    }
+  };
 
   // Kullanıcının etkinliğe kayıtlı olup olmadığını kontrol et
   const checkRegistration = async () => {
@@ -181,18 +196,18 @@ const EventDetail = () => {
 
   // Carousel için önceki resme git
   const prevImage = () => {
-    setCurrentImageIndex((currentImageIndex - 1 + eventImages.length) % eventImages.length);
+    setCurrentImageIndex((currentImageIndex - 1 + getEventImages().length) % getEventImages().length);
   };
 
   // Carousel için sonraki resme git
   const nextImage = () => {
-    setCurrentImageIndex((currentImageIndex + 1) % eventImages.length);
+    setCurrentImageIndex((currentImageIndex + 1) % getEventImages().length);
   };
 
   // Carousel için görüntülenecek resimlerin indekslerini hesapla
   const getImageIndexes = () => {
     const indexes = [];
-    const totalImages = eventImages.length;
+    const totalImages = getEventImages().length;
     
     // Ortadaki resim (mevcut indeks)
     indexes.push(currentImageIndex);
@@ -266,44 +281,46 @@ const EventDetail = () => {
         )}
       </div>
 
-      <div className={styles.cinemaCarousel}>
-        <button 
-          className={`${styles.carouselButton} ${styles.prevButton}`}
-          onClick={prevImage}
-          aria-label="Image précédente"
-        >
-          <FaChevronLeft />
-        </button>
-        
-        <div className={styles.carouselTrack} ref={carouselRef}>
-          {getImageIndexes().map((imageIndex, i) => (
-            <div 
-              key={imageIndex}
-              className={`${styles.carouselSlide} ${
-                i === 2 ? styles.activeSlide : 
-                i < 2 ? styles.leftSlide : styles.rightSlide
-              } ${
-                i === 1 || i === 3 ? styles.adjacentSlide : 
-                i === 0 || i === 4 ? styles.farSlide : ''
-              }`}
-            >
-              <img 
-                src={eventImages[imageIndex]} 
-                alt={`Vue de l'événement ${imageIndex + 1}`} 
-                className={styles.carouselImage}
-              />
-            </div>
-          ))}
+      {getEventImages().length > 0 && (
+        <div className={styles.cinemaCarousel}>
+          <button 
+            className={`${styles.carouselButton} ${styles.prevButton}`}
+            onClick={prevImage}
+            aria-label="Image précédente"
+          >
+            <FaChevronLeft />
+          </button>
+          
+          <div className={styles.carouselTrack} ref={carouselRef}>
+            {getImageIndexes().map((imageIndex, i) => (
+              <div 
+                key={imageIndex}
+                className={`${styles.carouselSlide} ${
+                  i === 2 ? styles.activeSlide : 
+                  i < 2 ? styles.leftSlide : styles.rightSlide
+                } ${
+                  i === 1 || i === 3 ? styles.adjacentSlide : 
+                  i === 0 || i === 4 ? styles.farSlide : ''
+                }`}
+              >
+                <img 
+                  src={getEventImages()[imageIndex]} 
+                  alt={`Vue de l'événement ${imageIndex + 1}`} 
+                  className={styles.carouselImage}
+                />
+              </div>
+            ))}
+          </div>
+          
+          <button 
+            className={`${styles.carouselButton} ${styles.nextButton}`}
+            onClick={nextImage}
+            aria-label="Image suivante"
+          >
+            <FaChevronRight />
+          </button>
         </div>
-        
-        <button 
-          className={`${styles.carouselButton} ${styles.nextButton}`}
-          onClick={nextImage}
-          aria-label="Image suivante"
-        >
-          <FaChevronRight />
-        </button>
-      </div>
+      )}
 
       <div className={styles.eventContent}>
         <h1 className={styles.eventTitle}>{event.title}</h1>
