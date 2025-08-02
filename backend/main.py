@@ -67,19 +67,16 @@ def send_email(to_email, subject, message):
         sender_password = os.getenv("EMAIL_PASSWORD", "")  # .env'den şifreyi oku
         
         # SMTP bağlantısı ve email gönderme
-        print(f"Attempting to connect to {smtp_server}:{smtp_port}")
-        print(f"Using email: {sender_email}")
-        print(f"Password length: {len(sender_password)}")
+
         
         try:
             with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
-                print("SMTP connection established")
+
                 server.login(sender_email, sender_password)
-                print("SMTP login successful")
+                server.login(sender_email, sender_password)
                 server.send_message(msg)
-                print("Email message sent")
             
-            print(f"Email sent successfully to {to_email}")
+
             return True
         except smtplib.SMTPAuthenticationError as e:
             print(f"SMTP Authentication Error: {e}")
@@ -655,7 +652,7 @@ async def create_membership_endpoint(membership_data: dict = Body(...), current_
 async def contact_endpoint(contact_data: dict = Body(...)):
     """Contact form endpoint"""
     try:
-        print(f"Contact form received: {contact_data}")
+
         
         # Email bilgilerini al
         name = contact_data.get('name', '')
@@ -692,16 +689,16 @@ async def contact_endpoint(contact_data: dict = Body(...)):
         conn.close()
         
         # Gerçek email gönderme işlemi
-        print("Starting email sending process...")
+
         email_sent = send_email("contact@actionplusmetz.org", subject, email_content)
         
         if email_sent:
-            print(f"Email sent successfully to: contact@actionplusmetz.org")
+    
         else:
             print(f"Failed to send email to: contact@actionplusmetz.org")
             print("Check SMTP settings and credentials")
         
-        print(f"Contact message saved to database from {name} ({email})")
+
         
         return {
             "success": True,
@@ -729,7 +726,7 @@ async def get_contact_messages_endpoint(current_admin: dict = Depends(get_curren
         
         messages = []
         rows = cursor.fetchall()
-        print(f"Found {len(rows)} contact messages")
+
         
         for row in rows:
             try:

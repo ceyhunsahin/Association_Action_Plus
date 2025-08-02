@@ -30,7 +30,7 @@ const AdminMembershipManagement = () => {
   const fetchAllMembers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/admin/members', {
+              const response = await fetch('https://association-action-plus.onrender.com/api/admin/members', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
           'Content-Type': 'application/json'
@@ -62,7 +62,7 @@ const AdminMembershipManagement = () => {
     }
     
     try {
-      const response = await fetch(`http://localhost:8000/api/admin/members/${selectedMember.id}/renew`, {
+              const response = await fetch(`https://association-action-plus.onrender.com/api/admin/members/${selectedMember.id}/renew`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -165,7 +165,7 @@ const AdminMembershipManagement = () => {
   // Fatura indir
   const handleDownloadInvoice = async (paymentId) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/admin/download-invoice/${paymentId}`, {
+              const response = await fetch(`https://association-action-plus.onrender.com/api/admin/download-invoice/${paymentId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         }
@@ -193,7 +193,7 @@ const AdminMembershipManagement = () => {
   // Membership ID ile fatura indir
   const handleDownloadInvoiceMembership = async (membershipId) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/admin/download-invoice-membership/${membershipId}`, {
+              const response = await fetch(`https://association-action-plus.onrender.com/api/admin/download-invoice-membership/${membershipId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         }

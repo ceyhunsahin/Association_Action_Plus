@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
         const storedUser = localStorage.getItem('user');
         
         if (storedToken && storedUser) {
-          console.log('Stored token found:', storedToken.substring(0, 15) + '...');
+  
           
           // Token ve kullanıcı bilgilerini state'e yükle
           setAccessToken(storedToken);
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
           // API istekleri için default header'ı ayarla
           axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
         } else {
-          console.log('No stored token found');
+  
           setIsAuthenticated(false);
         }
       } catch (error) {
@@ -129,7 +129,7 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       
-      console.log('Attempting login with:', email);
+
       
       const response = await axios.post('https://association-action-plus.onrender.com/api/auth/login', {
         email,
@@ -138,8 +138,7 @@ export const AuthProvider = ({ children }) => {
       
       const { access_token, user } = response.data;
       
-      console.log('Login successful, token:', access_token.substring(0, 10) + '...');
-      console.log('User:', user);
+      
       
       // Token ve kullanıcı bilgilerini sakla
       localStorage.setItem('accessToken', access_token);
@@ -183,7 +182,7 @@ export const AuthProvider = ({ children }) => {
         photoURL: result.user.photoURL
       };
       
-      console.log('Google user data:', userData);
+      
       
       try {
         // Backend'e gönder
@@ -220,7 +219,7 @@ export const AuthProvider = ({ children }) => {
       
       // Popup kapatma hatasını özel olarak ele al
       if (error.code === 'auth/popup-closed-by-user') {
-        console.log('User closed the popup window');
+
         // Bu hatayı sessizce geç, kullanıcıya hata gösterme
         return null;
       }
@@ -237,7 +236,7 @@ export const AuthProvider = ({ children }) => {
         // Eğer token varsa ve auth isteği değilse token ekle
         const token = localStorage.getItem('accessToken');
         if (token) {
-          console.log(`Adding token to request: ${config.url}`);
+  
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
@@ -251,18 +250,18 @@ export const AuthProvider = ({ children }) => {
       async (error) => {
         // 401 hatası alındığında
         if (error.response?.status === 401) {
-          console.log('401 error detected:', error.config.url);
+  
           
           // Eğer bu /api/users/me endpoint'i ise, sessizce hata döndür
           if (error.config.url.includes('/api/users/me')) {
-            console.log('Ignoring 401 for /api/users/me');
+
             return Promise.reject(error);
           }
           
           // Token'ı kontrol et
           const token = localStorage.getItem('accessToken');
           if (token) {
-            console.log('Token exists but got 401, trying to refresh...');
+
             try {
               // Token'ı yenilemeyi dene
               const response = await axios.post('/api/auth/refresh-token');
@@ -276,7 +275,7 @@ export const AuthProvider = ({ children }) => {
               return axios(error.config);
             } catch (refreshError) {
               // Token yenileme başarısız olursa sessizce devam et
-              console.log('Token refresh failed, continuing...');
+  
               return Promise.reject(error);
             }
           }
@@ -295,7 +294,7 @@ export const AuthProvider = ({ children }) => {
 
   // Çıkış
   const logout = () => {
-    console.log('Logging out user');
+    
     localStorage.removeItem('accessToken');
     localStorage.removeItem('user');
     delete axios.defaults.headers.common['Authorization'];

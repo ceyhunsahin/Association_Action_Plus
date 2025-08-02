@@ -38,7 +38,7 @@ const Contact = () => {
     }
     
     try {
-      const response = await fetch('http://localhost:8000/api/contact', {
+      const response = await fetch('https://association-action-plus.onrender.com/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

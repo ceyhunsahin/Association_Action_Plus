@@ -41,7 +41,7 @@ const Events = () => {
             const token = localStorage.getItem('accessToken');
             if (!token) return;
             
-            console.log('Fetching user events...');
+    
             
             const response = await axios.get('https://association-action-plus.onrender.com/api/users/me/events', {
                 headers: {
@@ -50,12 +50,12 @@ const Events = () => {
                 }
             });
             
-            console.log('User events response:', response.data);
+
             setUserEvents(response.data.events || []);
         } catch (error) {
             // 401 hatası için sessizce devam et
             if (error.response?.status === 401) {
-                console.log('Not authenticated, skipping user events fetch');
+
                 return;
             }
             
@@ -97,7 +97,7 @@ const Events = () => {
 
     // Tüm etkinlikleri çek - Component mount olduğunda çalışır
     useEffect(() => {
-        console.log('Events component mounted');
+
         fetchEvents();
     }, []);
 
@@ -186,7 +186,7 @@ const Events = () => {
                 const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
                 if (!token) return;
                 
-                console.log('Using token for checking participation:', token);
+
                 
                 const response = await axios.get('https://association-action-plus.onrender.com/api/users/me/events', {
                     headers: {
@@ -195,11 +195,11 @@ const Events = () => {
                 });
                 
                 const userEvents = response.data.events || [];
-                console.log('User events:', userEvents);
+
                 
                 // Kullanıcının katıldığı etkinliklerin ID'lerini al
                 const participatedEventIds = userEvents.map(event => String(event.id || event._id));
-                console.log('Participated event IDs:', participatedEventIds);
+
                 
                 // Etkinlikleri güncelle, kullanıcının katıldığı etkinlikleri işaretle
                 setEvents(prevEvents => prevEvents.map(event => ({
@@ -240,8 +240,7 @@ const Events = () => {
             const event = events.find(e => String(e.id) === String(eventId) || String(e._id) === String(eventId));
             const isAlreadyRegistered = event?.isParticipating;
             
-            console.log('Event:', event);
-            console.log('Is already registered:', isAlreadyRegistered);
+
             
             // Token'ı al
             const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
@@ -253,8 +252,7 @@ const Events = () => {
             
             // Eğer zaten kayıtlıysa, kaydı sil
             if (isAlreadyRegistered) {
-                console.log('Leaving event with ID:', eventId);
-                console.log('Using token for leaving event:', token.substring(0, 10) + '...');
+
                 
                 try {
                     const response = await axios({
@@ -266,7 +264,7 @@ const Events = () => {
                         }
                     });
                     
-                    console.log('Leave event response:', response.data);
+
                     
                     // Başarılı mesajı göster
                     setSuccessMessage('Vous êtes désinscrit de cet événement!');
@@ -305,8 +303,7 @@ const Events = () => {
             } 
             // Değilse, etkinliğe katıl
             else {
-                console.log('Joining event with ID:', eventId);
-                console.log('Using token for joining event:', token.substring(0, 10) + '...');
+
                 
                 try {
                     const response = await axios({
@@ -319,7 +316,7 @@ const Events = () => {
                         data: {}
                     });
                     
-                    console.log('Join event response:', response.data);
+
                     
                     // Başarılı mesajı göster
                     setSuccessMessage('Vous êtes inscrit à cet événement!');
@@ -403,8 +400,7 @@ const Events = () => {
 
     // Etkinlik kartına tıklama işlemi için debug
     const handleEventClick = (event) => {
-        console.log("Tıklanan etkinlik:", event);
-        console.log("Yönlendirme URL'i:", `/events/${event._id || event.id}`);
+
         // navigate(`/events/${event._id || event.id}`);
     };
 

@@ -77,17 +77,16 @@ def create_refresh_token(data: dict):
 # Token doğrulama ve kullanıcı alma
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
-        print("[DEBUG] Verifying token")
+    
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
         role = payload.get("role")
         
-        print(f"[DEBUG] Token payload: {payload}")
-        print(f"[DEBUG] Email: {email}, Role: {role}")
+
         
         # Admin kontrolü - token'daki role bilgisini kullan
         if email == "admin@admin" and role == "admin":
-            print("[DEBUG] Admin token verified")
+    
             return {
                 "id": 1,
                 "email": "admin@admin",

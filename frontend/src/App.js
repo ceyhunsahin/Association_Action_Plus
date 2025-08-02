@@ -29,6 +29,10 @@ import AdminMembershipManagement from './components/pages/AdminMembershipManagem
 import './App.css';
 
 function App() {
+  React.useEffect(() => {
+    console.log('LA TAHZEN');
+  }, []);
+
   return (
     <AuthProvider>
       <Router>

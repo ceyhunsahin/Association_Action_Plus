@@ -1,11 +1,32 @@
 services:
   - type: web
-    name: association-api
+    name: association-backend
     env: python
-    buildCommand: ""
-    startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
     plan: free
+    branch: master
+    rootDir: .
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
     envVars:
+      - key: EMAIL_HOST
+        value: smtp.hostinger.com
+      - key: EMAIL_PORT
+        value: 465
+      - key: EMAIL_USER
+        value: contact@actionplusmetz.org
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: DATABASE_URL
+        value: sqlite:///./association.db
+      - key: JWT_SECRET_KEY
+        value: ceyhunsahin
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
+      - key: HOST
+        value: 0.0.0.0
       - key: PORT
-        value: 10000
-    autoDeploy: true
+        value: 8000
+      - key: FIREBASE_API_KEY
+        value: AIzaSyAQxAEcxJB8A8Wmd5-uEKRf7mnry2wsEi4

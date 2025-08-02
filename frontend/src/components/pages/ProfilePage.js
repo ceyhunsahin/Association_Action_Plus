@@ -79,7 +79,7 @@ const ProfilePage = () => {
     if (!accessToken || user?.role !== 'admin') return;
     
     try {
-      const response = await axios.get('http://localhost:8000/api/admin/contact-messages', {
+      const response = await axios.get('https://association-action-plus.onrender.com/api/admin/contact-messages', {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -96,7 +96,7 @@ const ProfilePage = () => {
     if (!accessToken || user?.role !== 'admin') return;
     
     try {
-      await axios.put(`http://localhost:8000/api/admin/contact-messages/${messageId}/read`, {}, {
+      await axios.put(`https://association-action-plus.onrender.com/api/admin/contact-messages/${messageId}/read`, {}, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }

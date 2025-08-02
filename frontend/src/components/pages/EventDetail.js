@@ -56,7 +56,7 @@ const EventDetail = () => {
   const checkRegistration = async () => {
     if (user && accessToken) {
       try {
-        console.log("Checking registration for user:", user.id, "event:", id);
+
         const response = await axios.get(
           `https://association-action-plus.onrender.com/api/events/${id}/check-registration`,
           {
@@ -65,7 +65,7 @@ const EventDetail = () => {
             }
           }
         );
-        console.log("Registration check response:", response.data);
+        
         setIsRegistered(response.data.registered);
       } catch (err) {
         console.error('Error checking registration:', err);
@@ -98,7 +98,7 @@ const EventDetail = () => {
   const handleRegister = async () => {
     try {
       setLoading(true);
-      console.log(`Registering for event ${id}`);
+      
       
       // Kullanıcı giriş yapmış mı kontrol et
       if (!user || !accessToken) {
@@ -111,12 +111,11 @@ const EventDetail = () => {
       }
       
       // Token'ı kontrol et
-      console.log('Using access token:', accessToken);
-      console.log('User from context:', user);
+      
       
       // localStorage'dan token'ı al
       const localToken = localStorage.getItem('token');
-      console.log('Token from localStorage:', localToken);
+      
       
       // Etkinliğe katıl - localStorage'dan token'ı kullan
       const response = await axios({
@@ -128,7 +127,7 @@ const EventDetail = () => {
         }
       });
       
-      console.log('Registration response:', response.data);
+      
       setIsRegistered(true);
       setSuccessMessage('Vous êtes inscrit à cet événement!');
       
@@ -163,7 +162,7 @@ const EventDetail = () => {
   const handleUnregister = async () => {
     try {
       setLoading(true);
-      console.log(`Unregistering from event ${id}`);
+      
       
       const response = await axios.delete(
         `https://association-action-plus.onrender.com/api/events/${id}/register`,
@@ -174,7 +173,7 @@ const EventDetail = () => {
         }
       );
       
-      console.log('Unregister response:', response.data);
+      
       setIsRegistered(false);
       setSuccessMessage('Vous êtes désinscrit de cet événement!');
       
