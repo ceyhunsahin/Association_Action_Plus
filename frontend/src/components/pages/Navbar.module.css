@@ -180,10 +180,10 @@
 .navLinks {
   display: flex;
   flex-direction: row;
-  gap: 1.6rem;
+  gap: 1.2rem;
   align-items: center;
   height: 100%;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .navLink {
@@ -610,15 +610,19 @@
 
 /* Responsive Ayarlar */
 @media (max-width: 1200px) {
+  .navLinks {
+    gap: 1rem;
+  }
+  
   .navLink {
     font-size: 0.85rem;
     padding: 0.5rem 0.8rem;
   }
   
   .navLink[href*="admin"], .navLink[href*="create"] {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     padding: 0.4rem 0.6rem;
-    max-width: 140px;
+    max-width: 130px;
   }
 }
 
@@ -652,15 +656,19 @@
 }
 
 @media (max-width: 768px) {
+  .navLinks {
+    gap: 0.8rem;
+  }
+  
   .navLink {
     font-size: 0.8rem;
     padding: 0.4rem 0.6rem;
   }
   
   .navLink[href*="admin"], .navLink[href*="create"] {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     padding: 0.3rem 0.5rem;
-    max-width: 120px;
+    max-width: 110px;
   }
 }
 
@@ -769,19 +777,19 @@ body.home-page {
 
 /* Admin linkleri için özel stil */
 .navLink[href*="admin"], .navLink[href*="create"] {
-  font-size: 0.7rem !important;
+  font-size: 0.65rem !important;
   font-weight: 700 !important;
   color: #4CAF50 !important;
-  padding: 0.6rem 1rem !important;
+  padding: 0.5rem 0.8rem !important;
   background-color: transparent !important;
   border: none !important;
   margin: 0 0.1rem;
-  max-width: 160px;
+  max-width: 150px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   text-transform: uppercase;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.1px;
   min-width: fit-content;
 }
 
