@@ -609,6 +609,19 @@
 }
 
 /* Responsive Ayarlar */
+@media (max-width: 1200px) {
+  .navLink {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.8rem;
+  }
+  
+  .navLink[href*="admin"], .navLink[href*="create"] {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
+    max-width: 140px;
+  }
+}
+
 @media (max-width: 992px) {
   .navSection, .authSection {
     display: none;
@@ -635,6 +648,19 @@
   
   .navbarMobile {
     display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .navLink {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .navLink[href*="admin"], .navLink[href*="create"] {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.5rem;
+    max-width: 120px;
   }
 }
 
@@ -750,12 +776,13 @@ body.home-page {
   background-color: transparent !important;
   border: none !important;
   margin: 0 0.1rem;
-  max-width: 140px;
+  max-width: 160px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   text-transform: uppercase;
   letter-spacing: 0.2px;
+  min-width: fit-content;
 }
 
 .navLink[href*="admin"]:hover, .navLink[href*="create"]:hover {

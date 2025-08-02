@@ -9,7 +9,7 @@ import {
   signInWithRedirect,
   getRedirectResult
 } from 'firebase/auth';
-import { auth } from '../firebase/config';
+import { auth, googleProvider } from '../firebase/config';
 
 // AuthContext'i oluştur
 const AuthContext = createContext();
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
   // Normal kayıt
   const register = async (userData) => {
     try {
-      const response = await axios.post('https://association-action-plus.onrender.com/api/auth/register', userData);
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com'}/api/auth/register`, userData);
       
       if (response.data && response.data.access_token) {
         const { access_token, user } = response.data;
@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }) => {
       
 
       
-      const response = await axios.post('https://association-action-plus.onrender.com/api/auth/login', {
+              const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com'}/api/auth/login`, {
         email,
         password
       });
@@ -165,10 +165,8 @@ export const AuthProvider = ({ children }) => {
   // Google ile giriş
   const loginWithGoogle = async () => {
     try {
-      const provider = new GoogleAuthProvider();
-      
       // Popup kullan (daha güvenilir)
-      const result = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, googleProvider);
       
       if (!result) {
         console.error('No result from Google login');
@@ -182,11 +180,9 @@ export const AuthProvider = ({ children }) => {
         photoURL: result.user.photoURL
       };
       
-      
-      
       try {
         // Backend'e gönder
-        const response = await axios.post('https://association-action-plus.onrender.com/api/auth/google-login', {
+        const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com'}/api/auth/google-login`, {
           userData: userData
         });
         
@@ -219,7 +215,6 @@ export const AuthProvider = ({ children }) => {
       
       // Popup kapatma hatasını özel olarak ele al
       if (error.code === 'auth/popup-closed-by-user') {
-
         // Bu hatayı sessizce geç, kullanıcıya hata gösterme
         return null;
       }

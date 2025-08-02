@@ -86,7 +86,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchLatestEvents = async () => {
       try {
-        const response = await axios.get('https://association-action-plus.onrender.com/api/events');
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com'}/api/events`);
         // Son 4 etkinliği al
         const latest = response.data.slice(0, 3);
         setLatestEvents(latest);
