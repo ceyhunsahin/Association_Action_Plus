@@ -693,7 +693,7 @@ async def contact_endpoint(contact_data: dict = Body(...)):
         email_sent = send_email("contact@actionplusmetz.org", subject, email_content)
         
         if email_sent:
-    
+            pass
         else:
             print(f"Failed to send email to: contact@actionplusmetz.org")
             print("Check SMTP settings and credentials")
