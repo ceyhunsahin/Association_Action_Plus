@@ -743,7 +743,7 @@ async def get_contact_messages_endpoint(current_admin: dict = Depends(get_curren
                         "status": row.get("status")
                     })
                 else:
-                    # Tuple formatında geliyorsa
+son                    # Tuple formatında geliyorsa
                     messages.append({
                         "id": row[0],
                         "name": row[1],

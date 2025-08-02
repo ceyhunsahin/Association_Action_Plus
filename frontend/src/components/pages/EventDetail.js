@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import styles from './EventDetail.module.css';
@@ -38,7 +38,7 @@ const EventDetail = () => {
   };
 
   // Etkinlik resimlerini hazırla - sadece admin'in yüklediği gerçek resimler
-  const getEventImages = () => {
+  const getEventImages = useCallback(() => {
     if (event && event.images && event.images.length > 0) {
       // Backend'den gelen resim URL'lerini tam URL'ye çevir
       return event.images.map(img => getImageUrl(img)).filter(Boolean);
@@ -50,7 +50,7 @@ const EventDetail = () => {
       // Hiç resim yoksa boş array döndür
       return [];
     }
-  };
+  }, [event]);
 
   // Kullanıcının etkinliğe kayıtlı olup olmadığını kontrol et
   const checkRegistration = async () => {
@@ -194,19 +194,27 @@ const EventDetail = () => {
   };
 
   // Carousel için önceki resme git
-  const prevImage = () => {
-    setCurrentImageIndex((currentImageIndex - 1 + getEventImages().length) % getEventImages().length);
-  };
+  const prevImage = useCallback(() => {
+    const images = getEventImages();
+    if (images.length > 0) {
+      setCurrentImageIndex((currentImageIndex - 1 + images.length) % images.length);
+    }
+  }, [currentImageIndex, getEventImages]);
 
   // Carousel için sonraki resme git
-  const nextImage = () => {
-    setCurrentImageIndex((currentImageIndex + 1) % getEventImages().length);
-  };
+  const nextImage = useCallback(() => {
+    const images = getEventImages();
+    if (images.length > 0) {
+      setCurrentImageIndex((currentImageIndex + 1) % images.length);
+    }
+  }, [currentImageIndex, getEventImages]);
 
   // Carousel için görüntülenecek resimlerin indekslerini hesapla
-  const getImageIndexes = () => {
+  const getImageIndexes = useCallback(() => {
     const indexes = [];
     const totalImages = getEventImages().length;
+    
+    if (totalImages === 0) return [];
     
     // Ortadaki resim (mevcut indeks)
     indexes.push(currentImageIndex);
@@ -224,7 +232,7 @@ const EventDetail = () => {
     }
     
     return indexes;
-  };
+  }, [currentImageIndex, getEventImages]);
 
   // Etkinlikler sayfasına dönüş
   const handleBackToEvents = () => {
@@ -293,7 +301,7 @@ const EventDetail = () => {
           <div className={styles.carouselTrack} ref={carouselRef}>
             {getImageIndexes().map((imageIndex, i) => (
               <div 
-                key={imageIndex}
+                key={`${imageIndex}-${i}`}
                 className={`${styles.carouselSlide} ${
                   i === 2 ? styles.activeSlide : 
                   i < 2 ? styles.leftSlide : styles.rightSlide
@@ -306,6 +314,9 @@ const EventDetail = () => {
                   src={getEventImages()[imageIndex]} 
                   alt={`Vue de l'événement ${imageIndex + 1}`} 
                   className={styles.carouselImage}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
                 />
               </div>
             ))}
