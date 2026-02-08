@@ -424,7 +424,7 @@
 .registerButton, .unregisterButton {
   position: relative;
   overflow: hidden;
-  padding: 0.75rem 1.75rem;
+  padding: 0.6rem 1.3rem;
   border-radius: 50px;
   font-weight: 600;
   text-align: center;
@@ -437,8 +437,8 @@
   gap: 0.5rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   border: none;
-  font-size: 1rem;
-  min-width: 180px;
+  font-size: 0.95rem;
+  min-width: 150px;
 }
 
 .registerButton {
@@ -507,7 +507,7 @@
 .shareButton {
   position: relative;
   overflow: hidden;
-  padding: 0.75rem 1.75rem;
+  padding: 0.6rem 1.3rem;
   border-radius: 50px;
   font-weight: 600;
   text-align: center;
@@ -520,8 +520,8 @@
   gap: 0.5rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   border: none;
-  font-size: 1rem;
-  min-width: 200px;
+  font-size: 0.95rem;
+  min-width: 160px;
   background: linear-gradient(135deg, #1b5e20, #2e7d32);
   color: white;
 }
@@ -546,7 +546,7 @@
 .loginButton, .backButton {
   position: relative;
   overflow: hidden;
-  padding: 0.75rem 1.75rem;
+  padding: 0.6rem 1.3rem;
   border-radius: 50px;
   font-weight: 600;
   text-align: center;

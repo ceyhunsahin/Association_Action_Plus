@@ -80,6 +80,14 @@ input, textarea, select {
 
 /* Mobilde buton ve input boyutlarını küçült */
 @media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .App {
+    overflow-x: hidden;
+  }
+
   button, .btn {
     font-size: 0.95rem;
     padding: 0.6rem 1rem;
