@@ -127,6 +127,8 @@
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s;
+  font-size: 0.95rem;
+  padding: 0.35rem 0.8rem;
 }
 
 .backButton:hover {
@@ -418,6 +420,7 @@
   display: flex;
   gap: 1rem;
   margin-top: 2rem;
+  flex-wrap: wrap;
 }
 
 /* Butonlar için gelişmiş stiller */
@@ -557,7 +560,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-width: 180px;
+  min-width: 150px;
 }
 
 .loginButton {
@@ -621,11 +624,13 @@
   }
   
   .eventActions {
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: center;
   }
   
   .registerButton, .unregisterButton, .loginButton, .backButton, .shareButton {
-    width: 100%;
+    width: auto;
+    max-width: 260px;
   }
 }
 
@@ -650,13 +655,15 @@
   }
   
   .eventActions {
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: center;
   }
   
-.registerButton, .unregisterButton, .loginButton, .backButton, .shareButton {
-  width: 100%;
-  margin-bottom: 10px;
-}
+  .registerButton, .unregisterButton, .loginButton, .backButton, .shareButton {
+    width: auto;
+    max-width: 260px;
+    margin-bottom: 10px;
+  }
 }
 
 .eventVideos {
