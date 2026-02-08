@@ -14,6 +14,8 @@ const HomePage = () => {
   const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
   const [stats, setStats] = useState({
     events: 0,
+    eventsUpcoming: 0,
+    eventsPast: 0,
     members: 0,
     visitors: 0
   });
@@ -126,17 +128,23 @@ const HomePage = () => {
         if (response?.data) {
           setStats({
             events: response.data.events ?? 0,
+            eventsUpcoming: response.data.events_upcoming ?? 0,
+            eventsPast: response.data.events_past ?? 0,
             members: response.data.members ?? 0,
             visitors: response.data.visitors ?? 0
           });
         }
       } catch {
-        // ignore stats errors
+        // Fallback: en azından etkinlik sayısını göster
+          setStats((prev) => ({
+            ...prev,
+            events: Array.isArray(latestEvents) ? latestEvents.length : prev.events
+          }));
       }
     };
 
     trackAndFetchStats();
-  }, []);
+  }, [latestEvents]);
 
   // Tarih formatını düzenleyen yardımcı fonksiyon
   const formatDate = (dateString) => {
@@ -236,6 +244,22 @@ const HomePage = () => {
               </div>
               <div className={styles.statNumber}>{stats.events}</div>
               <div className={styles.statLabel}>Événements organisés</div>
+            </div>
+
+            <div className={styles.statItem}>
+              <div className={styles.statIcon}>
+                <FaCalendarAlt />
+              </div>
+              <div className={styles.statNumber}>{stats.eventsUpcoming}</div>
+              <div className={styles.statLabel}>Événements à venir</div>
+            </div>
+
+            <div className={styles.statItem}>
+              <div className={styles.statIcon}>
+                <FaCalendarAlt />
+              </div>
+              <div className={styles.statNumber}>{stats.eventsPast}</div>
+              <div className={styles.statLabel}>Événements passés</div>
             </div>
             
             <div className={styles.statItem}>

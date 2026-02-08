@@ -70,6 +70,11 @@ const EventDetail = () => {
         if (url) media.push({ type: 'video', url });
       });
     }
+    if (media.length === 0 && event) {
+      getDummyImages(event).forEach((url) => {
+        media.push({ type: 'image', url });
+      });
+    }
     return media;
   }, [event]);
 
@@ -80,6 +85,66 @@ const EventDetail = () => {
     }
     return [];
   }, [event]);
+
+  const getDummyImages = (evt) => {
+    const title = (evt?.title || '').toLowerCase();
+    const base = [
+      'https://images.unsplash.com/flagged/photo-1570569444087-3cf1c333a010?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80'
+    ];
+
+    if (title.includes('dîner') || title.includes('diner') || title.includes('ramadan')) {
+      return [
+        'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80'
+      ];
+    }
+    if (title.includes('pique') || title.includes('piquenique') || title.includes('pique-nique')) {
+      return [
+        'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80'
+      ];
+    }
+    if (title.includes('lecture') || title.includes('discussion')) {
+      return [
+        'https://images.unsplash.com/photo-1457694587812-e8bf29a43845?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1474932430478-367dbb6832c1?auto=format&fit=crop&w=1200&q=80'
+      ];
+    }
+    if (title.includes('aide') || title.includes('devoirs')) {
+      return [
+        'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80'
+      ];
+    }
+    if (title.includes('kermesse')) {
+      return [
+        'https://images.unsplash.com/photo-1520975916090-3105956dac38?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1520975922284-0b1b3c2c9a9b?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80'
+      ];
+    }
+    if (title.includes('séminaire') || title.includes('seminaire') || title.includes('conférence')) {
+      return [
+        'https://images.unsplash.com/photo-1503428593586-e225b39bddfe?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80'
+      ];
+    }
+    if (title.includes('assemblée') || title.includes('assemblee')) {
+      return [
+        'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80'
+      ];
+    }
+    return base;
+  };
 
   // Kullanıcının etkinliğe kayıtlı olup olmadığını kontrol et
   const checkRegistration = async () => {

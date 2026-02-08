@@ -3,12 +3,13 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 // Firebase yapılandırma bilgileri
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "AIzaSyAQxAEcxJB8A8Wmd5-uEKRf7mnry2wsEi4",
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "metz-actionplus.firebaseapp.com",
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "metz-actionplus",
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "metz-actionplus.appspot.com",
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "123456789012",
-  appId: process.env.REACT_APP_FIREBASE_APP_ID || "1:123456789012:web:abcdef1234567890"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "AIzaSyBDAbFvTDb_P7-A2G_aiEjSnKgP2yLxSMM",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "actionplusmetz.firebaseapp.com",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "actionplusmetz",
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "actionplusmetz.firebasestorage.app",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "237117945539",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "1:237117945539:web:259a96b99a693aa1dfd476",
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || "G-GEVR2FTVKQ"
 };
 
 // Firebase'i başlat

@@ -758,20 +758,26 @@ def get_site_stats():
     conn = get_db()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT COUNT(*) FROM events")
-        events_count = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) as cnt FROM events WHERE status = 'active'")
+        events_count = cursor.fetchone()["cnt"]
 
-        cursor.execute("SELECT COUNT(*) FROM memberships WHERE status = 'active'")
-        members_active = cursor.fetchone()[0]
-        if not members_active:
-            cursor.execute("SELECT COUNT(*) FROM users WHERE role != 'admin'")
-            members_active = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) as cnt FROM events WHERE status = 'active' AND date >= date('now')")
+        upcoming_count = cursor.fetchone()["cnt"]
 
-        cursor.execute("SELECT COUNT(*) FROM visitors")
-        visitors_count = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) as cnt FROM events WHERE status = 'active' AND date < date('now')")
+        past_count = cursor.fetchone()["cnt"]
+
+        # Aktif üye sayısı: admin hariç tüm kullanıcılar
+        cursor.execute("SELECT COUNT(*) as cnt FROM users WHERE role != 'admin'")
+        members_active = cursor.fetchone()["cnt"]
+
+        cursor.execute("SELECT COUNT(*) as cnt FROM visitors")
+        visitors_count = cursor.fetchone()["cnt"]
 
         return {
             "events": events_count,
+            "events_upcoming": upcoming_count,
+            "events_past": past_count,
             "members": members_active,
             "visitors": visitors_count
         }

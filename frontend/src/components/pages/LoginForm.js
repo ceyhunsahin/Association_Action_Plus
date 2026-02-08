@@ -79,9 +79,11 @@ const LoginForm = () => {
             
             // Hata mesajını göster
             if (err.code === 'auth/popup-blocked') {
-                setError('Tarayıcınız popup penceresini engelledi. Lütfen popup izinlerini kontrol edin.');
+                setError('Votre navigateur a bloqué la fenêtre popup. Veuillez autoriser les popups pour ce site.');
+            } else if (err.code === 'auth/unauthorized-domain') {
+                setError('Domaine non autorisé pour la connexion Google. Veuillez contacter l’administrateur.');
             } else {
-                setError(err.response?.data?.detail || 'Google ile giriş yapılırken bir hata oluştu');
+                setError(err.response?.data?.detail || 'Une erreur est survenue lors de la connexion avec Google.');
             }
             
             setLoading(false);

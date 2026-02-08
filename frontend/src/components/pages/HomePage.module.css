@@ -644,6 +644,15 @@
     position: relative;
     z-index: 2;
   }
+
+  .statSubLabel {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.85rem;
+    color: #a1887f;
+    margin-top: 4px;
+    position: relative;
+    z-index: 2;
+  }
   
   /* Rakamların görünürlüğünü artırmak için ek stiller */
   .statItem::before {
