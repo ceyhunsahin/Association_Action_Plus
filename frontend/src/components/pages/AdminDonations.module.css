@@ -10,6 +10,32 @@
   color: #333;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pendingBadge {
+  background: #ffb74d;
+  color: #4e342e;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.pendingAlert {
+  margin: 0.5rem 0 1rem;
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  color: #856404;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+}
+
 .loading {
   color: #6c757d;
 }

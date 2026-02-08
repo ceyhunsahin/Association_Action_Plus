@@ -118,27 +118,6 @@ async def track_visit_endpoint(request: Request):
 async def get_stats_endpoint():
     return get_site_stats()
 
-# Frontend build'i varsa aynı backend üzerinden servis et (SPA)
-FRONTEND_BUILD_DIR = Path(__file__).resolve().parent.parent / "frontend" / "build"
-if FRONTEND_BUILD_DIR.exists():
-    app.mount(
-        "/static",
-        StaticFiles(directory=str(FRONTEND_BUILD_DIR / "static")),
-        name="static",
-    )
-
-    @app.get("/{full_path:path}")
-    async def serve_spa(full_path: str):
-        # API ve upload yollarını SPA fallback'inden hariç tut
-        if full_path.startswith("api/") or full_path.startswith("uploads/"):
-            raise HTTPException(status_code=404, detail="Not Found")
-
-        file_path = FRONTEND_BUILD_DIR / full_path
-        if full_path and file_path.is_file():
-            return FileResponse(file_path)
-
-        return FileResponse(FRONTEND_BUILD_DIR / "index.html")
-
 # Üyelik endpoint'leri
 @app.get("/api/membership/my-membership")
 async def get_my_membership_endpoint(current_user: dict = Depends(get_current_user)):
@@ -1060,6 +1039,27 @@ async def mark_message_as_read_endpoint(message_id: int, current_admin: dict = D
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to mark message as read"
         )
+
+# Frontend build'i varsa aynı backend üzerinden servis et (SPA)
+FRONTEND_BUILD_DIR = Path(__file__).resolve().parent.parent / "frontend" / "build"
+if FRONTEND_BUILD_DIR.exists():
+    app.mount(
+        "/static",
+        StaticFiles(directory=str(FRONTEND_BUILD_DIR / "static")),
+        name="static",
+    )
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # API ve upload yollarını SPA fallback'inden hariç tut
+        if full_path.startswith("api/") or full_path.startswith("uploads/"):
+            raise HTTPException(status_code=404, detail="Not Found")
+
+        file_path = FRONTEND_BUILD_DIR / full_path
+        if full_path and file_path.is_file():
+            return FileResponse(file_path)
+
+        return FileResponse(FRONTEND_BUILD_DIR / "index.html")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

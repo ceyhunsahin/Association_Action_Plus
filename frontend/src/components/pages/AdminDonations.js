@@ -52,9 +52,21 @@ const AdminDonations = () => {
     fetchDonations();
   }, []);
 
+  const pendingCount = donations.filter(d => (d.status || '').toUpperCase() !== 'COMPLETED').length;
+
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Dons</h1>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Dons</h1>
+        <div className={styles.pendingBadge}>
+          {pendingCount} en attente
+        </div>
+      </div>
+      {pendingCount > 0 && (
+        <div className={styles.pendingAlert}>
+          Vous avez <strong>{pendingCount}</strong> don(s) en attente de validation.
+        </div>
+      )}
       {loading && <div className={styles.loading}>Chargement...</div>}
       {error && <div className={styles.error}>{error}</div>}
       <div className={styles.list}>

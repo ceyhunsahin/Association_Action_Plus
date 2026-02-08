@@ -28,6 +28,17 @@
   font-size: 1.1rem;
 }
 
+.guestNote {
+  font-size: 0.95rem;
+  color: #4e342e;
+  background: rgba(200, 169, 126, 0.2);
+  border: 1px solid rgba(200, 169, 126, 0.5);
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
 .donateFormContainer {
   display: flex;
   flex-wrap: wrap;

@@ -78,6 +78,38 @@ input, textarea, select {
   font-family: 'Montserrat', sans-serif;
 }
 
+/* Mobilde buton ve input boyutlarını küçült */
+@media (max-width: 768px) {
+  button, .btn {
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+    line-height: 1.2;
+    max-width: 100%;
+  }
+
+  input, textarea, select {
+    font-size: 0.95rem;
+    padding: 0.55rem 0.75rem;
+    max-width: 100%;
+  }
+
+  button svg, .btn svg {
+    font-size: 1em;
+  }
+}
+
+@media (max-width: 480px) {
+  button, .btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.9rem;
+  }
+
+  input, textarea, select {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.7rem;
+  }
+}
+
 /* Özel sınıflar */
 .title {
   font-weight: 700;

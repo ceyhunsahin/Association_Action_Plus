@@ -595,6 +595,7 @@ const DonatePage = () => {
         <FaHandHoldingHeart className={styles.donateIcon} />
         <h1>Faire un don</h1>
         <p>Votre soutien est essentiel pour nous permettre de continuer à promouvoir la culture et soutenir les artistes.</p>
+        <p className={styles.guestNote}>Vous pouvez faire un don sans créer de compte.</p>
       </div>
       
       <div className={styles.donateFormContainer}>
