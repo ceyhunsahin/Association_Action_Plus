@@ -503,6 +503,45 @@
   left: 100%;
 }
 
+/* Share button */
+.shareButton {
+  position: relative;
+  overflow: hidden;
+  padding: 0.75rem 1.75rem;
+  border-radius: 50px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border: none;
+  font-size: 1rem;
+  min-width: 200px;
+  background: linear-gradient(135deg, #1b5e20, #2e7d32);
+  color: white;
+}
+
+.shareButton:hover {
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(46, 125, 50, 0.3);
+}
+
+.shareBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+}
+
 /* Login ve Back butonları için de benzer stiller */
 .loginButton, .backButton {
   position: relative;
@@ -585,7 +624,7 @@
     flex-direction: column;
   }
   
-  .registerButton, .unregisterButton, .loginButton, .backButton {
+  .registerButton, .unregisterButton, .loginButton, .backButton, .shareButton {
     width: 100%;
   }
 }
@@ -614,7 +653,7 @@
     flex-direction: column;
   }
   
-.registerButton, .unregisterButton, .loginButton, .backButton {
+.registerButton, .unregisterButton, .loginButton, .backButton, .shareButton {
   width: 100%;
   margin-bottom: 10px;
 }

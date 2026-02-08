@@ -68,6 +68,15 @@ const Navbar = () => {
     setAdminMenuOpen(false);
   };
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('menu-open');
+    } else {
+      document.body.classList.remove('menu-open');
+    }
+    return () => document.body.classList.remove('menu-open');
+  }, [isOpen]);
+
   // Kullanıcı adını belirleme fonksiyonu
   const getUserDisplayName = () => {
     if (!user) return '';

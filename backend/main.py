@@ -33,7 +33,13 @@ app = FastAPI()
 # CORS ayarları
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Tüm originlere izin ver (geliştirme için)
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://actionplusmetz.fly.dev",
+    ],
     allow_credentials=True,
     allow_methods=["*"],  # Tüm HTTP metodlarına izin ver
     allow_headers=["*"],  # Tüm headerlara izin ver
@@ -98,10 +104,14 @@ app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 # Ziyaretçi ve istatistik endpointleri
 @app.post("/api/visits/track")
 async def track_visit_endpoint(request: Request):
-    forwarded = request.headers.get("x-forwarded-for", "")
-    client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "")
-    total = track_visit(client_ip)
-    return {"visitors": total}
+    try:
+        forwarded = request.headers.get("x-forwarded-for", "")
+        client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "")
+        total = track_visit(client_ip)
+        return {"visitors": total}
+    except Exception:
+        # Fail soft for stats tracking
+        return {"visitors": 0}
 
 
 @app.get("/api/stats")

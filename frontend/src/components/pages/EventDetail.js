@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import styles from './EventDetail.module.css';
 import { useAuth } from '../../context/AuthContext';
-import { FaCalendarAlt, FaUsers, FaChevronLeft, FaChevronRight, FaSignInAlt, FaSignOutAlt, FaArrowLeft, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaCalendarAlt, FaUsers, FaChevronLeft, FaChevronRight, FaSignInAlt, FaSignOutAlt, FaArrowLeft, FaEdit, FaTrash, FaShareAlt, FaWhatsapp } from 'react-icons/fa';
 
 // Loader fonksiyonu
 export async function loader({ params }) {
@@ -354,6 +354,21 @@ const EventDetail = () => {
     }
   };
 
+  const handleShare = () => {
+    const shareUrl = window.location.href;
+    const shareText = `${event?.title || 'Événement'} - ${event?.location || ''} - ${event?.date || ''}`.trim();
+    if (navigator.share) {
+      navigator.share({
+        title: event?.title || 'Événement',
+        text: shareText,
+        url: shareUrl
+      }).catch(() => {});
+      return;
+    }
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`;
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+  };
+
   if (loading) return <div className={styles.loading}>Chargement...</div>;
   if (error) return <div className={styles.error}>{error}</div>;
   if (!event) return <div className={styles.error}>Événement non trouvé</div>;
@@ -493,6 +508,14 @@ const EventDetail = () => {
             </Link>
           )}
           
+          <button 
+            onClick={handleShare}
+            className={styles.shareButton}
+          >
+            <FaShareAlt /> Partager
+            <span className={styles.shareBadge}><FaWhatsapp /> WhatsApp</span>
+          </button>
+
           <button 
             onClick={handleBackToEvents} 
             className={styles.backButton}

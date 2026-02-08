@@ -87,6 +87,7 @@ const HomePage = () => {
   };
 
   useEffect(() => {
+    document.body.classList.add('home-page');
     const fetchLatestEvents = async () => {
       try {
         const response = await axios.get(`${baseUrl}/api/events`);
@@ -113,6 +114,9 @@ const HomePage = () => {
     };
 
     fetchLatestEvents();
+    return () => {
+      document.body.classList.remove('home-page');
+    };
   }, []);
 
   useEffect(() => {
@@ -194,20 +198,31 @@ const HomePage = () => {
           
           <div className={styles.heroContentWrapper}>
             <div className={styles.heroContent}>
-              <div className={styles.heroLogoContainer}>
-                <img 
-                  src="logo.svg" 
-                  alt="Action Plus Logo" 
-                  className={styles.heroLogo} 
-                />
-                <div className={styles.logoGlow}></div>
+              <div className={styles.heroTitleRow}>
+                <div className={styles.heroLogoContainer}>
+                  <img 
+                    src="logo.svg" 
+                    alt="Action Plus Logo" 
+                    className={styles.heroLogo} 
+                  />
+                  <div className={styles.logoGlow}></div>
+                </div>
+                
+                <h1 className={styles.heroTitle}>
+                  <span className={styles.titleFirstLetter}>A</span>CTION 
+                  <span className={styles.titleSpacer}></span>
+                  <span className={styles.titleFirstLetter}>P</span>LUS
+                </h1>
+
+                <div className={`${styles.heroLogoContainer} ${styles.heroLogoRight}`}>
+                  <img 
+                    src="logo.svg" 
+                    alt="Action Plus Logo" 
+                    className={styles.heroLogo} 
+                  />
+                  <div className={styles.logoGlow}></div>
+                </div>
               </div>
-              
-              <h1 className={styles.heroTitle}>
-                <span className={styles.titleFirstLetter}>A</span>CTION 
-                <span className={styles.titleSpacer}></span>
-                <span className={styles.titleFirstLetter}>P</span>LUS
-              </h1>
               
               <div className={styles.heroTaglineContainer}>
                 <p className={styles.heroTagline}>

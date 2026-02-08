@@ -15,6 +15,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: 0;
   }
   
   .heroBackground {
@@ -116,15 +117,43 @@
     text-align: center;
     animation: fadeIn 1.5s ease-out;
   }
-  
-  .heroLogoContainer {
-    position: relative;
-    margin: 0 auto 1.5rem;
-    width: 120px;
-    height: 120px;
+
+  .heroTitleRow {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 24px;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 5;
+  }
+
+  @media (min-width: 1024px) {
+    .heroContentWrapper {
+      padding-top: 4.6rem;
+    }
+
+    .heroTitleRow {
+      margin-top: 40px;
+    }
+  }
+  
+  .heroLogoContainer {
+    position: relative;
+    margin: 0;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    transform: translate(0, 0);
+    overflow: hidden;
+  }
+
+  .heroLogoRight {
+    transform: translate(0, 0);
   }
   
   .heroLogo {
@@ -509,12 +538,30 @@
   
   /* Responsive Tasarım */
   @media (max-width: 768px) {
+    .heroTitleRow {
+      flex-direction: row;
+      gap: 8px;
+      flex-wrap: nowrap;
+    }
+
+    .heroLogoContainer {
+      width: 52px;
+      height: 52px;
+      transform: translate(0, 0);
+    }
+
+    .heroLogoRight {
+      display: flex;
+      transform: translate(0, 0);
+    }
+
     .heroTitle {
-      font-size: 3rem;
+      font-size: 1.9rem;
+      letter-spacing: 0.08em;
     }
     
     .titleFirstLetter {
-      font-size: 3.5rem;
+      font-size: 2.3rem;
     }
     
     .taglineWord {
@@ -541,23 +588,18 @@
   }
   
   @media (max-width: 480px) {
+    .heroLogoContainer {
+      width: 52px;
+      height: 52px;
+    }
+
     .heroTitle {
-      font-size: 2.5rem;
-      letter-spacing: 0.1em;
+      font-size: 1.6rem;
+      letter-spacing: 0.06em;
     }
     
     .titleFirstLetter {
-      font-size: 3rem;
-    }
-    
-    .heroLogoContainer {
-      width: 100px;
-      height: 100px;
-    }
-    
-    .logoGlow {
-      width: 120px;
-      height: 120px;
+      font-size: 2rem;
     }
   }
   
@@ -1538,7 +1580,7 @@
     .heroSection {
       margin: 0;
       padding: 0.5rem;
-      margin-top: 70px; /* Navbar yüksekliği kadar margin */
+      margin-top: 0;
     }
     
     .heroContent {
