@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     const checkUserLoggedIn = async () => {
       try {
         setLoading(true);
-        const storedToken = localStorage.getItem('token');
+        const storedToken = localStorage.getItem('accessToken');
         const storedUser = localStorage.getItem('user');
         
         if (storedToken && storedUser) {
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         console.error('Error checking authentication:', error);
-        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
         localStorage.removeItem('user');
         delete axios.defaults.headers.common['Authorization'];
         setIsAuthenticated(false);
@@ -253,27 +253,15 @@ export const AuthProvider = ({ children }) => {
             return Promise.reject(error);
           }
           
-          // Token'ı kontrol et
-          const token = localStorage.getItem('accessToken');
-          if (token) {
-
-            try {
-              // Token'ı yenilemeyi dene
-              const response = await axios.post('/api/auth/refresh-token');
-              const { access_token } = response.data;
-              
-              localStorage.setItem('accessToken', access_token);
-              axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-              
-              // Orijinal isteği yeni token ile tekrarla
-              error.config.headers['Authorization'] = `Bearer ${access_token}`;
-              return axios(error.config);
-            } catch (refreshError) {
-              // Token yenileme başarısız olursa sessizce devam et
-  
-              return Promise.reject(error);
-            }
-          }
+          // Token yenileme devre dışı: kullanıcıyı çıkışa yönlendir
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('user');
+          delete axios.defaults.headers.common['Authorization'];
+          setUser(null);
+          setAccessToken(null);
+          setIsAdmin(false);
+          setIsAuthenticated(false);
+          return Promise.reject(error);
         }
         
         return Promise.reject(error);
@@ -292,6 +280,7 @@ export const AuthProvider = ({ children }) => {
     
     localStorage.removeItem('accessToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('lastDonationId');
     delete axios.defaults.headers.common['Authorization'];
     setUser(null);
     setAccessToken(null);

@@ -96,7 +96,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
             }
 
         # Normal kullanıcı kontrolü devam eder...
-        print(f"[DEBUG] Regular user token verification for: {email}")
         conn = get_db_connection()
         cursor = conn.cursor()
         
@@ -122,7 +121,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         return user_dict
     
     except JWTError as e:
-        print(f"[DEBUG] JWT Error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials"
@@ -131,7 +129,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 # Admin kullanıcısını kontrol et
 async def get_current_admin(current_user: dict = Depends(get_current_user)):
     """Admin kullanıcısını kontrol et"""
-    print(f"[DEBUG] Current user: {current_user}")
     if current_user["role"] != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -259,23 +256,18 @@ async def register(user: User):
 async def login(request: Request):
     try:
         data = await request.json()
-        email = data.get("email")
+        identifier = data.get("email")
         password = data.get("password")
         
-        print(f"[DEBUG] Login attempt for: {email}")
 
         # Admin kontrolü
-        if email == "admin@admin":
-            print("[DEBUG] Admin login attempt")
+        if identifier in ("admin@admin", "admin"):
             if password == "admin":
-                print("[DEBUG] Admin password verified")
                 token_data = {
                     "sub": "admin@admin",
                     "role": "admin"
                 }
-                print(f"[DEBUG] Creating admin token with data: {token_data}")
                 access_token = create_access_token(data=token_data)
-                print(f"[DEBUG] Admin token created: {access_token[:20]}...")
                 
                 admin_user = {
                     "id": 1,
@@ -285,25 +277,22 @@ async def login(request: Request):
                     "role": "admin"
                 }
                 
-                print("[DEBUG] Admin token created successfully")
                 return {
                     "access_token": access_token,
                     "token_type": "bearer",
                     "user": admin_user
                 }
             else:
-                print("[DEBUG] Admin password incorrect")
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid credentials"
                 )
 
         # Normal kullanıcı girişi için mevcut kod aynen devam eder...
-        print("[DEBUG] Proceeding with regular user login")
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        cursor.execute("SELECT * FROM users WHERE email = ? OR username = ?", (identifier, identifier))
         user = cursor.fetchone()
         
         if not user:
@@ -461,15 +450,12 @@ async def refresh_token(request: Request):
             )
             
         token = token.split(' ')[1]
-        print(f"[DEBUG] Refreshing token")
         
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            print(f"[DEBUG] Token payload for refresh: {payload}")
             
             # Admin token kontrolü
             if payload.get("sub") == "admin@admin" and payload.get("role") == "admin":
-                print("[DEBUG] Refreshing admin token")
                 new_token = create_access_token(
                     data={
                         "sub": "admin@admin",
@@ -491,7 +477,6 @@ async def refresh_token(request: Request):
                 }
                 
             # Normal kullanıcı token yenileme devam eder...
-            print("[DEBUG] Proceeding with regular token refresh")
             # Kullanıcıyı veritabanından al
             conn = get_db_connection()
             cursor = conn.cursor()
@@ -531,8 +516,9 @@ async def refresh_token(request: Request):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token"
             )
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        print(f"[DEBUG] Token refresh error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)

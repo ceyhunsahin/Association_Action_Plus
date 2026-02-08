@@ -8,7 +8,8 @@ import { FaCalendarAlt, FaUsers, FaChevronLeft, FaChevronRight, FaSignInAlt, FaS
 // Loader fonksiyonu
 export async function loader({ params }) {
   try {
-    const response = await axios.get(`https://association-action-plus.onrender.com/events/${params.id}`);
+    const baseUrl = process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com';
+    const response = await axios.get(`${baseUrl}/api/events/${params.id}`);
     return response.data;  // Backend'den gelen veriyi döndür
   } catch (error) {
     throw new Response("Event not found", { status: 404 });
@@ -19,6 +20,7 @@ const EventDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();  // navigate'i kullanacağız
   const { user, accessToken, isAuthenticated, isAdmin } = useAuth();
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com';
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,24 +34,51 @@ const EventDetail = () => {
   const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
     if (imagePath.startsWith('/uploads/')) {
-      return `https://association-action-plus.onrender.com${imagePath}`;
+      return `${baseUrl}${imagePath}`;
     }
     return imagePath;
   };
 
-  // Etkinlik resimlerini hazırla - sadece admin'in yüklediği gerçek resimler
-  const getEventImages = useCallback(() => {
-    if (event && event.images && event.images.length > 0) {
-      // Backend'den gelen resim URL'lerini tam URL'ye çevir
-      return event.images.map(img => getImageUrl(img)).filter(Boolean);
-    } else if (event && event.image) {
-      // Tek resim varsa onu kullan
-      const imageUrl = getImageUrl(event.image);
-      return imageUrl ? [imageUrl] : [];
-    } else {
-      // Hiç resim yoksa boş array döndür
+  // Etkinlik medya listesini hazırla (image + video)
+  const normalizeList = (value) => {
+    if (!value) return [];
+    if (Array.isArray(value)) return value;
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
       return [];
     }
+  };
+
+  const getEventMedia = useCallback(() => {
+    const media = [];
+    const images = normalizeList(event?.images);
+    const videos = normalizeList(event?.videos);
+    if (images.length > 0) {
+      images.forEach(img => {
+        const url = getImageUrl(img);
+        if (url) media.push({ type: 'image', url });
+      });
+    } else if (event && event.image) {
+      const url = getImageUrl(event.image);
+      if (url) media.push({ type: 'image', url });
+    }
+    if (videos.length > 0) {
+      videos.forEach(v => {
+        const url = getImageUrl(v);
+        if (url) media.push({ type: 'video', url });
+      });
+    }
+    return media;
+  }, [event]);
+
+  const getEventVideos = useCallback(() => {
+    const videos = normalizeList(event?.videos);
+    if (videos.length > 0) {
+      return videos.map(v => getImageUrl(v)).filter(Boolean);
+    }
+    return [];
   }, [event]);
 
   // Kullanıcının etkinliğe kayıtlı olup olmadığını kontrol et
@@ -58,7 +87,7 @@ const EventDetail = () => {
       try {
 
         const response = await axios.get(
-          `https://association-action-plus.onrender.com/api/events/${id}/check-registration`,
+          `${baseUrl}/api/events/${id}/check-registration`,
           {
             headers: {
               'Authorization': `Bearer ${accessToken}`
@@ -76,7 +105,7 @@ const EventDetail = () => {
   // Etkinlik detaylarını yükle
   const fetchEventDetails = async () => {
     try {
-      const response = await axios.get(`https://association-action-plus.onrender.com/api/events/${id}`);
+      const response = await axios.get(`${baseUrl}/api/events/${id}`);
       setEvent(response.data);
       setLoading(false);
       
@@ -114,13 +143,13 @@ const EventDetail = () => {
       
       
       // localStorage'dan token'ı al
-      const localToken = localStorage.getItem('token');
+      const localToken = localStorage.getItem('accessToken') || accessToken;
       
       
       // Etkinliğe katıl - localStorage'dan token'ı kullan
       const response = await axios({
         method: 'post',
-        url: `https://association-action-plus.onrender.com/api/events/${id}/join`,
+        url: `${baseUrl}/api/events/${id}/join`,
         headers: {
           'Authorization': `Bearer ${localToken}`,
           'Content-Type': 'application/json'
@@ -165,7 +194,7 @@ const EventDetail = () => {
       
       
       const response = await axios.delete(
-        `https://association-action-plus.onrender.com/api/events/${id}/register`,
+        `${baseUrl}/api/events/${id}/register`,
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`
@@ -195,24 +224,24 @@ const EventDetail = () => {
 
   // Carousel için önceki resme git
   const prevImage = useCallback(() => {
-    const images = getEventImages();
-    if (images.length > 0) {
-      setCurrentImageIndex((currentImageIndex - 1 + images.length) % images.length);
+    const media = getEventMedia();
+    if (media.length > 0) {
+      setCurrentImageIndex((currentImageIndex - 1 + media.length) % media.length);
     }
-  }, [currentImageIndex, getEventImages]);
+  }, [currentImageIndex, getEventMedia]);
 
   // Carousel için sonraki resme git
   const nextImage = useCallback(() => {
-    const images = getEventImages();
-    if (images.length > 0) {
-      setCurrentImageIndex((currentImageIndex + 1) % images.length);
+    const media = getEventMedia();
+    if (media.length > 0) {
+      setCurrentImageIndex((currentImageIndex + 1) % media.length);
     }
-  }, [currentImageIndex, getEventImages]);
+  }, [currentImageIndex, getEventMedia]);
 
   // Carousel için görüntülenecek resimlerin indekslerini hesapla
   const getImageIndexes = useCallback(() => {
     const indexes = [];
-    const totalImages = getEventImages().length;
+    const totalImages = getEventMedia().length;
     
     if (totalImages === 0) return [];
     
@@ -232,7 +261,7 @@ const EventDetail = () => {
     }
     
     return indexes;
-  }, [currentImageIndex, getEventImages]);
+  }, [currentImageIndex, getEventMedia]);
 
   // Etkinlikler sayfasına dönüş
   const handleBackToEvents = () => {
@@ -246,7 +275,7 @@ const EventDetail = () => {
   const handleDeleteEvent = async () => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cet événement?')) {
       try {
-        await axios.delete(`https://association-action-plus.onrender.com/api/events/${id}`, {
+        await axios.delete(`${baseUrl}/api/events/${id}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`
           }
@@ -288,7 +317,7 @@ const EventDetail = () => {
         )}
       </div>
 
-      {getEventImages().length > 0 && (
+      {getEventMedia().length > 0 && (
         <div className={styles.cinemaCarousel}>
           <button 
             className={`${styles.carouselButton} ${styles.prevButton}`}
@@ -299,7 +328,10 @@ const EventDetail = () => {
           </button>
           
           <div className={styles.carouselTrack} ref={carouselRef}>
-            {getImageIndexes().map((imageIndex, i) => (
+            {getImageIndexes().map((imageIndex, i) => {
+              const media = getEventMedia()[imageIndex];
+              if (!media) return null;
+              return (
               <div 
                 key={`${imageIndex}-${i}`}
                 className={`${styles.carouselSlide} ${
@@ -310,16 +342,28 @@ const EventDetail = () => {
                   i === 0 || i === 4 ? styles.farSlide : ''
                 }`}
               >
-                <img 
-                  src={getEventImages()[imageIndex]} 
-                  alt={`Vue de l'événement ${imageIndex + 1}`} 
-                  className={styles.carouselImage}
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                  }}
-                />
+                {media.type === 'image' ? (
+                  <img 
+                    src={media.url} 
+                    alt={`Vue de l'événement ${imageIndex + 1}`} 
+                    className={styles.carouselImage}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <video 
+                    src={media.url}
+                    className={styles.carouselVideo}
+                    controls
+                    muted
+                    playsInline
+                    loop
+                    autoPlay={i === 2}
+                  />
+                )}
               </div>
-            ))}
+            )})}
           </div>
           
           <button 
@@ -349,6 +393,17 @@ const EventDetail = () => {
         <div className={styles.eventDescription}>
           <p>{event.description}</p>
         </div>
+
+        {getEventVideos().length > 0 && (
+          <div className={styles.eventVideos}>
+            <h3 className={styles.sectionTitle}>Vidéos</h3>
+            <div className={styles.videoGrid}>
+              {getEventVideos().map((videoUrl, index) => (
+                <video key={index} src={videoUrl} controls className={styles.videoItem} />
+              ))}
+            </div>
+          </div>
+        )}
         
         <div className={styles.eventActions}>
           {user ? (

@@ -8,6 +8,7 @@ import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaImage, FaCheck } from 'react-
 const CreateEvent = () => {
   const { accessToken, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com';
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -21,8 +22,11 @@ const CreateEvent = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [imageFiles, setImageFiles] = useState([]);
+  const [videoFiles, setVideoFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [videoPreviews, setVideoPreviews] = useState([]);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadWarnings, setUploadWarnings] = useState([]);
 
   // Admin değilse, ana sayfaya yönlendir
   React.useEffect(() => {
@@ -42,11 +46,28 @@ const CreateEvent = () => {
   const handleImagesChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
+      const warnings = [];
+      const validFiles = [];
+      files.forEach(file => {
+        if (!file.type.startsWith('image/')) {
+          warnings.push(`${file.name}: format image non supporté`);
+          return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          warnings.push(`${file.name}: dépasse 5MB`);
+          return;
+        }
+        validFiles.push(file);
+      });
+      if (warnings.length > 0) {
+        setUploadWarnings(prev => [...prev, ...warnings]);
+      }
+      if (validFiles.length === 0) return;
       // Yeni dosyaları mevcut listeye ekle
-      setImageFiles(prevFiles => [...prevFiles, ...files]);
+      setImageFiles(prevFiles => [...prevFiles, ...validFiles]);
       
       // Preview'ları oluştur
-      files.forEach(file => {
+      validFiles.forEach(file => {
         const reader = new FileReader();
         reader.onload = (e) => {
           setImagePreviews(prevPreviews => [...prevPreviews, e.target.result]);
@@ -56,9 +77,42 @@ const CreateEvent = () => {
     }
   };
 
+  const handleVideosChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      const warnings = [];
+      const validFiles = [];
+      files.forEach(file => {
+        if (!file.type.startsWith('video/')) {
+          warnings.push(`${file.name}: format vidéo non supporté`);
+          return;
+        }
+        if (file.size > 50 * 1024 * 1024) {
+          warnings.push(`${file.name}: dépasse 50MB`);
+          return;
+        }
+        validFiles.push(file);
+      });
+      if (warnings.length > 0) {
+        setUploadWarnings(prev => [...prev, ...warnings]);
+      }
+      if (validFiles.length === 0) return;
+      setVideoFiles(prevFiles => [...prevFiles, ...validFiles]);
+      validFiles.forEach(file => {
+        const url = URL.createObjectURL(file);
+        setVideoPreviews(prevPreviews => [...prevPreviews, url]);
+      });
+    }
+  };
+
   const removeImage = (index) => {
     setImageFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
     setImagePreviews(prevPreviews => prevPreviews.filter((_, i) => i !== index));
+  };
+
+  const removeVideo = (index) => {
+    setVideoFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+    setVideoPreviews(prevPreviews => prevPreviews.filter((_, i) => i !== index));
   };
 
   const uploadImages = async () => {
@@ -67,11 +121,9 @@ const CreateEvent = () => {
     setUploadingImage(true);
     try {
       const formData = new FormData();
-      imageFiles.forEach(file => {
-        formData.append('files', file);
-      });
+      imageFiles.forEach(file => formData.append('files', file));
       
-      const response = await axios.post('https://association-action-plus.onrender.com/api/upload-multiple-images', formData, {
+      const response = await axios.post(`${baseUrl}/api/upload-multiple-images`, formData, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'multipart/form-data'
@@ -79,11 +131,36 @@ const CreateEvent = () => {
       });
       
       setUploadingImage(false);
-      return response.data.uploaded_files.map(file => file.image_url);
+      return response.data.uploaded_files
+        .filter(file => file.type === 'image')
+        .map(file => file.file_url);
     } catch (error) {
       console.error('Images upload error:', error);
       setUploadingImage(false);
       throw new Error('Resim yükleme hatası');
+    }
+  };
+
+  const uploadVideos = async () => {
+    if (videoFiles.length === 0) return [];
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      videoFiles.forEach(file => formData.append('files', file));
+      const response = await axios.post(`${baseUrl}/api/upload-multiple-images`, formData, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      setUploadingImage(false);
+      return response.data.uploaded_files
+        .filter(file => file.type === 'video')
+        .map(file => file.file_url);
+    } catch (error) {
+      console.error('Videos upload error:', error);
+      setUploadingImage(false);
+      throw new Error('Video yükleme hatası');
     }
   };
 
@@ -93,26 +170,30 @@ const CreateEvent = () => {
     setError(null);
 
     try {
-      console.log("Sending event data:", formData);
-      console.log("Using token:", accessToken);
       
       // Eğer resim dosyaları varsa önce yükle
       let imageUrls = formData.image ? [formData.image] : [];
       if (imageFiles.length > 0) {
         const uploadedImageUrls = await uploadImages();
-        imageUrls = uploadedImageUrls;
+        imageUrls = [...imageUrls, ...uploadedImageUrls];
+      }
+      let videoUrls = [];
+      if (videoFiles.length > 0) {
+        const uploadedVideoUrls = await uploadVideos();
+        videoUrls = uploadedVideoUrls;
       }
       
       // Event verilerini hazırla
       const eventData = {
         ...formData,
         image: imageUrls[0] || '', // İlk resmi ana resim olarak kullan
-        images: imageUrls // Tüm resimleri images array'inde sakla
+        images: imageUrls, // Tüm resimleri images array'inde sakla
+        videos: videoUrls
       };
       
       const response = await axios({
         method: 'post',
-        url: 'https://association-action-plus.onrender.com/api/events',
+        url: `${baseUrl}/api/events`,
         data: eventData,
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -120,7 +201,6 @@ const CreateEvent = () => {
         }
       });
 
-      console.log('Event created:', response.data);
       setLoading(false);
       
       // Başarılı mesajı göster
@@ -216,6 +296,7 @@ const CreateEvent = () => {
                 id="image"
                 name="image"
                 accept="image/*"
+                multiple
                 onChange={handleImagesChange}
                 className={styles.fileInput}
               />
@@ -252,8 +333,62 @@ const CreateEvent = () => {
               placeholder="Ou entrer une URL d'image (optionnel)"
               className={styles.urlInput}
             />
+            <div className={styles.formatInfo}>
+              Formats image acceptés: JPG, JPEG, PNG, WEBP, GIF. Taille max: 5MB par image.
+            </div>
           </div>
           
+          <div className={styles.formGroup}>
+            <label htmlFor="video">
+              <FaImage className={styles.inputIcon} /> Vidéos de l'événement
+            </label>
+            <div className={styles.imageUploadContainer}>
+              <input
+                type="file"
+                id="video"
+                name="video"
+                accept="video/mp4,video/webm,video/ogg,video/quicktime"
+                multiple
+                onChange={handleVideosChange}
+                className={styles.fileInput}
+              />
+              <label htmlFor="video" className={styles.fileInputLabel}>
+                Ajouter une vidéo
+              </label>
+              {videoPreviews.length > 0 && (
+                <div className={styles.multipleImagePreview}>
+                  {videoPreviews.map((preview, index) => (
+                    <div key={index} className={styles.previewItem}>
+                      <video src={preview} controls />
+                      <span className={styles.previewLabel}>{videoFiles[index]?.name}</span>
+                      <button 
+                        type="button" 
+                        className={styles.removeButton}
+                        onClick={() => removeVideo(index)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className={styles.imageCount}>
+                {videoFiles.length > 0 && `${videoFiles.length} vidéo(s) sélectionnée(s)`}
+              </div>
+            </div>
+            <div className={styles.formatInfo}>
+              Formats vidéo acceptés: MP4, WEBM, OGG, MOV. Taille max: 50MB par vidéo.
+            </div>
+          </div>
+
+          {uploadWarnings.length > 0 && (
+            <div className={styles.uploadWarnings}>
+              {uploadWarnings.map((w, i) => (
+                <div key={i}>{w}</div>
+              ))}
+            </div>
+          )}
+
           <div className={styles.formGroup}>
             <label htmlFor="max_participants">
               <FaUsers className={styles.inputIcon} /> Nombre maximum de participants

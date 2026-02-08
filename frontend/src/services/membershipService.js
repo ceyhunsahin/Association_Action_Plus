@@ -50,6 +50,19 @@ export const getMembershipHistory = async () => {
   }
 };
 
+// Ödeme geçmişini getir
+export const getPaymentHistory = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/membership/payment-history`, {
+      headers: getAuthHeaders()
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching payment history:', error);
+    throw error;
+  }
+};
+
 // Fatura indir
 export const downloadInvoice = async (paymentId) => {
   try {
@@ -100,16 +113,3 @@ export const createMembership = async (membershipData) => {
     throw error;
   }
 };
-
-// Test endpoint
-export const testCreateUser = async (userData) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/api/test-create-user`, userData, {
-      headers: getAuthHeaders()
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error testing create user:', error);
-    throw error;
-  }
-}; 

@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Navbar.module.css';
-import { FaUser, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaCalendarPlus, FaBars, FaTimes, FaEnvelope, FaUsers } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaCalendarPlus, FaBars, FaTimes, FaEnvelope, FaUsers, FaHandHoldingHeart } from 'react-icons/fa';
+import { getDonation } from '../../services/donationService';
 
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const [pendingDonation, setPendingDonation] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   // Scroll olayını dinle
@@ -24,6 +27,27 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const checkPendingDonation = async () => {
+      if (!user) {
+        setPendingDonation(false);
+        return;
+      }
+      const lastDonationId = localStorage.getItem('lastDonationId');
+      if (!lastDonationId) {
+        setPendingDonation(false);
+        return;
+      }
+      try {
+        const donation = await getDonation(lastDonationId);
+        setPendingDonation(donation?.status !== 'COMPLETED');
+      } catch {
+        setPendingDonation(false);
+      }
+    };
+    checkPendingDonation();
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -41,6 +65,7 @@ const Navbar = () => {
 
   const closeMenu = () => {
     setIsOpen(false);
+    setAdminMenuOpen(false);
   };
 
   // Kullanıcı adını belirleme fonksiyonu
@@ -107,23 +132,49 @@ const Navbar = () => {
             >
               <FaEnvelope className={styles.navIcon} /> Contact
             </NavLink>
+            <NavLink 
+              to="/donate" 
+              className={({ isActive }) => isActive ? styles.activeLink : styles.navLink}
+              onClick={closeMenu}
+            >
+              <FaHandHoldingHeart className={styles.navIcon} /> Faire un don
+              {pendingDonation && <span className={styles.pendingBadge}>En attente</span>}
+            </NavLink>
             {isAdmin && (
-              <>
-                <NavLink 
-                  to="/events/create" 
-                  className={({ isActive }) => isActive ? styles.activeLink : styles.navLink}
-                  onClick={closeMenu}
+              <div className={styles.adminDropdown}>
+                <button
+                  type="button"
+                  className={styles.adminButton}
+                  onClick={() => setAdminMenuOpen((v) => !v)}
                 >
-                  <FaCalendarPlus /> Créer un événement
-                </NavLink>
-                <NavLink 
-                  to="/admin/memberships" 
-                  className={({ isActive }) => isActive ? styles.activeLink : styles.navLink}
-                  onClick={closeMenu}
-                >
-                  <FaUsers /> Gestion des Adhésions
-                </NavLink>
-              </>
+                  <FaUsers /> Opérations
+                </button>
+                {adminMenuOpen && (
+                  <div className={styles.adminMenu}>
+                    <NavLink 
+                      to="/events/create" 
+                      className={({ isActive }) => isActive ? styles.activeLink : styles.navLink}
+                      onClick={closeMenu}
+                    >
+                      <FaCalendarPlus /> Créer un événement
+                    </NavLink>
+                    <NavLink 
+                      to="/admin/memberships" 
+                      className={({ isActive }) => isActive ? styles.activeLink : styles.navLink}
+                      onClick={closeMenu}
+                    >
+                      <FaUsers /> Adhésions
+                    </NavLink>
+                    <NavLink 
+                      to="/admin/donations" 
+                      className={({ isActive }) => isActive ? styles.activeLink : styles.navLink}
+                      onClick={closeMenu}
+                    >
+                      <FaHandHoldingHeart /> Dons
+                    </NavLink>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -199,14 +250,38 @@ const Navbar = () => {
             >
               <FaEnvelope className={styles.navIcon} /> Contact
             </NavLink>
+            <NavLink 
+              to="/donate" 
+              className={({ isActive }) => isActive ? styles.activeLinkMobile : styles.navLinkMobile}
+              onClick={closeMenu}
+            >
+              <FaHandHoldingHeart className={styles.navIcon} /> Faire un don
+              {pendingDonation && <span className={styles.pendingBadge}>En attente</span>}
+            </NavLink>
             {isAdmin && (
-              <NavLink 
-                to="/events/create" 
-                className={({ isActive }) => isActive ? styles.activeLinkMobile : styles.navLinkMobile}
-                onClick={closeMenu}
-              >
-                <FaCalendarPlus /> Créer un événement
-              </NavLink>
+              <>
+                <NavLink 
+                  to="/events/create" 
+                  className={({ isActive }) => isActive ? styles.activeLinkMobile : styles.navLinkMobile}
+                  onClick={closeMenu}
+                >
+                  <FaCalendarPlus /> Créer un événement
+                </NavLink>
+                <NavLink 
+                  to="/admin/memberships" 
+                  className={({ isActive }) => isActive ? styles.activeLinkMobile : styles.navLinkMobile}
+                  onClick={closeMenu}
+                >
+                  <FaUsers /> Adhésions
+                </NavLink>
+                <NavLink 
+                  to="/admin/donations" 
+                  className={({ isActive }) => isActive ? styles.activeLinkMobile : styles.navLinkMobile}
+                  onClick={closeMenu}
+                >
+                  <FaHandHoldingHeart /> Dons
+                </NavLink>
+              </>
             )}
           </div>
           

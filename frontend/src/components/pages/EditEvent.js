@@ -9,6 +9,7 @@ const EditEvent = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { accessToken, isAdmin } = useAuth();
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com';
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -21,9 +22,13 @@ const EditEvent = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [imageFiles, setImageFiles] = useState([]);
+  const [videoFiles, setVideoFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [videoPreviews, setVideoPreviews] = useState([]);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [existingImages, setExistingImages] = useState([]);
+  const [existingVideos, setExistingVideos] = useState([]);
+  const [uploadWarnings, setUploadWarnings] = useState([]);
 
   // Admin değilse, ana sayfaya yönlendir
   useEffect(() => {
@@ -36,7 +41,7 @@ const EditEvent = () => {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const response = await axios.get(`https://association-action-plus.onrender.com/api/events/${id}`);
+        const response = await axios.get(`${baseUrl}/api/events/${id}`);
         const eventData = response.data;
         
         // Tarih formatını düzelt (YYYY-MM-DD)
@@ -61,6 +66,9 @@ const EditEvent = () => {
         } else if (eventData.image) {
           setExistingImages([eventData.image]);
         }
+        if (eventData.videos && eventData.videos.length > 0) {
+          setExistingVideos(eventData.videos);
+        }
         
         setLoading(false);
       } catch (error) {
@@ -84,11 +92,28 @@ const EditEvent = () => {
   const handleImagesChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
+      const warnings = [];
+      const validFiles = [];
+      files.forEach(file => {
+        if (!file.type.startsWith('image/')) {
+          warnings.push(`${file.name}: format image non supporté`);
+          return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          warnings.push(`${file.name}: dépasse 5MB`);
+          return;
+        }
+        validFiles.push(file);
+      });
+      if (warnings.length > 0) {
+        setUploadWarnings(prev => [...prev, ...warnings]);
+      }
+      if (validFiles.length === 0) return;
       // Yeni dosyaları mevcut listeye ekle
-      setImageFiles(prevFiles => [...prevFiles, ...files]);
+      setImageFiles(prevFiles => [...prevFiles, ...validFiles]);
       
       // Preview'ları oluştur
-      files.forEach(file => {
+      validFiles.forEach(file => {
         const reader = new FileReader();
         reader.onload = (e) => {
           setImagePreviews(prevPreviews => [...prevPreviews, e.target.result]);
@@ -98,13 +123,50 @@ const EditEvent = () => {
     }
   };
 
+  const handleVideosChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      const warnings = [];
+      const validFiles = [];
+      files.forEach(file => {
+        if (!file.type.startsWith('video/')) {
+          warnings.push(`${file.name}: format vidéo non supporté`);
+          return;
+        }
+        if (file.size > 50 * 1024 * 1024) {
+          warnings.push(`${file.name}: dépasse 50MB`);
+          return;
+        }
+        validFiles.push(file);
+      });
+      if (warnings.length > 0) {
+        setUploadWarnings(prev => [...prev, ...warnings]);
+      }
+      if (validFiles.length === 0) return;
+      setVideoFiles(prevFiles => [...prevFiles, ...validFiles]);
+      validFiles.forEach(file => {
+        const url = URL.createObjectURL(file);
+        setVideoPreviews(prevPreviews => [...prevPreviews, url]);
+      });
+    }
+  };
+
   const removeImage = (index) => {
     setImageFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
     setImagePreviews(prevPreviews => prevPreviews.filter((_, i) => i !== index));
   };
 
+  const removeVideo = (index) => {
+    setVideoFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+    setVideoPreviews(prevPreviews => prevPreviews.filter((_, i) => i !== index));
+  };
+
   const removeExistingImage = (index) => {
     setExistingImages(prevImages => prevImages.filter((_, i) => i !== index));
+  };
+
+  const removeExistingVideo = (index) => {
+    setExistingVideos(prevVideos => prevVideos.filter((_, i) => i !== index));
   };
 
   const uploadImages = async () => {
@@ -117,7 +179,7 @@ const EditEvent = () => {
         formData.append('files', file);
       });
       
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com'}/api/upload-multiple-images`, formData, {
+      const response = await axios.post(`${baseUrl}/api/upload-multiple-images`, formData, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'multipart/form-data'
@@ -125,11 +187,38 @@ const EditEvent = () => {
       });
       
       setUploadingImage(false);
-      return response.data.uploaded_files.map(file => file.image_url);
+      return response.data.uploaded_files
+        .filter(file => file.type === 'image')
+        .map(file => file.file_url);
     } catch (error) {
       console.error('Images upload error:', error);
       setUploadingImage(false);
       throw new Error('Resim yükleme hatası');
+    }
+  };
+
+  const uploadVideos = async () => {
+    if (videoFiles.length === 0) return [];
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      videoFiles.forEach(file => {
+        formData.append('files', file);
+      });
+      const response = await axios.post(`${baseUrl}/api/upload-multiple-images`, formData, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      setUploadingImage(false);
+      return response.data.uploaded_files
+        .filter(file => file.type === 'video')
+        .map(file => file.file_url);
+    } catch (error) {
+      console.error('Videos upload error:', error);
+      setUploadingImage(false);
+      throw new Error('Video yükleme hatası');
     }
   };
 
@@ -139,7 +228,6 @@ const EditEvent = () => {
     setError(null);
 
     try {
-      console.log("Sending updated event data:", formData);
       
       // Eğer yeni resim dosyaları varsa önce yükle
       let imageUrls = [...existingImages]; // Mevcut resimleri koru
@@ -147,16 +235,22 @@ const EditEvent = () => {
         const uploadedImageUrls = await uploadImages();
         imageUrls = [...imageUrls, ...uploadedImageUrls];
       }
+      let videoUrls = [...existingVideos];
+      if (videoFiles.length > 0) {
+        const uploadedVideoUrls = await uploadVideos();
+        videoUrls = [...videoUrls, ...uploadedVideoUrls];
+      }
       
       // Event verilerini hazırla
       const eventData = {
         ...formData,
         image: imageUrls[0] || '', // İlk resmi ana resim olarak kullan
-        images: imageUrls // Tüm resimleri images array'inde sakla
+        images: imageUrls, // Tüm resimleri images array'inde sakla
+        videos: videoUrls
       };
       
       const response = await axios.put(
-        `${process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com'}/api/events/${id}`,
+        `${baseUrl}/api/events/${id}`,
         eventData,
         {
           headers: {
@@ -166,7 +260,6 @@ const EditEvent = () => {
         }
       );
       
-      console.log('Update response:', response.data);
       setSuccess(true);
       setLoading(false);
       
@@ -284,6 +377,7 @@ const EditEvent = () => {
                 id="image"
                 name="image"
                 accept="image/*"
+                multiple
                 onChange={handleImagesChange}
                 className={styles.fileInput}
               />
@@ -320,8 +414,54 @@ const EditEvent = () => {
               placeholder="Ou entrer une URL d'image (optionnel)"
               className={styles.urlInput}
             />
+            <div className={styles.formatInfo}>
+              Formats image acceptés: JPG, JPEG, PNG, WEBP, GIF. Taille max: 5MB par image.
+            </div>
           </div>
           
+          <div className={styles.formGroup}>
+            <label htmlFor="video">
+              <FaImage className={styles.inputIcon} /> Vidéos de l'événement
+            </label>
+            <div className={styles.imageUploadContainer}>
+              <input
+                type="file"
+                id="video"
+                name="video"
+                accept="video/mp4,video/webm,video/ogg,video/quicktime"
+                multiple
+                onChange={handleVideosChange}
+                className={styles.fileInput}
+              />
+              <label htmlFor="video" className={styles.fileInputLabel}>
+                Ajouter une vidéo
+              </label>
+              {videoPreviews.length > 0 && (
+                <div className={styles.multipleImagePreview}>
+                  {videoPreviews.map((preview, index) => (
+                    <div key={index} className={styles.previewItem}>
+                      <video src={preview} controls />
+                      <span className={styles.previewLabel}>{videoFiles[index]?.name}</span>
+                      <button 
+                        type="button" 
+                        className={styles.removeButton}
+                        onClick={() => removeVideo(index)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className={styles.imageCount}>
+                {videoFiles.length > 0 && `${videoFiles.length} vidéo(s) sélectionnée(s)`}
+              </div>
+            </div>
+            <div className={styles.formatInfo}>
+              Formats vidéo acceptés: MP4, WEBM, OGG, MOV. Taille max: 50MB par vidéo.
+            </div>
+          </div>
+
           <div className={styles.formGroup}>
             <label htmlFor="max_participants">
               <FaUsers className={styles.inputIcon} /> Nombre maximum de participants
@@ -337,6 +477,14 @@ const EditEvent = () => {
             />
           </div>
         </div>
+
+        {uploadWarnings.length > 0 && (
+          <div className={styles.uploadWarnings}>
+            {uploadWarnings.map((w, i) => (
+              <div key={i}>{w}</div>
+            ))}
+          </div>
+        )}
         
         {/* Mevcut resimler */}
         {existingImages.length > 0 && (
@@ -345,11 +493,31 @@ const EditEvent = () => {
             <div className={styles.existingImagesGrid}>
               {existingImages.map((imageUrl, index) => (
                 <div key={index} className={styles.existingImageItem}>
-                  <img src={imageUrl} alt={`Image existante ${index + 1}`} />
+                  <img src={imageUrl.startsWith('/uploads/') ? `${baseUrl}${imageUrl}` : imageUrl} alt={`Image existante ${index + 1}`} />
                   <button 
                     type="button" 
                     className={styles.removeExistingButton}
                     onClick={() => removeExistingImage(index)}
+                  >
+                    Supprimer
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {existingVideos.length > 0 && (
+          <div className={styles.existingImagesContainer}>
+            <h3>Vidéos existantes</h3>
+            <div className={styles.existingImagesGrid}>
+              {existingVideos.map((videoUrl, index) => (
+                <div key={index} className={styles.existingImageItem}>
+                  <video src={videoUrl.startsWith('/uploads/') ? `${baseUrl}${videoUrl}` : videoUrl} controls />
+                  <button 
+                    type="button" 
+                    className={styles.removeExistingButton}
+                    onClick={() => removeExistingVideo(index)}
                   >
                     Supprimer
                   </button>

@@ -9,7 +9,8 @@ from sqlite3 import Error
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Veritabanı dosyasının yolu
-DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'database.db')
+DATA_DIR = os.getenv("DATA_DIR", os.path.dirname(__file__))
+DATABASE_PATH = os.path.join(DATA_DIR, "database.db")
 
 def dict_factory(cursor, row):
     """Satırları sözlük olarak döndüren fabrika fonksiyonu"""
@@ -66,7 +67,10 @@ def init_db():
         date TEXT,
         location TEXT,
         image TEXT,
+        images TEXT,
+        videos TEXT,
         max_participants INTEGER,
+        participant_count INTEGER DEFAULT 0,
         created_by INTEGER,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT,
@@ -110,6 +114,27 @@ def init_db():
     except:
         # Sütun zaten var, devam et
         pass
+
+    # Eğer images sütunu yoksa ekle
+    try:
+        cursor.execute('ALTER TABLE events ADD COLUMN images TEXT')
+        conn.commit()
+    except:
+        pass
+
+    # Eğer participant_count sütunu yoksa ekle
+    try:
+        cursor.execute('ALTER TABLE events ADD COLUMN participant_count INTEGER DEFAULT 0')
+        conn.commit()
+    except:
+        pass
+
+    # Eğer videos sütunu yoksa ekle
+    try:
+        cursor.execute('ALTER TABLE events ADD COLUMN videos TEXT')
+        conn.commit()
+    except:
+        pass
     
     # Üyelikler tablosunu oluştur
     cursor.execute('''
@@ -139,6 +164,48 @@ def init_db():
         status TEXT DEFAULT 'unread'
     )
     ''')
+
+    # Bağışlar tablosu
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS donations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        amount DECIMAL(10,2) NOT NULL,
+        currency TEXT DEFAULT 'EUR',
+        payment_method TEXT NOT NULL,
+        donor_name TEXT NOT NULL,
+        donor_email TEXT NOT NULL,
+        donor_address TEXT,
+        donor_phone TEXT,
+        donor_message TEXT,
+        is_recurring INTEGER DEFAULT 0,
+        receipt_needed INTEGER DEFAULT 1,
+        status TEXT DEFAULT 'PENDING',
+        user_id INTEGER,
+        transaction_id TEXT,
+        transaction_date TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+    )
+    ''')
+
+    # Eğer donations tablosunda eksik kolonlar varsa ekle
+    for column_sql in [
+        "ALTER TABLE donations ADD COLUMN transaction_date TEXT",
+        "ALTER TABLE donations ADD COLUMN transaction_id TEXT",
+        "ALTER TABLE donations ADD COLUMN status TEXT DEFAULT 'PENDING'",
+        "ALTER TABLE donations ADD COLUMN receipt_needed INTEGER DEFAULT 1",
+        "ALTER TABLE donations ADD COLUMN is_recurring INTEGER DEFAULT 0",
+        "ALTER TABLE donations ADD COLUMN donor_message TEXT",
+        "ALTER TABLE donations ADD COLUMN donor_phone TEXT",
+        "ALTER TABLE donations ADD COLUMN donor_address TEXT",
+        "ALTER TABLE donations ADD COLUMN currency TEXT DEFAULT 'EUR'",
+        "ALTER TABLE donations ADD COLUMN payment_method TEXT"
+    ]:
+        try:
+            cursor.execute(column_sql)
+            conn.commit()
+        except:
+            pass
     
     # Üyelik ödemeleri tablosunu oluştur
     cursor.execute('''
@@ -525,6 +592,125 @@ def get_payment_by_id(payment_id):
     except Exception as e:
         print(f"Ödeme getirme hatası: {e}")
         return None
+    finally:
+        if conn:
+            conn.close()
+
+def create_donation(donation_data):
+    """Bağış kaydı oluştur"""
+    conn = get_db_connection()
+    if not conn:
+        return None
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO donations (
+                amount, currency, payment_method, donor_name, donor_email,
+                donor_address, donor_phone, donor_message, is_recurring,
+                receipt_needed, status, user_id, transaction_id, transaction_date
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            donation_data.get('amount'),
+            donation_data.get('currency', 'EUR'),
+            donation_data.get('payment_method'),
+            donation_data.get('donor_name'),
+            donation_data.get('donor_email'),
+            donation_data.get('donor_address'),
+            donation_data.get('donor_phone'),
+            donation_data.get('donor_message'),
+            1 if donation_data.get('is_recurring') else 0,
+            1 if donation_data.get('receipt_needed', True) else 0,
+            donation_data.get('status', 'PENDING'),
+            donation_data.get('user_id'),
+            donation_data.get('transaction_id'),
+            donation_data.get('transaction_date')
+        ))
+        donation_id = cursor.lastrowid
+        conn.commit()
+        cursor.execute('SELECT * FROM donations WHERE id = ?', (donation_id,))
+        donation = cursor.fetchone()
+        if donation:
+            return dict(zip([col[0] for col in cursor.description], donation))
+        return None
+    except Exception as e:
+        print(f"Bağış oluşturma hatası: {e}")
+        return None
+    finally:
+        if conn:
+            conn.close()
+
+def get_donation_by_id(donation_id):
+    """ID'ye göre bağış getir"""
+    conn = get_db_connection()
+    if not conn:
+        return None
+    try:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM donations WHERE id = ?', (donation_id,))
+        donation = cursor.fetchone()
+        if donation:
+            return dict(zip([col[0] for col in cursor.description], donation))
+        return None
+    except Exception as e:
+        print(f"Bağış getirme hatası: {e}")
+        return None
+    finally:
+        if conn:
+            conn.close()
+
+def get_all_donations():
+    """Tüm bağışları getir"""
+    conn = get_db_connection()
+    if not conn:
+        return []
+    try:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM donations ORDER BY created_at DESC')
+        donations = cursor.fetchall()
+        return [dict(zip([col[0] for col in cursor.description], d)) for d in donations]
+    except Exception as e:
+        print(f"Bağış listesi getirme hatası: {e}")
+        return []
+    finally:
+        if conn:
+            conn.close()
+
+def get_donations_by_user(user_id):
+    """Kullanıcının bağışlarını getir"""
+    conn = get_db_connection()
+    if not conn:
+        return []
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT * FROM donations WHERE user_id = ? ORDER BY created_at DESC",
+            (user_id,)
+        )
+        donations = cursor.fetchall()
+        return [dict(zip([col[0] for col in cursor.description], d)) for d in donations]
+    except Exception as e:
+        print(f"Kullanıcı bağışları getirme hatası: {e}")
+        return []
+    finally:
+        if conn:
+            conn.close()
+
+def update_donation_status(donation_id, status):
+    """Bağış durumunu güncelle"""
+    conn = get_db_connection()
+    if not conn:
+        return False
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE donations SET status = ? WHERE id = ?",
+            (status, donation_id)
+        )
+        conn.commit()
+        return cursor.rowcount > 0
+    except Exception as e:
+        print(f"Bağış güncelleme hatası: {e}")
+        return False
     finally:
         if conn:
             conn.close()

@@ -11,16 +11,18 @@ from endpoints.events import router as events_router
 from endpoints.users import router as users_router
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 import os
 import uvicorn
 from pydantic import BaseModel
 from datetime import datetime
-from generateur_facture import generer_facture_utilisateur
+from generateur_facture import generer_facture_utilisateur, generer_recu_don_utilisateur
 import shutil
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
+from database import create_donation, get_donation_by_id, get_all_donations, update_donation_status, get_donations_by_user
 
 # .env dosyasını yükle
 load_dotenv()
@@ -43,7 +45,8 @@ app.include_router(events_router, prefix="/api/events")
 app.include_router(users_router, prefix="/api/users")
 
 # Statik dosyalar için klasör oluştur
-UPLOAD_DIR = "uploads"
+DATA_DIR = os.getenv("DATA_DIR", "")
+UPLOAD_DIR = os.path.join(DATA_DIR, "uploads") if DATA_DIR else "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
@@ -91,6 +94,27 @@ def send_email(to_email, subject, message):
 
 # Statik dosyaları serve et
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
+# Frontend build'i varsa aynı backend üzerinden servis et (SPA)
+FRONTEND_BUILD_DIR = Path(__file__).resolve().parent.parent / "frontend" / "build"
+if FRONTEND_BUILD_DIR.exists():
+    app.mount(
+        "/static",
+        StaticFiles(directory=str(FRONTEND_BUILD_DIR / "static")),
+        name="static",
+    )
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # API ve upload yollarını SPA fallback'inden hariç tut
+        if full_path.startswith("api/") or full_path.startswith("uploads/"):
+            raise HTTPException(status_code=404, detail="Not Found")
+
+        file_path = FRONTEND_BUILD_DIR / full_path
+        if full_path and file_path.is_file():
+            return FileResponse(file_path)
+
+        return FileResponse(FRONTEND_BUILD_DIR / "index.html")
 
 # Üyelik endpoint'leri
 @app.get("/api/membership/my-membership")
@@ -400,26 +424,21 @@ def read_root():
 def health_check():
     return {"status": "healthy"}
 
-@app.post("/api/test-create-user")
-async def test_create_user_endpoint(user_data: dict = Body(...)):
-    """Test endpoint for user creation"""
-    print(f"Test create user called with data: {user_data}")
-    return {"message": "Test endpoint working", "data": user_data}
-
 # Dosya yükleme endpoint'i
 @app.post("/api/upload-image")
 async def upload_image(file: UploadFile = File(...), current_admin: dict = Depends(get_current_admin)):
     """Tek resim dosyası yükle (sadece admin)"""
     try:
         # Dosya türünü kontrol et
-        if not file.content_type.startswith('image/'):
+        content_type = (file.content_type or "")
+        if not content_type.startswith('image/'):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Sadece resim dosyaları kabul edilir"
             )
         
         # Dosya boyutunu kontrol et (5MB limit)
-        if file.size > 5 * 1024 * 1024:
+        if file.size is not None and file.size > 5 * 1024 * 1024:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Dosya boyutu 5MB'dan büyük olamaz"
@@ -427,7 +446,7 @@ async def upload_image(file: UploadFile = File(...), current_admin: dict = Depen
         
         # Benzersiz dosya adı oluştur
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        file_extension = os.path.splitext(file.filename)[1]
+        file_extension = os.path.splitext(file.filename or "")[1] if file.filename else ""
         filename = f"event_{timestamp}{file_extension}"
         file_path = os.path.join(UPLOAD_DIR, filename)
         
@@ -454,23 +473,32 @@ async def upload_image(file: UploadFile = File(...), current_admin: dict = Depen
 # Çoklu dosya yükleme endpoint'i
 @app.post("/api/upload-multiple-images")
 async def upload_multiple_images(files: List[UploadFile] = File(...), current_admin: dict = Depends(get_current_admin)):
-    """Birden fazla resim dosyası yükle (sadece admin)"""
+    """Birden fazla resim/video dosyası yükle (sadece admin)"""
     try:
         uploaded_files = []
+        allowed_image_ext = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
+        allowed_video_ext = {'.mp4', '.webm', '.ogg', '.mov'}
         
         for file in files:
+            if not file.filename:
+                continue  # Dosya adı yoksa atla
+            file_extension = os.path.splitext(file.filename)[1].lower()
             # Dosya türünü kontrol et
-            if not file.content_type.startswith('image/'):
+            content_type = (file.content_type or '').lower()
+            is_image = content_type.startswith('image/') or file_extension in allowed_image_ext
+            is_video = content_type.startswith('video/') or file_extension in allowed_video_ext
+            if not (is_image or is_video):
                 continue  # Bu dosyayı atla
             
-            # Dosya boyutunu kontrol et (5MB limit)
-            if file.size > 5 * 1024 * 1024:
+            # Dosya boyutunu kontrol et (image 5MB, video 50MB limit)
+            size_limit = 5 * 1024 * 1024 if is_image else 50 * 1024 * 1024
+            if file.size is not None and file.size > size_limit:
                 continue  # Bu dosyayı atla
             
             # Benzersiz dosya adı oluştur
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")  # Mikrosaniye ekle
-            file_extension = os.path.splitext(file.filename)[1]
-            filename = f"event_{timestamp}{file_extension}"
+            prefix = "event_img" if is_image else "event_vid"
+            filename = f"{prefix}_{timestamp}{file_extension}"
             file_path = os.path.join(UPLOAD_DIR, filename)
             
             # Dosyayı kaydet
@@ -478,15 +506,22 @@ async def upload_multiple_images(files: List[UploadFile] = File(...), current_ad
                 shutil.copyfileobj(file.file, buffer)
             
             # URL'yi listeye ekle
-            image_url = f"/uploads/{filename}"
+            file_url = f"/uploads/{filename}"
             uploaded_files.append({
                 "original_name": file.filename,
-                "image_url": image_url,
-                "filename": filename
+                "file_url": file_url,
+                "filename": filename,
+                "type": "image" if is_image else "video"
             })
         
+        if len(uploaded_files) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Aucun fichier valide n'a été téléchargé"
+            )
+
         return {
-            "message": f"{len(uploaded_files)} resim başarıyla yüklendi",
+            "message": f"{len(uploaded_files)} dosya başarıyla yüklendi",
             "uploaded_files": uploaded_files,
             "total_uploaded": len(uploaded_files)
         }
@@ -507,7 +542,6 @@ async def options_route(request: Request, full_path: str):
 async def create_user_endpoint(user_data: dict = Body(...), current_admin: dict = Depends(get_current_admin)):
     """Admin tarafından yeni kullanıcı oluştur"""
     try:
-        print(f"[DEBUG] Creating user with data: {user_data}")
         
         from passlib.context import CryptContext
         pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -534,7 +568,6 @@ async def create_user_endpoint(user_data: dict = Body(...), current_admin: dict 
         
         # Şifreyi hash'le
         hashed_password = pwd_context.hash(user_data['password'])
-        print(f"[DEBUG] Password hashed successfully")
         
         # Kullanıcıyı oluştur
         insert_query = '''
@@ -552,23 +585,18 @@ async def create_user_endpoint(user_data: dict = Body(...), current_admin: dict 
             datetime.now().isoformat()  # last_login için şu anki zaman
         )
         
-        print(f"[DEBUG] Executing insert query: {insert_query}")
-        print(f"[DEBUG] Insert values: {insert_values}")
         
         cursor.execute(insert_query, insert_values)
         
         user_id = cursor.lastrowid
-        print(f"[DEBUG] User created with ID: {user_id}")
         
         conn.commit()
-        print(f"[DEBUG] Database committed successfully")
         
         # Yeni kullanıcıyı getir
         cursor.execute("SELECT id, firstName, lastName, email, username, role, created_at FROM users WHERE id = ?", (user_id,))
         new_user = cursor.fetchone()
         
         conn.close()
-        print(f"[DEBUG] User creation completed successfully")
         
         return dict(new_user)
         
@@ -591,6 +619,7 @@ async def create_membership_endpoint(membership_data: dict = Body(...), current_
     """Admin tarafından yeni üyelik oluştur"""
     try:
         from datetime import datetime, timedelta
+        from database import create_membership_payment, get_payment_by_id, get_user_by_id
         
         conn = get_db()
         cursor = conn.cursor()
@@ -626,6 +655,31 @@ async def create_membership_endpoint(membership_data: dict = Body(...), current_
         membership_id = cursor.lastrowid
         conn.commit()
         
+        # Ödeme kaydı oluştur
+        amount = membership_data.get('amount', 0)
+        payment_id = create_membership_payment(
+            membership_data['userId'],
+            membership_id,
+            amount,
+            membership_data.get('membershipType', 'standard'),
+            membership_data.get('duration', 12)
+        )
+
+        invoice_path = None
+        if payment_id:
+            payment_data = get_payment_by_id(payment_id)
+            user_data = get_user_by_id(membership_data['userId'])
+            membership_data_full = {
+                "id": membership_id,
+                "membership_type": membership_data.get('membershipType', 'standard'),
+                "start_date": start_date.isoformat(),
+                "end_date": end_date.isoformat(),
+                "status": "active",
+                "renewal_count": 0
+            }
+            if user_data and payment_data:
+                invoice_path = generer_facture_utilisateur(user_data, membership_data_full, payment_data)
+
         # Yeni üyeliği getir
         cursor.execute('''
             SELECT m.*, u.firstName, u.lastName, u.email
@@ -639,7 +693,9 @@ async def create_membership_endpoint(membership_data: dict = Body(...), current_
         
         return {
             "membership_id": membership_id,
-            "membership": dict(new_membership)
+            "membership": dict(new_membership),
+            "payment_id": payment_id,
+            "invoice_available": invoice_path is not None
         }
     except Exception as e:
         print(f"Membership creation error: {str(e)}")
@@ -711,6 +767,172 @@ async def contact_endpoint(contact_data: dict = Body(...)):
             detail="Erreur lors de l'envoi du message"
         )
 
+# Donation endpoints
+@app.post("/api/donations")
+async def create_donation_endpoint(donation_data: dict = Body(...)):
+    try:
+        amount = donation_data.get('amount')
+        donor_name = donation_data.get('donor_name')
+        donor_email = donation_data.get('donor_email')
+        payment_method = donation_data.get('payment_method')
+
+        if not amount or float(amount) <= 0:
+            raise HTTPException(status_code=400, detail="Montant invalide")
+        if not donor_name or not donor_email or not payment_method:
+            raise HTTPException(status_code=400, detail="Informations du donateur manquantes")
+
+        tx_id = f"DON-{datetime.now().strftime('%Y%m%d')}-{str(int(datetime.now().timestamp()))[-6:]}"
+        donation_data['transaction_id'] = tx_id
+        donation_data['status'] = donation_data.get('status', 'PENDING')
+
+        donation = create_donation(donation_data)
+        if not donation:
+            raise HTTPException(status_code=500, detail="Erreur lors de la création du don")
+
+        return donation
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"Donation create error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/donations/{donation_id}/send-receipt")
+async def send_donation_receipt_endpoint(donation_id: int, payload: dict = Body(...)):
+    try:
+        donation = get_donation_by_id(donation_id)
+        if not donation:
+            raise HTTPException(status_code=404, detail="Don non trouvé")
+
+        email = payload.get('email') or donation.get('donor_email')
+        name = payload.get('name') or donation.get('donor_name')
+
+        subject = "Reçu de don - Action Plus"
+        message = f"""
+        Bonjour {name},
+
+        Merci pour votre don de {donation.get('amount')} {donation.get('currency', 'EUR')}.
+        Transaction: {donation.get('transaction_id')}
+        Date: {donation.get('transaction_date') or donation.get('created_at')}
+
+        Ce reçu peut être utilisé pour votre déclaration d'impôts.
+
+        Action Plus
+        """
+
+        sent = send_email(email, subject, message)
+        return {"sent": sent}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"Donation receipt error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/donations/me")
+async def get_my_donations_endpoint(current_user: dict = Depends(get_current_user)):
+    try:
+        return get_donations_by_user(current_user["id"])
+    except Exception as e:
+        print(f"My donations error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/donations/{donation_id}")
+async def get_donation_endpoint(donation_id: int):
+    try:
+        donation = get_donation_by_id(donation_id)
+        if not donation:
+            raise HTTPException(status_code=404, detail="Don non trouvé")
+        return donation
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"Donation get error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/admin/donations")
+async def get_all_donations_endpoint(current_admin: dict = Depends(get_current_admin)):
+    try:
+        return get_all_donations()
+    except Exception as e:
+        print(f"Donation list error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/admin/donations/{donation_id}/approve")
+async def approve_donation_endpoint(donation_id: int, current_admin: dict = Depends(get_current_admin)):
+    try:
+        donation = get_donation_by_id(donation_id)
+        if not donation:
+            raise HTTPException(status_code=404, detail="Don non trouvé")
+        if donation.get("status") == "COMPLETED":
+            return {"status": "COMPLETED"}
+
+        ok = update_donation_status(donation_id, "COMPLETED")
+        if not ok:
+            raise HTTPException(status_code=500, detail="Impossible de valider le don")
+
+        # Receipt email after approval
+        subject = "Reçu de don - Action Plus"
+        message = f"""
+        Bonjour {donation.get('donor_name')},
+
+        Votre don de {donation.get('amount')} {donation.get('currency', 'EUR')} a été confirmé.
+        Transaction: {donation.get('transaction_id')}
+        Date: {donation.get('transaction_date') or donation.get('created_at')}
+
+        Merci pour votre soutien.
+
+        Action Plus
+        """
+        send_email(donation.get("donor_email"), subject, message)
+
+        return {"status": "COMPLETED"}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"Donation approve error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/donations/{donation_id}/receipt")
+async def download_donation_receipt(donation_id: int, current_user: dict = Depends(get_current_user)):
+    try:
+        donation = get_donation_by_id(donation_id)
+        if not donation:
+            raise HTTPException(status_code=404, detail="Don non trouvé")
+        if donation.get("user_id") != current_user.get("id"):
+            raise HTTPException(status_code=403, detail="Accès refusé")
+        if donation.get("status") != "COMPLETED":
+            raise HTTPException(status_code=400, detail="Don non validé")
+        invoice_path = generer_recu_don_utilisateur(donation)
+        return FileResponse(
+            path=invoice_path,
+            filename=f"recu_don_{donation_id}.pdf",
+            media_type="application/pdf"
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"Donation receipt error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/admin/donations/{donation_id}/receipt")
+async def admin_download_donation_receipt(donation_id: int, current_admin: dict = Depends(get_current_admin)):
+    try:
+        donation = get_donation_by_id(donation_id)
+        if not donation:
+            raise HTTPException(status_code=404, detail="Don non trouvé")
+        if donation.get("status") != "COMPLETED":
+            raise HTTPException(status_code=400, detail="Don non validé")
+        invoice_path = generer_recu_don_utilisateur(donation)
+        return FileResponse(
+            path=invoice_path,
+            filename=f"recu_don_{donation_id}.pdf",
+            media_type="application/pdf"
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"Admin donation receipt error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/admin/contact-messages")
 async def get_contact_messages_endpoint(current_admin: dict = Depends(get_current_admin)):
     """Admin için contact mesajlarını getir"""
@@ -743,7 +965,7 @@ async def get_contact_messages_endpoint(current_admin: dict = Depends(get_curren
                         "status": row.get("status")
                     })
                 else:
-son                    # Tuple formatında geliyorsa
+                    # Tuple formatında geliyorsa
                     messages.append({
                         "id": row[0],
                         "name": row[1],

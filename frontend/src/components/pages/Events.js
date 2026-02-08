@@ -13,6 +13,7 @@ const Events = () => {
     const [error, setError] = useState(null);
     const { accessToken, user, isAdmin } = useAuth();
     const navigate = useNavigate();
+    const baseUrl = process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com';
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [eventToDelete, setEventToDelete] = useState(null);
     const [upcomingEvents, setUpcomingEvents] = useState([]);
@@ -28,9 +29,20 @@ const Events = () => {
     const getImageUrl = (imagePath) => {
         if (!imagePath) return null;
         if (imagePath.startsWith('/uploads/')) {
-            return `https://association-action-plus.onrender.com${imagePath}`;
+            return `${baseUrl}${imagePath}`;
         }
         return imagePath;
+    };
+
+    const getVideos = (event) => {
+        if (!event?.videos) return [];
+        if (Array.isArray(event.videos)) return event.videos;
+        try {
+            const parsed = JSON.parse(event.videos);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
     };
 
     // Kullanıcının etkinliklerini getir
@@ -43,7 +55,7 @@ const Events = () => {
             
     
             
-            const response = await axios.get('https://association-action-plus.onrender.com/api/users/me/events', {
+            const response = await axios.get(`${baseUrl}/api/users/me/events`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -67,7 +79,7 @@ const Events = () => {
     const fetchEvents = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('https://association-action-plus.onrender.com/api/events');
+            const response = await axios.get(`${baseUrl}/api/events`);
             
             if (response.data) {
                 const allEvents = Array.isArray(response.data) ? response.data : [];
@@ -188,7 +200,7 @@ const Events = () => {
                 
 
                 
-                const response = await axios.get('https://association-action-plus.onrender.com/api/users/me/events', {
+                const response = await axios.get(`${baseUrl}/api/users/me/events`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -221,7 +233,7 @@ const Events = () => {
                 console.error('Error fetching user events, using alternative method:', error);
                 
                 // Alternatif olarak, tüm etkinlikleri getir
-                const allEventsResponse = await axios.get('https://association-action-plus.onrender.com/api/events');
+                const allEventsResponse = await axios.get(`${baseUrl}/api/events`);
                 const allEvents = allEventsResponse.data;
                 
                 // Etkinlikleri güncelle
@@ -257,7 +269,7 @@ const Events = () => {
                 try {
                     const response = await axios({
                         method: 'delete',
-                        url: `https://association-action-plus.onrender.com/api/events/${eventId}/register`,
+                        url: `${baseUrl}/api/events/${eventId}/register`,
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
@@ -308,7 +320,7 @@ const Events = () => {
                 try {
                     const response = await axios({
                         method: 'post',
-                        url: `https://association-action-plus.onrender.com/api/events/${eventId}/join`,
+                        url: `${baseUrl}/api/events/${eventId}/join`,
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
@@ -366,7 +378,7 @@ const Events = () => {
         if (!eventToDelete) return;
 
         try {
-            await axios.delete(`https://association-action-plus.onrender.com/api/events/${eventToDelete}`, {
+            await axios.delete(`${baseUrl}/api/events/${eventToDelete}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
@@ -497,7 +509,7 @@ const Events = () => {
     const handleDeleteEvent = async (eventId) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cet événement?')) {
             try {
-                await axios.delete(`https://association-action-plus.onrender.com/api/events/${eventId}`, {
+                await axios.delete(`${baseUrl}/api/events/${eventId}`, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`
                     }
@@ -585,6 +597,11 @@ const Events = () => {
                                             alt={event.title} 
                                             className={styles.eventImage}
                                         />
+                                        {getVideos(event).length > 0 && (
+                                            <div className={styles.videoBadge}>
+                                                Video: {getVideos(event).length}
+                                            </div>
+                                        )}
                                         <div className={styles.eventDate}>
                                             <span className={styles.day}>
                                                 {new Date(event.date).getDate()}
@@ -695,6 +712,11 @@ const Events = () => {
                                             alt={event.title} 
                                             className={styles.eventImage}
                                         />
+                                        {getVideos(event).length > 0 && (
+                                            <div className={styles.videoBadge}>
+                                                Video: {getVideos(event).length}
+                                            </div>
+                                        )}
                                         <div className={styles.eventDate}>
                                             <span className={styles.day}>
                                                 {new Date(event.date).getDate()}

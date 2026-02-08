@@ -8,6 +8,9 @@ import { FaUser, FaEnvelope, FaCalendarAlt, FaEdit, FaHandHoldingHeart, FaEye, F
   FaHistory, FaTools, FaMusic, FaPalette, FaMicrophone, FaTheaterMasks, FaChartLine,
   FaBirthdayCake, FaStar, FaGem, FaAward, FaCrown, FaUserFriends, FaBookmark } from 'react-icons/fa';
 import styles from './ProfilePage.module.css';
+import MembershipRenewalModal from './MembershipRenewalModal';
+import { getMyMembership, renewMembership, getMembershipHistory, getPaymentHistory, downloadInvoice } from '../../services/membershipService';
+import { getMyDonations, downloadDonationReceipt } from '../../services/donationService';
 
 
 
@@ -36,6 +39,16 @@ const ProfilePage = () => {
     subject: '',
     message: ''
   });
+  const [membership, setMembership] = useState(null);
+  const [membershipHistory, setMembershipHistory] = useState([]);
+  const [paymentHistory, setPaymentHistory] = useState([]);
+  const [membershipLoading, setMembershipLoading] = useState(false);
+  const [membershipError, setMembershipError] = useState(null);
+  const [showRenewalModal, setShowRenewalModal] = useState(false);
+  const [renewalLoading, setRenewalLoading] = useState(false);
+  const [donations, setDonations] = useState([]);
+  const [selectedDonation, setSelectedDonation] = useState(null);
+  const [showDonationModal, setShowDonationModal] = useState(false);
 
   const profileRef = useRef(null);
   const navigate = useNavigate();
@@ -65,12 +78,74 @@ const ProfilePage = () => {
 
     // Kullanıcının etkinliklerini getir
     fetchUserEvents();
+
+    // Üyelik ve ödeme geçmişini getir
+    fetchMembershipData();
+    fetchDonations();
     
     // Admin ise contact mesajlarını getir
     if (user && user.role === 'admin') {
       fetchContactMessages();
     }
   }, [user, accessToken, navigate]);
+
+  const fetchDonations = async () => {
+    if (!accessToken) return;
+    try {
+      const data = await getMyDonations();
+      setDonations(Array.isArray(data) ? data : []);
+    } catch {
+      setDonations([]);
+    }
+  };
+
+  const openDonationModal = (donation) => {
+    setSelectedDonation(donation);
+    setShowDonationModal(true);
+  };
+
+  const fetchMembershipData = async () => {
+    if (!accessToken) return;
+    try {
+      setMembershipLoading(true);
+      setMembershipError(null);
+      const [membershipData, historyData, paymentsData] = await Promise.all([
+        getMyMembership(),
+        getMembershipHistory(),
+        getPaymentHistory()
+      ]);
+      setMembership(membershipData);
+      setMembershipHistory(Array.isArray(historyData) ? historyData : []);
+      setPaymentHistory(Array.isArray(paymentsData) ? paymentsData : []);
+    } catch (err) {
+      setMembershipError('Impossible de charger les informations d\'adhésion');
+    } finally {
+      setMembershipLoading(false);
+    }
+  };
+
+  const handleRenewMembership = async (renewalData) => {
+    try {
+      setRenewalLoading(true);
+      await renewMembership(renewalData);
+      await fetchMembershipData();
+      setShowRenewalModal(false);
+      setSuccessMessage('Adhésion renouvelée avec succès');
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      setMembershipError(err.response?.data?.detail || 'Erreur lors du renouvellement');
+    } finally {
+      setRenewalLoading(false);
+    }
+  };
+
+  const handleDownloadInvoice = async (paymentId) => {
+    try {
+      await downloadInvoice(paymentId);
+    } catch (err) {
+      setMembershipError('Erreur lors du téléchargement de la facture');
+    }
+  };
 
 
 
@@ -170,7 +245,6 @@ const ProfilePage = () => {
       
       // Doğrudan tüm etkinlikleri getir ve kullanıcının katıldıklarını işaretle
       const allEventsResponse = await axios.get('https://association-action-plus.onrender.com/api/events');
-      console.log('All events response:', allEventsResponse.data);
       
       // Tüm etkinlikleri al
       const allEvents = Array.isArray(allEventsResponse.data) ? allEventsResponse.data : 
@@ -184,7 +258,6 @@ const ProfilePage = () => {
           }
         });
         
-        console.log('User events response:', userEventsResponse.data);
         
         // Kullanıcının katıldığı etkinliklerin ID'lerini al
         const userEventIds = userEventsResponse.data.events ? 
@@ -301,7 +374,6 @@ const ProfilePage = () => {
       );
     }
     
-    console.log("User events to render:", userEvents);
     
     // API yanıtının yapısını kontrol et
     let eventsToRender = userEvents;
@@ -469,15 +541,75 @@ const ProfilePage = () => {
             <div className={styles.membershipSection}>
               <h2>Votre adhésion</h2>
               <div className={styles.membershipCard}>
-                <div className={styles.membershipStatus}>
-                  Membre actif
-                </div>
-                <div className={styles.membershipDetails}>
-                  <p><strong>Numéro d'adhérent:</strong> {user.id}A{new Date().getFullYear()}</p>
-                  <p><strong>Date d'adhésion:</strong> {new Date(user.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                  <p><strong>Statut:</strong> Actif</p>
-                </div>
+                {membershipLoading ? (
+                  <div className={styles.membershipLoading}>Chargement...</div>
+                ) : membershipError ? (
+                  <div className={styles.membershipError}>{membershipError}</div>
+                ) : (
+                  <>
+                    <div className={styles.membershipStatus}>
+                      {membership?.status === 'active' ? 'Membre actif' : 'Adhésion inactive'}
+                    </div>
+                    <div className={styles.membershipDetails}>
+                      <p><strong>Numéro d'adhérent:</strong> {user.id}A{new Date().getFullYear()}</p>
+                      <p><strong>Date d'adhésion:</strong> {membership?.start_date ? new Date(membership.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : new Date(user.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                      <p><strong>Date de fin:</strong> {membership?.end_date ? new Date(membership.end_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}</p>
+                      <p><strong>Renouvellements:</strong> {membership?.renewal_count || 0}</p>
+                      <p><strong>Statut:</strong> {membership?.status || 'Actif'}</p>
+                    </div>
+                    <div className={styles.membershipActions}>
+                      <button className={styles.renewButton} onClick={() => setShowRenewalModal(true)}>
+                        Renouveler l'adhésion
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
+
+              {paymentHistory.length > 0 && (
+                <div className={styles.membershipHistory}>
+                  <h3>Historique des paiements</h3>
+                  <div className={styles.historyList}>
+                    {paymentHistory.map(payment => (
+                      <div key={payment.id} className={styles.historyItem}>
+                        <div className={styles.historyInfo}>
+                          <div><strong>Date:</strong> {new Date(payment.payment_date || payment.created_at || Date.now()).toLocaleDateString('fr-FR')}</div>
+                          <div><strong>Montant:</strong> {payment.amount}€</div>
+                          <div><strong>Type:</strong> {payment.payment_type}</div>
+                        </div>
+                        <button
+                          className={styles.invoiceButton}
+                          onClick={() => handleDownloadInvoice(payment.id)}
+                        >
+                          Télécharger la facture
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className={styles.donationsSection}>
+              <h2>Mes dons</h2>
+              {donations.length === 0 ? (
+                <div className={styles.empty}>Aucun don pour le moment.</div>
+              ) : (
+                <div className={styles.donationsList}>
+                  {donations.map(d => (
+                    <button
+                      key={d.id}
+                      className={styles.donationItem}
+                      onClick={() => openDonationModal(d)}
+                    >
+                      <span>{new Date(d.created_at).toLocaleDateString('fr-FR')}</span>
+                      <span>{d.amount} {d.currency || 'EUR'}</span>
+                      <span className={d.status === 'COMPLETED' ? styles.statusOk : styles.statusPending}>
+                        {d.status === 'COMPLETED' ? 'Validé' : 'En attente'}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           
@@ -939,6 +1071,48 @@ const ProfilePage = () => {
             {activeTab === 'messages' && renderContactMessages()}
         </div>
 
+        <MembershipRenewalModal
+          isOpen={showRenewalModal}
+          onClose={() => setShowRenewalModal(false)}
+          onRenew={handleRenewMembership}
+          membership={membership}
+          loading={renewalLoading}
+        />
+
+        {showDonationModal && selectedDonation && (
+          <div className={styles.donationModalOverlay}>
+            <div className={styles.donationModal}>
+              <h3>Reçu de don</h3>
+              <p><strong>Montant:</strong> {selectedDonation.amount} {selectedDonation.currency || 'EUR'}</p>
+              <p><strong>Date:</strong> {new Date(selectedDonation.created_at).toLocaleDateString('fr-FR')}</p>
+              <p><strong>Statut:</strong> {selectedDonation.status === 'COMPLETED' ? 'Validé' : 'En attente'}</p>
+              <div className={styles.donationModalActions}>
+                <button onClick={() => setShowDonationModal(false)} className={styles.closeModalButton}>
+                  Fermer
+                </button>
+                <button
+                  className={styles.printReceiptButton}
+                  onClick={() => downloadDonationReceipt(selectedDonation.id)}
+                  disabled={selectedDonation.status !== 'COMPLETED'}
+                >
+                  Imprimer
+                </button>
+                <button
+                  className={styles.downloadReceiptButton}
+                  onClick={() => downloadDonationReceipt(selectedDonation.id)}
+                  disabled={selectedDonation.status !== 'COMPLETED'}
+                >
+                  Télécharger
+                </button>
+              </div>
+              {selectedDonation.status !== 'COMPLETED' && (
+                <div className={styles.pendingNote}>
+                  Votre don est en attente de validation par l'administrateur.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
     </div>
   );

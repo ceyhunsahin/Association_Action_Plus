@@ -11,6 +11,7 @@ const HomePage = () => {
   const [latestEvents, setLatestEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com';
   const [stats] = useState({
     events: 1,
     members: 45,
@@ -86,9 +87,20 @@ const HomePage = () => {
   useEffect(() => {
     const fetchLatestEvents = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com'}/api/events`);
-        // Son 4 etkinliği al
-        const latest = response.data.slice(0, 3);
+        const response = await axios.get(`${baseUrl}/api/events`);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const upcoming = response.data
+          .filter(event => {
+            const eventDate = new Date(event.date);
+            if (Number.isNaN(eventDate.getTime())) return false;
+            eventDate.setHours(0, 0, 0, 0);
+            return eventDate >= today;
+          })
+          .sort((a, b) => new Date(a.date) - new Date(b.date))
+          .slice(0, 3);
+        // Yaklaşan 3 etkinliği al
+        const latest = upcoming;
         setLatestEvents(latest);
         setLoading(false);
       } catch (err) {
@@ -105,6 +117,25 @@ const HomePage = () => {
   const formatDate = (dateString) => {
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('fr-FR', options);
+  };
+
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith('/uploads/')) {
+      return `${baseUrl}${imagePath}`;
+    }
+    return imagePath;
+  };
+
+  const getVideos = (event) => {
+    if (!event?.videos) return [];
+    if (Array.isArray(event.videos)) return event.videos;
+    try {
+      const parsed = JSON.parse(event.videos);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   };
 
   return (
@@ -235,10 +266,15 @@ const HomePage = () => {
                   <div key={event.id} className={styles.eventCard}>
                     <div className={styles.eventCardImageContainer}>
                       <img 
-                        src={event.image || '/assets/default-image.jpg'} 
+                        src={getImageUrl(event.image) || '/assets/default-image.jpg'} 
                         alt={event.title}
                         className={styles.eventCardImage}
                       />
+                      {getVideos(event).length > 0 && (
+                        <div className={styles.videoBadge}>
+                          Video: {getVideos(event).length}
+                        </div>
+                      )}
                       <div className={styles.eventCardDate}>
                         <FaCalendarAlt />
                         <span>{formatDate(event.date)}</span>

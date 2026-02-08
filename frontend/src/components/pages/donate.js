@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { createDonation, sendDonationReceipt } from '../../services/donationService';
+import { createDonation, getDonation, downloadDonationReceipt } from '../../services/donationService';
 import { FaHandHoldingHeart, FaCreditCard, FaMoneyBillWave, FaCheckCircle, 
   FaLock, FaInfoCircle, FaFileInvoice, FaUniversity, FaQuestionCircle, FaRegCreditCard, 
   FaReceipt, FaEuroSign, FaPercentage, FaArrowRight, FaArrowLeft, FaEnvelope, FaDownload, FaPrint } from 'react-icons/fa';
@@ -115,32 +115,23 @@ const DonatePage = () => {
         transaction_date: new Date().toISOString()
       };
       
-      console.log('Données de don:', donationFormData);
       
       const response = await createDonation(donationFormData);
-      console.log('Réponse de don:', response);
       
       // Bağış verilerini kaydet
-      setDonationData({
+      const savedDonation = {
         ...donationFormData,
         id: response.id,
         transaction_id: response.transaction_id || `TRX-${new Date().getTime()}`,
-        created_at: new Date().toISOString()
-      });
+        created_at: new Date().toISOString(),
+        status: response.status || donationFormData.status
+      };
+      setDonationData(savedDonation);
+      localStorage.setItem('lastDonationId', String(response.id));
       
-      // Makbuz gerekiyorsa, e-posta gönder
+      // Makbuz admin onayından sonra gönderilecek
       if (receiptNeeded) {
-        try {
-          await sendDonationReceipt({
-            donationId: response.id,
-            email: donorEmail,
-            name: donorName
-          });
-          setReceiptSent(true);
-        } catch (receiptError) {
-          console.error('Erreur lors de l\'envoi du reçu:', receiptError);
-          // Makbuz gönderme hatası, ana işlemi etkilemez
-        }
+        setReceiptSent(false);
       }
       
       setLoading(false);
@@ -162,6 +153,18 @@ const DonatePage = () => {
     window.print();
   };
 
+  const refreshDonationStatus = async () => {
+    if (!donationData?.id) return;
+    try {
+      const latest = await getDonation(donationData.id);
+      if (latest && latest.status) {
+        setDonationData(prev => ({ ...prev, status: latest.status }));
+      }
+    } catch {
+      // ignore
+    }
+  };
+
   const handleDownloadReceipt = () => {
     // PDF indirme işlemi burada yapılabilir
     alert("La fonctionnalité de téléchargement sera bientôt disponible.");
@@ -172,7 +175,38 @@ const DonatePage = () => {
   };
 
   // Başarılı bağış sonrası makbuz göster
-  if (success) {
+  useEffect(() => {
+    if (!success || !donationData?.id) return;
+    const interval = setInterval(() => {
+      refreshDonationStatus();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [success, donationData?.id]);
+
+  if (success && donationData?.status !== 'COMPLETED') {
+    return (
+      <div className={styles.donatePageContainer}>
+        <div className={styles.donateHeader}>
+          <FaHandHoldingHeart className={styles.donateIcon} />
+          <h1>Merci pour votre don!</h1>
+          <p>Votre don est en attente de validation par l’administrateur.</p>
+        </div>
+        <div className={styles.receiptActions}>
+          <div className={styles.receiptPendingMessage}>
+            <FaInfoCircle /> Statut: En attente de validation
+          </div>
+          <button 
+            className={styles.refreshButton}
+            onClick={refreshDonationStatus}
+          >
+            Actualiser le statut
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (success && donationData?.status === 'COMPLETED') {
     return (
       <div className={styles.donatePageContainer}>
         <div className={styles.donateHeader}>
@@ -228,7 +262,8 @@ const DonatePage = () => {
                   <span className={styles.receiptLabel}>Méthode de paiement:</span>
                   <span className={styles.receiptValue}>
                     {donationData?.payment_method === 'card' ? 'Carte bancaire' : 
-                     donationData?.payment_method === 'paypal' ? 'PayPal' : 'Virement bancaire'}
+                     donationData?.payment_method === 'paypal' ? 'PayPal' :
+                     donationData?.payment_method === 'cash' ? 'Espèces' : 'Virement bancaire'}
                   </span>
                 </div>
                 <div className={styles.receiptRow}>
@@ -275,34 +310,23 @@ const DonatePage = () => {
           </div>
           
           <div className={styles.receiptActions}>
-            {receiptSent ? (
-              <div className={styles.receiptSentMessage}>
-                <FaEnvelope /> Une copie de ce reçu a été envoyée à votre adresse email.
-              </div>
-            ) : (
-              <button 
-                className={styles.sendReceiptButton}
-                onClick={() => sendDonationReceipt({
-                  donationId: donationData?.id,
-                  email: donorEmail,
-                  name: donorName
-                }).then(() => setReceiptSent(true))}
-              >
-                <FaEnvelope /> Envoyer par email
-              </button>
-            )}
+            <div className={styles.receiptPendingMessage}>
+              <FaInfoCircle /> Le reçu fiscal sera envoyé après validation par l'administrateur.
+            </div>
             
             <div className={styles.receiptActionButtons}>
               <button 
                 className={styles.printReceiptButton}
-                onClick={handlePrintReceipt}
+                onClick={() => downloadDonationReceipt(donationData?.id)}
+                disabled={donationData?.status !== 'COMPLETED'}
               >
                 <FaPrint /> Imprimer
               </button>
               
               <button 
                 className={styles.downloadReceiptButton}
-                onClick={handleDownloadReceipt}
+                onClick={() => downloadDonationReceipt(donationData?.id)}
+                disabled={donationData?.status !== 'COMPLETED'}
               >
                 <FaDownload /> Télécharger PDF
               </button>
@@ -313,6 +337,12 @@ const DonatePage = () => {
               onClick={handleGoHome}
             >
               Retour à l'accueil
+            </button>
+            <button 
+              className={styles.refreshButton}
+              onClick={refreshDonationStatus}
+            >
+              Actualiser le statut
             </button>
           </div>
         </div>
@@ -386,7 +416,7 @@ const DonatePage = () => {
                     <p><strong>Adresse:</strong> {donorAddress || "Votre adresse complète"}</p>
                     <p><strong>Montant du don:</strong> {amount || "XX"} €</p>
                     <p><strong>Date du don:</strong> {new Date().toLocaleDateString('fr-FR')}</p>
-                    <p><strong>Mode de paiement:</strong> {paymentMethod === 'card' ? 'Carte bancaire' : 'Virement bancaire'}</p>
+                    <p><strong>Mode de paiement:</strong> {paymentMethod === 'card' ? 'Carte bancaire' : paymentMethod === 'cash' ? 'Espèces' : 'Virement bancaire'}</p>
                     <p className={styles.receiptDeclaration}>
                       L'Association Culturelle de Paris certifie que ce don ouvre droit à la réduction d'impôt prévue à l'article 200 du CGI.
                     </p>
@@ -638,6 +668,13 @@ const DonatePage = () => {
               >
                 <FaMoneyBillWave />
                 <span>Virement bancaire</span>
+              </div>
+              <div 
+                className={`${styles.paymentMethod} ${paymentMethod === 'cash' ? styles.selected : ''}`}
+                onClick={() => setPaymentMethod('cash')}
+              >
+                <FaMoneyBillWave />
+                <span>Espèces</span>
               </div>
             </div>
           </div>

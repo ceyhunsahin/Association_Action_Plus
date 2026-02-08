@@ -15,7 +15,6 @@ import Events from './components/pages/Events';
 import EventDetail from './components/pages/EventDetail';
 import CreateEvent from './components/pages/CreateEvent';
 import ProtectedRoute from './components/protectedRoute';
-import AdminRoute from './components/AdminRoute';
 import Layout from './components/Layout/Layout';
 import NotFoundPage from './components/pages/notFoundPage';
 
@@ -26,12 +25,11 @@ import Contact from './components/pages/Contact';
 import ForgotPassword from './components/pages/ForgotPassword';
 import EditEvent from './components/pages/EditEvent';
 import AdminMembershipManagement from './components/pages/AdminMembershipManagement';
+import DonatePage from './components/pages/donate';
+import AdminDonations from './components/pages/AdminDonations';
 import './App.css';
 
 function App() {
-  React.useEffect(() => {
-    console.log('LA TAHZEN');
-  }, []);
 
   return (
     <AuthProvider>
@@ -72,6 +70,9 @@ function App() {
           
           {/* Contact sayfası */}
           <Route path="/contact" element={<Layout><Contact /></Layout>} />
+
+          {/* Donation sayfası */}
+          <Route path="/donate" element={<Layout><DonatePage /></Layout>} />
           
           {/* Forgot Password sayfası */}
           <Route path="/forgot-password" element={<Layout><ForgotPassword /></Layout>} />
@@ -92,6 +93,16 @@ function App() {
             element={
               <ProtectedRoute adminOnly={true}>
                 <Layout><AdminMembershipManagement /></Layout>
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Admin Donations sayfası */}
+          <Route 
+            path="/admin/donations" 
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <Layout><AdminDonations /></Layout>
               </ProtectedRoute>
             } 
           />

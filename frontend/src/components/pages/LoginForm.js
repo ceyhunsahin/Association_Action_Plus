@@ -30,13 +30,13 @@ const LoginForm = () => {
         setError('');
         setLoading(true);
 
-        console.log("Form submitted with:", { email, password });
-
         try {
-            console.log("Attempting login with:", email, password);
-            await login(email, password);
-            console.log("Login successful, navigating to profile");
-            navigate('/profile');
+            const ok = await login(email, password);
+            if (ok) {
+                navigate('/profile');
+            } else {
+                setError('Email, nom d\'utilisateur ou mot de passe incorrect');
+            }
         } catch (err) {
             console.error('Login error:', err);
             
@@ -67,7 +67,6 @@ const LoginForm = () => {
             const result = await loginWithGoogle();
             
             if (result) {
-                console.log('Google login successful:', result);
                 // Başarılı giriş sonrası yönlendir
                 navigate('/profile');
             } else {

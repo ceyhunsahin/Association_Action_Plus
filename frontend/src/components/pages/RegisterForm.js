@@ -43,8 +43,6 @@ const RegisterForm = () => {
     setError('');
     
     try {
-      console.log('Sending registration request to:', 'https://association-action-plus.onrender.com/api/auth/register');
-      
       const response = await axios.post('https://association-action-plus.onrender.com/api/auth/register', {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -53,8 +51,6 @@ const RegisterForm = () => {
         password: formData.password
       });
 
-      console.log('Registration successful:', response.data);
-      
       // Kullanıcı bilgilerini ve token'ı kaydet
       const { access_token, user } = response.data;
       localStorage.setItem('token', access_token);

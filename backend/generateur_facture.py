@@ -93,6 +93,52 @@ class GenerateurFacture:
         doc.build(story)
         return output_path
 
+    def generer_recu_don(self, donation_data, output_path):
+        """Génère un reçu PDF pour un don"""
+        doc = SimpleDocTemplate(output_path, pagesize=A4)
+        story = []
+
+        story.extend(self.creer_en_tete())
+        story.append(Spacer(1, 10))
+
+        story.append(Paragraph("RECU DE DON", self.styles['TitrePrincipal']))
+        story.append(Spacer(1, 10))
+
+        story.extend(self.creer_informations_facture({
+            "id": donation_data.get("id"),
+            "payment_date": donation_data.get("transaction_date") or donation_data.get("created_at")
+        }))
+        story.append(Spacer(1, 10))
+
+        story.extend(self.creer_informations_membre({
+            "firstName": donation_data.get("donor_name", ""),
+            "lastName": "",
+            "email": donation_data.get("donor_email", "")
+        }))
+        story.append(Spacer(1, 10))
+
+        details = [
+            ["Montant du don", f"{donation_data.get('amount', '')} {donation_data.get('currency', 'EUR')}"],
+            ["Methode de paiement", donation_data.get("payment_method", "")],
+            ["Transaction", donation_data.get("transaction_id", "")],
+            ["Date", donation_data.get("transaction_date") or donation_data.get("created_at", "")]
+        ]
+        table = Table(details, colWidths=[7*cm, 9*cm])
+        table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
+            ("FONTSIZE", (0, 0), (-1, -1), 11),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ]))
+        story.append(table)
+        story.append(Spacer(1, 15))
+
+        story.extend(self.creer_pied_de_page())
+
+        doc.build(story)
+        return output_path
+
     def creer_en_tete(self):
         """Crée l'en-tête avec le logo et les informations de l'association"""
         elements = []
@@ -307,4 +353,15 @@ def generer_facture_utilisateur(user_data, membership_data, payment_data, output
     generateur = GenerateurFacture()
     generateur.generer_facture_adhésion(user_data, membership_data, payment_data, output_path)
     
-    return output_path 
+    return output_path
+
+def generer_recu_don_utilisateur(donation_data, output_dir="factures"):
+    """Fonction utilitaire pour générer un reçu de don"""
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    filename = f"recu_don_{donation_data.get('id', 'don')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    output_path = os.path.join(output_dir, filename)
+    generateur = GenerateurFacture()
+    generateur.generer_recu_don(donation_data, output_path)
+    return output_path

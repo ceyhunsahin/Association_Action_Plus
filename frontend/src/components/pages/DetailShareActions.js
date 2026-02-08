@@ -30,7 +30,6 @@ const DetailShareActions = ({ id }) => {
   };
 
   const handleSocialMediaClick = (socialMediaName) => {
-    console.log(`Clicked on ${socialMediaName}`);
   };
 
   return (

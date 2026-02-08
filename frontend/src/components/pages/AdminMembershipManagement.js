@@ -4,6 +4,7 @@ import styles from './AdminMembershipManagement.module.css';
 import { createUser, createMembership } from '../../services/membershipService';
 
 const AdminMembershipManagement = () => {
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com';
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,7 +31,7 @@ const AdminMembershipManagement = () => {
   const fetchAllMembers = async () => {
     setLoading(true);
     try {
-              const response = await fetch('https://association-action-plus.onrender.com/api/admin/members', {
+              const response = await fetch(`${baseUrl}/api/admin/members`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
           'Content-Type': 'application/json'
@@ -39,7 +40,6 @@ const AdminMembershipManagement = () => {
       
       if (response.ok) {
         const data = await response.json();
-        console.log('API Response:', data);
         setMembers(data);
       } else {
         console.error('Erreur lors du chargement des membres:', response.status, response.statusText);
@@ -53,16 +53,12 @@ const AdminMembershipManagement = () => {
 
   // Üyeliği yenile (admin tarafından)
   const handleRenewMembership = async () => {
-    console.log('handleRenewMembership çağrıldı');
-    console.log('selectedMember:', selectedMember);
-    console.log('renewalData:', renewalData);
     if (!selectedMember) {
-      console.log('selectedMember yok, işlem durduruluyor');
       return;
     }
     
     try {
-              const response = await fetch(`https://association-action-plus.onrender.com/api/admin/members/${selectedMember.id}/renew`, {
+              const response = await fetch(`${baseUrl}/api/admin/members/${selectedMember.id}/renew`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -73,13 +69,11 @@ const AdminMembershipManagement = () => {
       
       if (response.ok) {
         const result = await response.json();
-        console.log('Renewal response:', result);
         alert('Adhésion renouvelée avec succès!');
         setShowRenewalModal(false);
         
         // Eğer membership_id varsa, üyeyi güncelle
         if (result.membership_id) {
-          console.log('Membership ID güncelleniyor:', result.membership_id);
           setMembers(prevMembers => 
             prevMembers.map(member => 
               member.id === selectedMember.id 
@@ -90,7 +84,6 @@ const AdminMembershipManagement = () => {
         }
         
         // State'i güncelle, API çağrısı yapma
-        console.log('State güncellendi, PDF butonu çıkmalı');
       } else {
         alert('Erreur lors du renouvellement');
       }
@@ -104,7 +97,6 @@ const AdminMembershipManagement = () => {
   const handleAddMember = async () => {
     setAddMemberLoading(true);
     try {
-      console.log('Adding new member with data:', newMemberData);
       
       // Form validasyonu
       if (!newMemberData.firstName || !newMemberData.lastName || !newMemberData.email || !newMemberData.username) {
@@ -127,7 +119,6 @@ const AdminMembershipManagement = () => {
         role: 'user'
       });
 
-      console.log('Utilisateur créé:', userData);
 
       // Sonra üyelik oluştur
       const membershipData = await createMembership({
@@ -137,7 +128,9 @@ const AdminMembershipManagement = () => {
         amount: newMemberData.amount
       });
 
-      console.log('Adhésion créée:', membershipData);
+      if (membershipData?.invoice_available && membershipData?.payment_id) {
+        await handleDownloadInvoice(membershipData.payment_id);
+      }
 
       alert('Membre ajouté avec succès!');
       setShowAddMemberModal(false);
@@ -165,7 +158,7 @@ const AdminMembershipManagement = () => {
   // Fatura indir
   const handleDownloadInvoice = async (paymentId) => {
     try {
-              const response = await fetch(`https://association-action-plus.onrender.com/api/admin/download-invoice/${paymentId}`, {
+              const response = await fetch(`${baseUrl}/api/admin/download-invoice/${paymentId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         }
@@ -193,7 +186,7 @@ const AdminMembershipManagement = () => {
   // Membership ID ile fatura indir
   const handleDownloadInvoiceMembership = async (membershipId) => {
     try {
-              const response = await fetch(`https://association-action-plus.onrender.com/api/admin/download-invoice-membership/${membershipId}`, {
+              const response = await fetch(`${baseUrl}/api/admin/download-invoice-membership/${membershipId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         }
@@ -316,7 +309,6 @@ const AdminMembershipManagement = () => {
                   <button 
                     className={styles.actionButton}
                     onClick={() => {
-                      console.log('Renouveler butonu tıklandı, member:', member);
                       setSelectedMember(member);
                       setShowRenewalModal(true);
                     }}

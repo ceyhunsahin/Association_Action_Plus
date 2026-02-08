@@ -17,15 +17,6 @@ const app = initializeApp(firebaseConfig);
 // Auth servisini al
 const auth = getAuth(app);
 
-// Geliştirme ortamında hata ayıklama
-if (process.env.NODE_ENV === 'development') {
-  console.log('Firebase initialized with config:', {
-    ...firebaseConfig,
-    apiKey: firebaseConfig.apiKey.substring(0, 5) + '...',
-    appId: firebaseConfig.appId ? firebaseConfig.appId.substring(0, 5) + '...' : 'not set'
-  });
-}
-
 // Firebase Auth'u etkinleştir
 auth.useDeviceLanguage();
 auth.settings.appVerificationDisabledForTesting = false;

@@ -6,6 +6,7 @@ from models import Event, EventCreate, EventUpdate
 import sqlite3
 from jose import JWTError, jwt
 from datetime import datetime
+import json
 
 router = APIRouter(
     tags=["events"]
@@ -55,6 +56,20 @@ async def get_events():
         events_list = []
         for event in events:
             event_dict = dict(event)
+            if event_dict.get("images"):
+                try:
+                    event_dict["images"] = json.loads(event_dict["images"])
+                except Exception:
+                    event_dict["images"] = []
+            else:
+                event_dict["images"] = []
+            if event_dict.get("videos"):
+                try:
+                    event_dict["videos"] = json.loads(event_dict["videos"])
+                except Exception:
+                    event_dict["videos"] = []
+            else:
+                event_dict["videos"] = []
             if "participant_count" not in event_dict or event_dict["participant_count"] is None:
                 event_dict["participant_count"] = 0
             events_list.append(event_dict)
@@ -124,18 +139,28 @@ async def create_event(
         cursor = conn.cursor()
         
         # Etkinliği oluştur
+        images_value = None
+        if isinstance(event.get("images"), list):
+            images_value = json.dumps(event.get("images"))
+        videos_value = None
+        if isinstance(event.get("videos"), list):
+            videos_value = json.dumps(event.get("videos"))
+
         cursor.execute("""
             INSERT INTO events (
                 title, description, date, location, 
-                image, max_participants, created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                image, images, videos, max_participants, participant_count, created_by
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             event.get("title"),
             event.get("description"),
             event.get("date"),
             event.get("location"),
             event.get("image"),
+            images_value,
+            videos_value,
             event.get("max_participants"),
+            event.get("participant_count", 0),
             current_user.get("id", 1)  # Admin ID'si varsayılan olarak 1
         ))
         
@@ -147,8 +172,22 @@ async def create_event(
         new_event = cursor.fetchone()
         
         conn.close()
-        
-        return dict(new_event)
+        new_event_dict = dict(new_event)
+        if new_event_dict.get("images"):
+            try:
+                new_event_dict["images"] = json.loads(new_event_dict["images"])
+            except Exception:
+                new_event_dict["images"] = []
+        else:
+            new_event_dict["images"] = []
+        if new_event_dict.get("videos"):
+            try:
+                new_event_dict["videos"] = json.loads(new_event_dict["videos"])
+            except Exception:
+                new_event_dict["videos"] = []
+        else:
+            new_event_dict["videos"] = []
+        return new_event_dict
         
     except Exception as e:
         print(f"Error creating event: {str(e)}")
@@ -183,6 +222,13 @@ async def update_event(
             )
         
         # Etkinliği güncelle - updated_at sütununu kaldırdık
+        images_value = None
+        if isinstance(event.get("images"), list):
+            images_value = json.dumps(event.get("images"))
+        videos_value = None
+        if isinstance(event.get("videos"), list):
+            videos_value = json.dumps(event.get("videos"))
+
         cursor.execute("""
             UPDATE events SET
                 title = ?,
@@ -190,6 +236,8 @@ async def update_event(
                 date = ?,
                 location = ?,
                 image = ?,
+                images = ?,
+                videos = ?,
                 max_participants = ?
             WHERE id = ?
         """, (
@@ -198,6 +246,8 @@ async def update_event(
             event.get("date"),
             event.get("location"),
             event.get("image"),
+            images_value,
+            videos_value,
             event.get("max_participants"),
             event_id
         ))
@@ -209,8 +259,22 @@ async def update_event(
         updated_event = cursor.fetchone()
         
         conn.close()
-        
-        return dict(updated_event)
+        updated_event_dict = dict(updated_event)
+        if updated_event_dict.get("images"):
+            try:
+                updated_event_dict["images"] = json.loads(updated_event_dict["images"])
+            except Exception:
+                updated_event_dict["images"] = []
+        else:
+            updated_event_dict["images"] = []
+        if updated_event_dict.get("videos"):
+            try:
+                updated_event_dict["videos"] = json.loads(updated_event_dict["videos"])
+            except Exception:
+                updated_event_dict["videos"] = []
+        else:
+            updated_event_dict["videos"] = []
+        return updated_event_dict
         
     except Exception as e:
         print(f"Error updating event: {str(e)}")
@@ -289,17 +353,36 @@ async def get_event(event_id: int):
             })
         
         # Etkinliği dictionary'e çevir
+        images = []
+        if event["images"]:
+            try:
+                images = json.loads(event["images"])
+            except Exception:
+                images = []
+        videos = []
+        if event["videos"]:
+            try:
+                videos = json.loads(event["videos"])
+            except Exception:
+                videos = []
+
         event_dict = {
             "id": event["id"],
             "title": event["title"],
             "date": event["date"],
             "description": event["description"],
+            "location": event["location"],
             "image": event["image"],
+            "images": images,
+            "videos": videos,
+            "max_participants": event["max_participants"],
             "participant_count": len(participants_list),
             "participants": participants_list
         }
         
         return event_dict
+    except HTTPException as e:
+        raise e
     except Exception as e:
         print(f"Error in get_event: {str(e)}")  # Hata mesajını logla
         raise HTTPException(status_code=500, detail=str(e))
