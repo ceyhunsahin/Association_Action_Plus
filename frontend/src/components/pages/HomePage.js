@@ -274,7 +274,7 @@ const HomePage = () => {
               <div className={styles.statIcon}>
                 <FaGlobeAmericas />
               </div>
-              <div className={styles.statNumber}>{stats.countries}</div>
+              <div className={styles.statNumber}>{stats.visitors}</div>
               <div className={styles.statLabel}>Visiteurs uniques</div>
             </div>
           </div>

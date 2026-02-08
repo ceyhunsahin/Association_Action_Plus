@@ -226,6 +226,8 @@
   gap: 0.4rem;
   min-width: 220px;
   z-index: 1200;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .navLink {
@@ -675,6 +677,13 @@
     font-size: 0.7rem;
     padding: 0.4rem 0.6rem;
     max-width: 130px;
+  }
+
+  .adminMenu {
+    right: 0;
+    left: auto;
+    min-width: 200px;
+    max-width: calc(100vw - 2rem);
   }
 }
 

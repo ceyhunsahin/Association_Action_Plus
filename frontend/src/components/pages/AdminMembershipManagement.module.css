@@ -425,6 +425,29 @@
   .container {
     padding: 1rem;
   }
+
+  .header {
+    text-align: left;
+    padding-right: 0;
+  }
+
+  .header h1 {
+    font-size: 1.9rem;
+  }
+
+  .header p {
+    font-size: 1rem;
+  }
+
+  .addMemberButton {
+    position: static;
+    transform: none;
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+    font-size: 1rem;
+    padding: 0.85rem 1.2rem;
+  }
   
   .listHeader,
   .memberRow {
@@ -461,4 +484,18 @@
   .modalContent {
     padding: 1rem;
   }
-} 
+}
+
+@media (max-width: 480px) {
+  .memberRow {
+    padding: 0.9rem;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  .actionButton {
+    flex: 1 1 48%;
+  }
+}
