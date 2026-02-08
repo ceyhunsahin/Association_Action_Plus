@@ -9,6 +9,7 @@ const ForgotPassword = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,7 +19,7 @@ const ForgotPassword = () => {
 
     try {
       // API isteği - backend'e şifre sıfırlama talebi gönder
-      const response = await axios.post('https://association-action-plus.onrender.com/api/auth/reset-password-request', { email });
+      const response = await axios.post(`${baseUrl}/api/auth/reset-password-request`, { email });
       
       setMessage('Un e-mail de réinitialisation a été envoyé à votre adresse e-mail si elle existe dans notre système.');
       setSubmitted(true);

@@ -93,6 +93,14 @@ def init_db():
         FOREIGN KEY (created_by) REFERENCES users (id)
     )
     ''')
+
+    # Ziyaretçi sayacı (benzersiz IP)
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS visitors (
+        ip TEXT PRIMARY KEY,
+        first_seen TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+    ''')
     
     # Eğer veritabanı yeni oluşturulduysa, admin kullanıcısını ekle
     if not db_exists:
@@ -135,6 +143,19 @@ def init_db():
         conn.commit()
     except:
         pass
+
+    # Eğer visitors tablosu eskiyse yeniden oluştur
+    try:
+        cursor.execute('SELECT ip FROM visitors LIMIT 1')
+    except:
+        cursor.execute('DROP TABLE IF EXISTS visitors')
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS visitors (
+            ip TEXT PRIMARY KEY,
+            first_seen TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        ''')
+        conn.commit()
     
     # Üyelikler tablosunu oluştur
     cursor.execute('''
@@ -714,6 +735,48 @@ def update_donation_status(donation_id, status):
     finally:
         if conn:
             conn.close()
+
+
+def track_visit(ip_address: str) -> int:
+    """Benzersiz IP sayısını arttır ve toplamı döndür"""
+    if not ip_address:
+        return 0
+
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT OR IGNORE INTO visitors (ip) VALUES (?)", (ip_address,))
+        conn.commit()
+        cursor.execute("SELECT COUNT(*) FROM visitors")
+        total = cursor.fetchone()[0]
+        return total
+    finally:
+        conn.close()
+
+
+def get_site_stats():
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT COUNT(*) FROM events")
+        events_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM memberships WHERE status = 'active'")
+        members_active = cursor.fetchone()[0]
+        if not members_active:
+            cursor.execute("SELECT COUNT(*) FROM users WHERE role != 'admin'")
+            members_active = cursor.fetchone()[0]
+
+        cursor.execute("SELECT COUNT(*) FROM visitors")
+        visitors_count = cursor.fetchone()[0]
+
+        return {
+            "events": events_count,
+            "members": members_active,
+            "visitors": visitors_count
+        }
+    finally:
+        conn.close()
 
 # Uygulama başladığında veritabanını başlat
 if __name__ == "__main__":

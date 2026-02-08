@@ -16,6 +16,7 @@ import { getMyDonations, downloadDonationReceipt } from '../../services/donation
 
 const ProfilePage = () => {
   const { user, accessToken, logout, updateUserProfile } = useAuth();
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('overview'); // overview, events, settings, messages
   const [formData, setFormData] = useState({
@@ -46,6 +47,7 @@ const ProfilePage = () => {
   const [membershipError, setMembershipError] = useState(null);
   const [showRenewalModal, setShowRenewalModal] = useState(false);
   const [renewalLoading, setRenewalLoading] = useState(false);
+  const [siteStats, setSiteStats] = useState(null);
   const [donations, setDonations] = useState([]);
   const [selectedDonation, setSelectedDonation] = useState(null);
   const [showDonationModal, setShowDonationModal] = useState(false);
@@ -86,6 +88,7 @@ const ProfilePage = () => {
     // Admin ise contact mesajlarını getir
     if (user && user.role === 'admin') {
       fetchContactMessages();
+      fetchSiteStats();
     }
   }, [user, accessToken, navigate]);
 
@@ -96,6 +99,15 @@ const ProfilePage = () => {
       setDonations(Array.isArray(data) ? data : []);
     } catch {
       setDonations([]);
+    }
+  };
+
+  const fetchSiteStats = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/api/stats`);
+      setSiteStats(response.data || null);
+    } catch {
+      setSiteStats(null);
     }
   };
 
@@ -154,7 +166,7 @@ const ProfilePage = () => {
     if (!accessToken || user?.role !== 'admin') return;
     
     try {
-      const response = await axios.get('https://association-action-plus.onrender.com/api/admin/contact-messages', {
+      const response = await axios.get(`${baseUrl}/api/admin/contact-messages`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -171,7 +183,7 @@ const ProfilePage = () => {
     if (!accessToken || user?.role !== 'admin') return;
     
     try {
-      await axios.put(`https://association-action-plus.onrender.com/api/admin/contact-messages/${messageId}/read`, {}, {
+      await axios.put(`${baseUrl}/api/admin/contact-messages/${messageId}/read`, {}, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -244,7 +256,7 @@ const ProfilePage = () => {
       setLoading(true);
       
       // Doğrudan tüm etkinlikleri getir ve kullanıcının katıldıklarını işaretle
-      const allEventsResponse = await axios.get('https://association-action-plus.onrender.com/api/events');
+      const allEventsResponse = await axios.get(`${baseUrl}/api/events`);
       
       // Tüm etkinlikleri al
       const allEvents = Array.isArray(allEventsResponse.data) ? allEventsResponse.data : 
@@ -252,7 +264,7 @@ const ProfilePage = () => {
       
       // Kullanıcının katıldığı etkinlikleri kontrol et
       try {
-        const userEventsResponse = await axios.get('https://association-action-plus.onrender.com/api/users/me/events', {
+        const userEventsResponse = await axios.get(`${baseUrl}/api/users/me/events`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`
           }
@@ -535,6 +547,12 @@ const ProfilePage = () => {
             </div>
           </div>
         </div>
+
+        {user?.role === 'admin' && (
+          <div className={styles.adminNotice}>
+            Depuis l’ouverture du site, {siteStats?.visitors ?? 0} visiteurs uniques ont été enregistrés (par IP).
+          </div>
+        )}
         
         <div className={styles.twoColumnLayout}>
           <div className={styles.leftColumn}>
@@ -962,7 +980,7 @@ const ProfilePage = () => {
   const handleUnregister = async (eventId) => {
     try {
         const response = await axios.delete(
-            `https://association-action-plus.onrender.com/api/events/${eventId}/register`,
+            `${baseUrl}/api/events/${eventId}/register`,
             {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`

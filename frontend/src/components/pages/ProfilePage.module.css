@@ -206,6 +206,16 @@
   gap: 1rem;
 }
 
+.adminNotice {
+  margin: 16px 0 8px;
+  padding: 12px 16px;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  color: #1e3a8a;
+  font-size: 0.95rem;
+}
+
 .statCard {
   background-color: #f9f9f9;
   border-radius: 8px;

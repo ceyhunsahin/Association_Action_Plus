@@ -98,7 +98,7 @@ const LoginForm = () => {
                 
                 <form onSubmit={handleSubmit}>
                     <div className={styles.formGroup}>
-                        <label htmlFor="email">Email veya Kullanıcı Adı</label>
+                        <label htmlFor="email">Email ou nom d'utilisateur</label>
                         <input
                             type="text"
                             id="email"

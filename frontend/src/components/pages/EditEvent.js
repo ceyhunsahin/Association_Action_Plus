@@ -9,7 +9,7 @@ const EditEvent = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { accessToken, isAdmin } = useAuth();
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com';
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
   const [formData, setFormData] = useState({
     title: '',
     description: '',

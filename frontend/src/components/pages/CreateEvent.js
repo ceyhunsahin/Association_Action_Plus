@@ -8,7 +8,7 @@ import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaImage, FaCheck } from 'react-
 const CreateEvent = () => {
   const { accessToken, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com';
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
   const [formData, setFormData] = useState({
     title: '',
     description: '',

@@ -22,7 +22,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
-from database import create_donation, get_donation_by_id, get_all_donations, update_donation_status, get_donations_by_user
+from database import create_donation, get_donation_by_id, get_all_donations, update_donation_status, get_donations_by_user, track_visit, get_site_stats
 
 # .env dosyasını yükle
 load_dotenv()
@@ -94,6 +94,19 @@ def send_email(to_email, subject, message):
 
 # Statik dosyaları serve et
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
+# Ziyaretçi ve istatistik endpointleri
+@app.post("/api/visits/track")
+async def track_visit_endpoint(request: Request):
+    forwarded = request.headers.get("x-forwarded-for", "")
+    client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "")
+    total = track_visit(client_ip)
+    return {"visitors": total}
+
+
+@app.get("/api/stats")
+async def get_stats_endpoint():
+    return get_site_stats()
 
 # Frontend build'i varsa aynı backend üzerinden servis et (SPA)
 FRONTEND_BUILD_DIR = Path(__file__).resolve().parent.parent / "frontend" / "build"

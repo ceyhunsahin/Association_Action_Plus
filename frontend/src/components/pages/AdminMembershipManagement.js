@@ -4,7 +4,7 @@ import styles from './AdminMembershipManagement.module.css';
 import { createUser, createMembership } from '../../services/membershipService';
 
 const AdminMembershipManagement = () => {
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com';
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');

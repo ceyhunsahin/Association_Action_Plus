@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
   // Normal kayıt
   const register = async (userData) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com'}/api/auth/register`, userData);
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || ''}/api/auth/register`, userData);
       
       if (response.data && response.data.access_token) {
         const { access_token, user } = response.data;
@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }) => {
       
 
       
-              const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com'}/api/auth/login`, {
+              const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || ''}/api/auth/login`, {
         email,
         password
       });
@@ -182,7 +182,7 @@ export const AuthProvider = ({ children }) => {
       
       try {
         // Backend'e gönder
-        const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com'}/api/auth/google-login`, {
+        const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || ''}/api/auth/google-login`, {
           userData: userData
         });
         

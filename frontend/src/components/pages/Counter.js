@@ -4,6 +4,7 @@ import styles from './Counter.module.css';
 const Counter = () => {
   const [count, setCount] = useState(0);
   const [ip, setIp] = useState('');
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
 
   // IP adresini al ve sayaç başlat
   useEffect(() => {
@@ -15,13 +16,13 @@ const Counter = () => {
         setIp(ipData.ip);
 
         // Backend'e IP'yi gönder ve sayaç değerini al
-        const trackResponse = await fetch('https://association-action-plus.onrender.com/counter/track-ip', {
+        const trackResponse = await fetch(`${baseUrl}/counter/track-ip`, {
           method: 'POST',
         });
         const trackData = await trackResponse.json();
 
         // Global sayacı al
-        const counterResponse = await fetch('https://association-action-plus.onrender.com/counter');
+        const counterResponse = await fetch(`${baseUrl}/counter`);
         const counterData = await counterResponse.json();
         setCount(counterData.global_counter);
       } catch (error) {

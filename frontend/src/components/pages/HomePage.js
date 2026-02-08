@@ -11,11 +11,11 @@ const HomePage = () => {
   const [latestEvents, setLatestEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com';
-  const [stats] = useState({
-    events: 1,
-    members: 45,
-    countries: 2
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
+  const [stats, setStats] = useState({
+    events: 0,
+    members: 0,
+    visitors: 0
   });
 
   // Scroll refs
@@ -111,6 +111,31 @@ const HomePage = () => {
     };
 
     fetchLatestEvents();
+  }, []);
+
+  useEffect(() => {
+    const trackAndFetchStats = async () => {
+      try {
+        await axios.post(`${baseUrl}/api/visits/track`);
+      } catch {
+        // ignore tracking errors
+      }
+
+      try {
+        const response = await axios.get(`${baseUrl}/api/stats`);
+        if (response?.data) {
+          setStats({
+            events: response.data.events ?? 0,
+            members: response.data.members ?? 0,
+            visitors: response.data.visitors ?? 0
+          });
+        }
+      } catch {
+        // ignore stats errors
+      }
+    };
+
+    trackAndFetchStats();
   }, []);
 
   // Tarih formatını düzenleyen yardımcı fonksiyon
@@ -226,7 +251,7 @@ const HomePage = () => {
                 <FaGlobeAmericas />
               </div>
               <div className={styles.statNumber}>{stats.countries}</div>
-              <div className={styles.statLabel}>Pays représentés</div>
+              <div className={styles.statLabel}>Visiteurs uniques</div>
             </div>
           </div>
           
@@ -259,6 +284,8 @@ const HomePage = () => {
             <div className={styles.loading}>Chargement des événements...</div>
           ) : error ? (
             <div className={styles.error}>{error}</div>
+          ) : latestEvents.length === 0 ? (
+            <div className={styles.empty}>Aucune activité à venir pour le moment.</div>
           ) : (
             <div className={styles.eventsContainer}>
               <div className={styles.eventCards} ref={eventsScrollRef}>

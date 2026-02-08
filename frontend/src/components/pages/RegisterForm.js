@@ -17,6 +17,7 @@ const RegisterForm = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login, loginWithGoogle } = useAuth();
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,7 +44,7 @@ const RegisterForm = () => {
     setError('');
     
     try {
-      const response = await axios.post('https://association-action-plus.onrender.com/api/auth/register', {
+      const response = await axios.post(`${baseUrl}/api/auth/register`, {
         firstName: formData.firstName,
         lastName: formData.lastName,
         username: formData.username,

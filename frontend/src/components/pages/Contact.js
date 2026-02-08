@@ -38,7 +38,7 @@ const Contact = () => {
     }
     
     try {
-              const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || 'https://association-action-plus.onrender.com'}/api/contact`, {
+              const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || ''}/api/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
