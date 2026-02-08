@@ -812,6 +812,26 @@ async def create_donation_endpoint(donation_data: dict = Body(...)):
         if not donation:
             raise HTTPException(status_code=500, detail="Erreur lors de la création du don")
 
+        # Admin'e bildirim gönder
+        try:
+            admin_email = os.getenv("ADMIN_EMAIL", "contact@actionplusmetz.org")
+            subject = "Nouveau don reçu - Action Plus"
+            message = f"""
+            Nouveau don en attente de validation:
+
+            Nom: {donation.get('donor_name')}
+            Email: {donation.get('donor_email')}
+            Montant: {donation.get('amount')} {donation.get('currency', 'EUR')}
+            Méthode: {donation.get('payment_method')}
+            Transaction: {donation.get('transaction_id')}
+            Date: {donation.get('transaction_date') or donation.get('created_at')}
+
+            Merci de valider le don dans le panneau admin.
+            """
+            send_email(admin_email, subject, message)
+        except Exception as e:
+            print(f"Donation admin notify error: {str(e)}")
+
         return donation
     except HTTPException as e:
         raise e
