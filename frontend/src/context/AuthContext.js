@@ -291,6 +291,36 @@ export const AuthProvider = ({ children }) => {
     window.location.href = '/';
   };
 
+  // Profil güncelleme
+  const updateUserProfile = async (profileData) => {
+    try {
+      const token = accessToken || localStorage.getItem('accessToken');
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_BASE_URL || ''}/api/users/me`,
+        profileData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.data) {
+        const updatedUser = response.data;
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+
+      return response.data;
+    } catch (err) {
+      throw err;
+    }
+  };
+
   const value = {
     user,
     accessToken,
@@ -299,6 +329,7 @@ export const AuthProvider = ({ children }) => {
     login,
     loginWithGoogle,
     logout,
+    updateUserProfile,
     isAdmin,
     isAuthenticated,
     error

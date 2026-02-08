@@ -118,6 +118,46 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     }
     return user_info
 
+@router.put("/me", response_model=Dict)
+async def update_current_user_profile(payload: Dict, current_user: dict = Depends(get_current_user)):
+    """Kullanıcının profil bilgilerini güncelle"""
+    conn = get_db()
+    cursor = conn.cursor()
+
+    allowed_fields = {"firstName", "lastName", "username", "profileImage"}
+    update_fields = {k: v for k, v in payload.items() if k in allowed_fields}
+
+    if not update_fields:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Aucun champ à mettre à jour")
+
+    set_clause = ", ".join([f"{key} = ?" for key in update_fields.keys()])
+    values = list(update_fields.values())
+    values.append(current_user["id"])
+
+    try:
+        cursor.execute(f"UPDATE users SET {set_clause} WHERE id = ?", values)
+        conn.commit()
+
+        cursor.execute("SELECT id, firstName, lastName, username, email, role, profileImage FROM users WHERE id = ?", (current_user["id"],))
+        user = cursor.fetchone()
+        if not user:
+            raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+
+        return {
+            "id": user["id"],
+            "firstName": user["firstName"],
+            "lastName": user["lastName"],
+            "username": user["username"],
+            "email": user["email"],
+            "role": user["role"],
+            "profileImage": user["profileImage"]
+        }
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=400, detail="Nom d'utilisateur déjà utilisé")
+    finally:
+        conn.close()
+
 @router.post("/register")
 async def auth_register(user: User):
     conn = get_db()
