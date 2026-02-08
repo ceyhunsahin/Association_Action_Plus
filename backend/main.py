@@ -419,6 +419,11 @@ async def startup_event():
 # Ana sayfa
 @app.get("/")
 def read_root():
+    # Serve SPA index if build exists, otherwise fallback to API message
+    frontend_build = Path(__file__).resolve().parent.parent / "frontend" / "build"
+    index_file = frontend_build / "index.html"
+    if frontend_build.exists() and index_file.is_file():
+        return FileResponse(index_file)
     return {"message": "Welcome to the API"}
 
 # Sağlık kontrolü
