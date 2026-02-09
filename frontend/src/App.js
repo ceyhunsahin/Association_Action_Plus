@@ -5,7 +5,6 @@ import ScrollToTop from './components/common/ScrollToTop';
 
 // Doğru dosya yollarını kullanarak bileşenleri import edelim
 // Dosya adlarını tam olarak dosya sistemindeki gibi yazalım
-import Navbar from './components/pages/Navbar';
 import HomePage from './components/pages/HomePage';
 import About from './components/pages/About'; 
 import LoginForm from './components/pages/LoginForm';

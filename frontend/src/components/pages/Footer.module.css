@@ -58,7 +58,7 @@
   justify-content: space-between;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 4rem 2rem 2rem;
+  padding: 2.5rem 1.5rem 1.5rem;
   position: relative;
   z-index: 1;
 }
@@ -66,13 +66,13 @@
 .footerSection {
   flex: 1;
   min-width: 250px;
-  margin-bottom: 2rem;
-  padding: 0 1rem;
+  margin-bottom: 1.2rem;
+  padding: 0 0.5rem;
 }
 
 .footerSection h3 {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  margin-bottom: 0.9rem;
   position: relative;
   padding-bottom: 0.5rem;
   color: #c8a97e;
@@ -89,8 +89,8 @@
 }
 
 .footerSection p {
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
+  line-height: 1.4;
+  margin-bottom: 0.9rem;
   color: rgba(255, 255, 255, 0.8);
 }
 
@@ -103,8 +103,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.1);
   color: #fff;
@@ -122,7 +122,7 @@
 }
 
 .footerLinks li {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   transition: transform 0.3s;
 }
 
@@ -160,7 +160,7 @@
 .contactInfo p {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
   color: rgba(255, 255, 255, 0.8);
 }
 
@@ -175,7 +175,7 @@
 }
 
 .openingHours li {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   color: rgba(255, 255, 255, 0.8);
 }
 
@@ -187,7 +187,7 @@
 
 .footerBottom {
   background-color: rgba(0, 0, 0, 0.2);
-  padding: 1.5rem 2rem;
+  padding: 1rem 1.5rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -219,7 +219,7 @@
 
 .footerCredit {
   background-color: rgba(0, 0, 0, 0.3);
-  padding: 1rem;
+  padding: 0.6rem;
   text-align: center;
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.6);
@@ -240,11 +240,11 @@
 @media (max-width: 768px) {
   .footerContent {
     flex-direction: column;
-    padding: 3rem 1.5rem 1.5rem;
+    padding: 1.5rem 1rem 1rem;
   }
   
   .footerSection {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     padding: 0;
   }
   

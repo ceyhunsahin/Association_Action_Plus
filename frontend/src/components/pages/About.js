@@ -36,28 +36,6 @@ const About = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Ekip üyeleri
-  const teamMembers = [
-    {
-      name: 'CENGIZ BASBUNAR',
-      role: 'Président',
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
-      bio: 'Président de l\'association Action Plus, dédié à la promotion du dialogue interculturel et à la diversité.'
-    },
-    {
-      name: 'AHMET OZTURK',
-      role: 'Secrétaire',
-      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
-      bio: 'Secrétaire de l\'association, responsable de la coordination administrative et de la communication.'
-    },
-    {
-      name: 'CEYHUN SAHIN',
-      role: 'Vice-Président',
-      image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
-      bio: 'Vice-Président, engagé dans le renforcement des liens entre les générations et l\'inclusion sociale.'
-    }
-  ];
-
   // Değerlerimiz
   const values = [
     { icon: <FaHandshake />, title: 'Respect', description: 'Nous valorisons le respect mutuel et la dignité de chaque individu, indépendamment de son origine ou de sa culture.' },
@@ -175,24 +153,6 @@ const About = () => {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Notre Équipe Section */}
-      <section className={styles.teamSection}>
-        <div className={styles.container}>
-          <h2 className={styles.sectionTitle}>Notre Équipe</h2>
-          <div className={styles.separator}></div>
-          
-          <div className={styles.teamGrid}>
-            {teamMembers.map((member, index) => (
-              <div key={index} className={styles.teamCard}>
-                <h3 className={styles.teamName}>{member.name}</h3>
-                <p className={styles.teamRole}>{member.role}</p>
-                <p className={styles.teamBio}>{member.bio}</p>
-              </div>
-            ))}
           </div>
         </div>
       </section>

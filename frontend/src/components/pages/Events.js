@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from './Events.module.css';
-import { FaChevronLeft, FaChevronRight, FaCalendarAlt, FaUsers, FaMapMarkerAlt, FaClock, FaHistory, FaPlus, FaStar, FaEye, FaCheckCircle, FaCalendarCheck, FaMusic, FaPalette, FaMicrophone, FaTheaterMasks, FaTools, FaCalendarDay, FaCrown, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaChevronLeft, FaChevronRight, FaCalendarAlt, FaUsers, FaMapMarkerAlt, FaClock, FaHistory, FaPlus, FaStar } from 'react-icons/fa';
 import ConfirmModal from '../Modal/ConfirmModal';
 
 const Events = () => {
@@ -20,7 +20,6 @@ const Events = () => {
     const [pastEvents, setPastEvents] = useState([]);
     const [activeUpcomingIndex, setActiveUpcomingIndex] = useState(0);
     const [activePastIndex, setActivePastIndex] = useState(0);
-    const [successMessage, setSuccessMessage] = useState(null);
 
     const upcomingCarouselRef = useRef(null);
     const pastCarouselRef = useRef(null);
@@ -73,10 +72,10 @@ const Events = () => {
             
             console.error('Error fetching user events:', error);
         }
-    }, [user]);
+    }, [user, baseUrl]);
 
     // Etkinlikleri getir fonksiyonu
-    const fetchEvents = async () => {
+    const fetchEvents = useCallback(async () => {
         try {
             setLoading(true);
             const response = await axios.get(`${baseUrl}/api/events`);
@@ -96,22 +95,17 @@ const Events = () => {
             
             setLoading(false);
             
-            // Kullanıcı giriş yapmışsa, katıldığı etkinlikleri kontrol et
-            if (accessToken) {
-                checkUserParticipation();
-            }
         } catch (error) {
             console.error('Error fetching events:', error);
             setError('Erreur lors du chargement des événements. Veuillez réessayer.');
             setLoading(false);
         }
-    };
+    }, [baseUrl]);
 
     // Tüm etkinlikleri çek - Component mount olduğunda çalışır
     useEffect(() => {
-
         fetchEvents();
-    }, []);
+    }, [fetchEvents]);
 
     // Kullanıcının katıldığı etkinlikleri çek - User veya token değiştiğinde çalışır
     useEffect(() => {
@@ -123,28 +117,6 @@ const Events = () => {
             }
         }
     }, [user, fetchUserEvents]);
-
-    // Etkinlik tipine göre ikon getir
-    const getEventTypeIcon = (type) => {
-        switch (type?.toLowerCase()) {
-            case 'concert':
-                return <FaMusic />;
-            case 'exposition':
-                return <FaPalette />;
-            case 'conférence':
-                return <FaMicrophone />;
-            case 'théâtre':
-                return <FaTheaterMasks />;
-            case 'atelier':
-                return <FaTools />;
-            case 'festival':
-                return <FaCalendarDay />;
-            case 'gala':
-                return <FaCrown />;
-            default:
-                return <FaCalendarAlt />;
-        }
-    };
 
     // Carousel kontrolleri - Gelecek etkinlikler
     const scrollUpcoming = (direction) => {
@@ -188,62 +160,6 @@ const Events = () => {
         }
     };
 
-    // Kullanıcının etkinliğe katılıp katılmadığını kontrol et
-    const checkUserParticipation = async () => {
-        if (!user) return;
-        
-        try {
-            // Kullanıcının katıldığı etkinlikleri getir
-            try {
-                const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-                if (!token) return;
-                
-
-                
-                const response = await axios.get(`${baseUrl}/api/users/me/events`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                const userEvents = response.data.events || [];
-
-                
-                // Kullanıcının katıldığı etkinliklerin ID'lerini al
-                const participatedEventIds = userEvents.map(event => String(event.id || event._id));
-
-                
-                // Etkinlikleri güncelle, kullanıcının katıldığı etkinlikleri işaretle
-                setEvents(prevEvents => prevEvents.map(event => ({
-                    ...event,
-                    isParticipating: participatedEventIds.includes(String(event.id || event._id))
-                })));
-                
-                // Gelecek ve geçmiş etkinlikleri de güncelle
-                setUpcomingEvents(prevEvents => prevEvents.map(event => ({
-                    ...event,
-                    isParticipating: participatedEventIds.includes(String(event.id || event._id))
-                })));
-                
-                setPastEvents(prevEvents => prevEvents.map(event => ({
-                    ...event,
-                    isParticipating: participatedEventIds.includes(String(event.id || event._id))
-                })));
-            } catch (error) {
-                console.error('Error fetching user events, using alternative method:', error);
-                
-                // Alternatif olarak, tüm etkinlikleri getir
-                const allEventsResponse = await axios.get(`${baseUrl}/api/events`);
-                const allEvents = allEventsResponse.data;
-                
-                // Etkinlikleri güncelle
-                setEvents(allEvents);
-            }
-        } catch (error) {
-            console.error('Error checking user participation:', error);
-        }
-    };
-
     // Etkinliğe katıl veya çık
     const joinEvent = async (eventId) => {
         
@@ -267,7 +183,7 @@ const Events = () => {
 
                 
                 try {
-                    const response = await axios({
+                    await axios({
                         method: 'delete',
                         url: `${baseUrl}/api/events/${eventId}/register`,
                         headers: {
@@ -279,8 +195,6 @@ const Events = () => {
 
                     
                     // Başarılı mesajı göster
-                    setSuccessMessage('Vous êtes désinscrit de cet événement!');
-                    setTimeout(() => setSuccessMessage(null), 3000);
                     
                     // Etkinliği güncelle
                     setEvents(prevEvents => prevEvents.map(e => 
@@ -318,7 +232,7 @@ const Events = () => {
 
                 
                 try {
-                    const response = await axios({
+                    await axios({
                         method: 'post',
                         url: `${baseUrl}/api/events/${eventId}/join`,
                         headers: {
@@ -331,8 +245,6 @@ const Events = () => {
 
                     
                     // Başarılı mesajı göster
-                    setSuccessMessage('Vous êtes inscrit à cet événement!');
-                    setTimeout(() => setSuccessMessage(null), 3000);
                     
                     // Etkinliği güncelle
                     setEvents(prevEvents => prevEvents.map(e => 
@@ -406,10 +318,6 @@ const Events = () => {
     };
 
     // Kullanıcının etkinliğe katılıp katılmadığını kontrol et
-    const isUserJoined = (eventId) => {
-        return userEvents.some(event => event._id === eventId);
-    };
-
     // Etkinlik kartına tıklama işlemi için debug
     const handleEventClick = (event) => {
 
@@ -446,83 +354,6 @@ const Events = () => {
         );
     };
 
-    // Etkinlik kartı bileşeni
-    const EventCard = ({ event }) => {
-        const eventDate = new Date(event.date);
-        const isUpcoming = eventDate >= new Date();
-        
-        return (
-            <div className={styles.eventCard}>
-                <div className={styles.eventHeader}>
-                    <div className={styles.eventType}>
-                        {getEventTypeIcon(event.type)} {event.type}
-                    </div>
-                    <div className={styles.eventDate}>
-                        <FaCalendarAlt /> {eventDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                    </div>
-                </div>
-                
-                <h3 className={styles.eventTitle}>{event.title}</h3>
-                <p className={styles.eventDescription}>{event.description}</p>
-                
-                <div className={styles.eventActions}>
-                    <button 
-                        className={styles.viewEventButton}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            navigate(`/events/${event.id || event._id}`);
-                        }}
-                    >
-                        <FaEye /> Voir les détails
-                    </button>
-                    
-                    {isUpcoming && (
-                        <button 
-                            className={`${styles.registerButton} ${event.isParticipating ? styles.alreadyRegistered : ''}`}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                joinEvent(event.id || event._id);
-                            }}
-                        >
-                            {event.isParticipating ? (
-                                <>
-                                    <FaCheckCircle /> Inscrit
-                                </>
-                            ) : (
-                                <>
-                                    <FaCalendarCheck /> S'inscrire
-                                </>
-                            )}
-                        </button>
-                    )}
-                </div>
-            </div>
-        );
-    };
-
-    const handleEditEvent = (eventId) => {
-        navigate(`/events/edit/${eventId}`);
-    };
-
-    const handleDeleteEvent = async (eventId) => {
-        if (window.confirm('Êtes-vous sûr de vouloir supprimer cet événement?')) {
-            try {
-                await axios.delete(`${baseUrl}/api/events/${eventId}`, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`
-                    }
-                });
-                // Etkinliği listeden kaldır
-                setEvents(events.filter(event => event.id !== eventId));
-                alert('Événement supprimé avec succès!');
-            } catch (error) {
-                console.error('Error deleting event:', error);
-                alert('Une erreur s\'est produite lors de la suppression de l\'événement.');
-            }
-        }
-    };
 
     if (loading) {
         return (
@@ -583,7 +414,7 @@ const Events = () => {
                         <div className={styles.carousel} ref={upcomingCarouselRef}>
                             {upcomingEvents.map((event, index) => (
                                 <div 
-                                    key={event._id} 
+                                    key={event._id || event.id || `upcoming-${index}`} 
                                     className={`${styles.eventCard} ${event.isFeatured ? styles.featuredEvent : ''}`}
                                 >
                                     {event.isFeatured && (
@@ -704,8 +535,8 @@ const Events = () => {
                         </button>
                         
                         <div className={styles.carousel} ref={pastCarouselRef}>
-                            {pastEvents.map(event => (
-                                <div key={event._id} className={`${styles.eventCard} ${styles.pastEvent}`}>
+                            {pastEvents.map((event, index) => (
+                                <div key={event._id || event.id || `past-${index}`} className={`${styles.eventCard} ${styles.pastEvent}`}>
                                     <div className={styles.eventImageContainer}>
                                         <img 
                                             src={getImageUrl(event.image) || '/assets/default-image.jpg'} 

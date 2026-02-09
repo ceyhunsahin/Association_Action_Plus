@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { createDonation, getDonation, downloadDonationReceipt } from '../../services/donationService';
 import { FaHandHoldingHeart, FaCreditCard, FaMoneyBillWave, FaCheckCircle, 
-  FaLock, FaInfoCircle, FaFileInvoice, FaUniversity, FaQuestionCircle, FaRegCreditCard, 
-  FaReceipt, FaEuroSign, FaPercentage, FaArrowRight, FaArrowLeft, FaEnvelope, FaDownload, FaPrint } from 'react-icons/fa';
+  FaLock, FaInfoCircle, FaFileInvoice, FaUniversity, FaQuestionCircle, 
+  FaReceipt, FaEuroSign, FaPercentage, FaArrowRight, FaArrowLeft, FaDownload, FaPrint } from 'react-icons/fa';
 import styles from './Donate.module.css';
 
 const DonatePage = () => {
@@ -26,7 +26,6 @@ const DonatePage = () => {
   const [showReceiptInfo, setShowReceiptInfo] = useState(false);
   const [taxDeduction, setTaxDeduction] = useState(0);
   const [donationData, setDonationData] = useState(null);
-  const [receiptSent, setReceiptSent] = useState(false);
 
   // Banka bilgileri
   const bankInfo = {
@@ -130,10 +129,6 @@ const DonatePage = () => {
       localStorage.setItem('lastDonationId', String(response.id));
       
       // Makbuz admin onayından sonra gönderilecek
-      if (receiptNeeded) {
-        setReceiptSent(false);
-      }
-      
       setLoading(false);
       setSuccess(true);
       
@@ -149,11 +144,7 @@ const DonatePage = () => {
     navigate(-1); // Bir önceki sayfaya dön
   };
 
-  const handlePrintReceipt = () => {
-    window.print();
-  };
-
-  const refreshDonationStatus = async () => {
+  const refreshDonationStatus = useCallback(async () => {
     if (!donationData?.id) return;
     try {
       const latest = await getDonation(donationData.id);
@@ -163,12 +154,7 @@ const DonatePage = () => {
     } catch {
       // ignore
     }
-  };
-
-  const handleDownloadReceipt = () => {
-    // PDF indirme işlemi burada yapılabilir
-    alert("La fonctionnalité de téléchargement sera bientôt disponible.");
-  };
+  }, [donationData?.id]);
 
   const handleGoHome = () => {
     navigate('/');
@@ -181,7 +167,7 @@ const DonatePage = () => {
       refreshDonationStatus();
     }, 10000);
     return () => clearInterval(interval);
-  }, [success, donationData?.id]);
+  }, [success, donationData?.id, refreshDonationStatus]);
 
   if (success && donationData?.status !== 'COMPLETED') {
     return (

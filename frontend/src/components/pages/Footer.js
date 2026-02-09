@@ -47,7 +47,7 @@ const Footer = () => {
         <div className={styles.footerSection}>
           <h3>Contactez-nous</h3>
           <address className={styles.contactInfo}>
-            <p><FaMapMarkerAlt /> 3A rue des Jardiniers, 57000 METZ, France</p>
+            <p><FaMapMarkerAlt /> 13 Rte de Woippy, 57050 Metz, France</p>
             <p><FaPhone /> +33 3 87 56 75 00</p>
             <p><FaEnvelope /> contact@actionplusmetz.org</p>
           </address>

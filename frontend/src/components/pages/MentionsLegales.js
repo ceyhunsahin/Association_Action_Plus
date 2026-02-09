@@ -11,7 +11,7 @@ const MentionsLegales = () => {
           <h2>1. Informations légales</h2>
           <p>
             Ce site est édité par l'Association Action Plus, association loi 1901.<br />
-            Siège social : 3A rue des Jardiniers, 57000 METZ, France<br />
+            Siège social : 13 Rte de Woippy, 57050 Metz, France<br />
             Téléphone : +33 3 87 56 75 00<br />
             Email : contact@actionplusmetz.org<br />
             Directeur de la publication : Cengiz Basbunar

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Navbar.module.css';
 import { FaUser, FaSignOutAlt, FaSignInAlt, FaUserPlus, FaCalendarPlus, FaBars, FaTimes, FaEnvelope, FaUsers, FaHandHoldingHeart } from 'react-icons/fa';
@@ -7,7 +7,6 @@ import { getDonation } from '../../services/donationService';
 
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
-  const location = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
@@ -69,12 +68,52 @@ const Navbar = () => {
   };
 
   useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+
     if (isOpen) {
-      document.body.classList.add('menu-open');
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      body.dataset.menuScrollY = String(scrollY);
+      body.classList.add('menu-open');
+
+      // iOS + mobile safe scroll lock
+      html.style.overflow = 'hidden';
+      body.style.overflow = 'hidden';
+      body.style.position = 'fixed';
+      body.style.top = `-${scrollY}px`;
+      body.style.left = '0';
+      body.style.right = '0';
+      body.style.width = '100%';
     } else {
-      document.body.classList.remove('menu-open');
+      const saved = parseInt(body.dataset.menuScrollY || '0', 10);
+      body.classList.remove('menu-open');
+
+      html.style.overflow = '';
+      body.style.overflow = '';
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.width = '';
+      window.scrollTo(0, Number.isNaN(saved) ? 0 : saved);
+      delete body.dataset.menuScrollY;
     }
-    return () => document.body.classList.remove('menu-open');
+
+    return () => {
+      const saved = parseInt(body.dataset.menuScrollY || '0', 10);
+      body.classList.remove('menu-open');
+      html.style.overflow = '';
+      body.style.overflow = '';
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.width = '';
+      if (!Number.isNaN(saved)) {
+        window.scrollTo(0, saved);
+      }
+      delete body.dataset.menuScrollY;
+    };
   }, [isOpen]);
 
   // Kullanıcı adını belirleme fonksiyonu
@@ -228,7 +267,9 @@ const Navbar = () => {
 
       {/* Mobil Menü */}
       {isOpen && (
-        <div className={`${styles.navbarMobile} ${isOpen ? styles.navbarMobileActive : ''}`}>
+        <>
+          <div className={styles.menuOverlay} onClick={closeMenu} />
+          <div className={`${styles.navbarMobile} ${isOpen ? styles.navbarMobileActive : ''}`}>
           <div className={`${isAdmin ? styles.navLinksMobileAdmin : styles.navLinksMobileNormal} ${styles.navLinksMobile}`}>
             <NavLink 
               to="/" 
@@ -329,6 +370,7 @@ const Navbar = () => {
             )}
           </div>
         </div>
+        </>
       )}
     </nav>
   );

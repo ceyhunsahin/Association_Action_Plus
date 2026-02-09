@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FaSearch, FaUser, FaCalendar, FaDownload, FaAccessibleIcon, FaEye, FaPlus } from 'react-icons/fa';
 import styles from './AdminMembershipManagement.module.css';
 import { createUser, createMembership } from '../../services/membershipService';
@@ -28,7 +28,7 @@ const AdminMembershipManagement = () => {
   const [addMemberLoading, setAddMemberLoading] = useState(false);
 
   // Tüm üyeleri getir
-  const fetchAllMembers = async () => {
+  const fetchAllMembers = useCallback(async () => {
     setLoading(true);
     try {
               const response = await fetch(`${baseUrl}/api/admin/members`, {
@@ -49,7 +49,7 @@ const AdminMembershipManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [baseUrl]);
 
   // Üyeliği yenile (admin tarafından)
   const handleRenewMembership = async () => {
@@ -235,7 +235,7 @@ const AdminMembershipManagement = () => {
 
   useEffect(() => {
     fetchAllMembers();
-  }, []);
+  }, [fetchAllMembers]);
 
   return (
     <div className={styles.container}>

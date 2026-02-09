@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaTimes, FaCalendarAlt, FaCreditCard, FaCheck } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 import styles from './MembershipRenewalModal.module.css';
 
 const MembershipRenewalModal = ({ isOpen, onClose, onRenew, membership, loading }) => {

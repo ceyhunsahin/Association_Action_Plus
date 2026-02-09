@@ -19,7 +19,7 @@ export async function loader({ params }) {
 const EventDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();  // navigate'i kullanacağız
-  const { user, accessToken, isAuthenticated, isAdmin } = useAuth();
+  const { user, accessToken, isAdmin } = useAuth();
   const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,17 +27,17 @@ const EventDetail = () => {
   const [isRegistered, setIsRegistered] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const carouselRef = useRef(null);
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [, setSuccessMessage] = useState(null);
+  const [, setErrorMessage] = useState(null);
 
   // Resim URL'sini düzgün formata çevir
-  const getImageUrl = (imagePath) => {
+  const getImageUrl = useCallback((imagePath) => {
     if (!imagePath) return null;
     if (imagePath.startsWith('/uploads/')) {
       return `${baseUrl}${imagePath}`;
     }
     return imagePath;
-  };
+  }, [baseUrl]);
 
   // Etkinlik medya listesini hazırla (image + video)
   const normalizeList = (value) => {
@@ -76,7 +76,7 @@ const EventDetail = () => {
       });
     }
     return media;
-  }, [event]);
+  }, [event, getImageUrl]);
 
   const getEventVideos = useCallback(() => {
     const videos = normalizeList(event?.videos);
@@ -84,7 +84,7 @@ const EventDetail = () => {
       return videos.map(v => getImageUrl(v)).filter(Boolean);
     }
     return [];
-  }, [event]);
+  }, [event, getImageUrl]);
 
   const getDummyImages = (evt) => {
     const title = (evt?.title || '').toLowerCase();
@@ -147,7 +147,7 @@ const EventDetail = () => {
   };
 
   // Kullanıcının etkinliğe kayıtlı olup olmadığını kontrol et
-  const checkRegistration = async () => {
+  const checkRegistration = useCallback(async () => {
     if (user && accessToken) {
       try {
 
@@ -165,10 +165,10 @@ const EventDetail = () => {
         console.error('Error checking registration:', err);
       }
     }
-  };
+  }, [user, accessToken, baseUrl, id]);
 
   // Etkinlik detaylarını yükle
-  const fetchEventDetails = async () => {
+  const fetchEventDetails = useCallback(async () => {
     try {
       const response = await axios.get(`${baseUrl}/api/events/${id}`);
       setEvent(response.data);
@@ -183,11 +183,11 @@ const EventDetail = () => {
       setError('Impossible de charger les détails de l\'événement');
       setLoading(false);
     }
-  };
+  }, [baseUrl, id, user, accessToken, checkRegistration]);
 
   useEffect(() => {
     fetchEventDetails();
-  }, [id, user, accessToken]);
+  }, [fetchEventDetails]);
 
   const handleRegister = async () => {
     try {
@@ -212,7 +212,7 @@ const EventDetail = () => {
       
       
       // Etkinliğe katıl - localStorage'dan token'ı kullan
-      const response = await axios({
+      await axios({
         method: 'post',
         url: `${baseUrl}/api/events/${id}/join`,
         headers: {
@@ -258,7 +258,7 @@ const EventDetail = () => {
       setLoading(true);
       
       
-      const response = await axios.delete(
+      await axios.delete(
         `${baseUrl}/api/events/${id}/register`,
         {
           headers: {

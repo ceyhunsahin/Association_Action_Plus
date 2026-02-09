@@ -107,7 +107,7 @@ const Contact = () => {
               <FaMapMarkerAlt />
             </div>
             <h3>Notre adresse</h3>
-            <p>3A rue des Jardiniers<br />57000 METZ, France</p>
+            <p>13 Rte de Woippy<br />57050 Metz, France</p>
           </div>
           
           <div className={styles.infoCard}>
@@ -218,7 +218,7 @@ const Contact = () => {
       
       <div className={styles.mapContainer}>
         <iframe
-          src="https://www.google.com/maps?q=3A+rue+des+Jardiniers,+57000+Metz,+France&output=embed"
+          src="https://www.google.com/maps?q=13+Rte+de+Woippy,+57050+Metz,+France&output=embed"
           width="100%"
           height="450"
           style={{ border: 0 }}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styles from './AdminDonations.module.css';
 import { downloadDonationReceipt } from '../../services/donationService';
 
@@ -8,7 +8,7 @@ const AdminDonations = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchDonations = async () => {
+  const fetchDonations = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -27,7 +27,7 @@ const AdminDonations = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [baseUrl]);
 
   const approveDonation = async (donationId) => {
     try {
@@ -50,7 +50,7 @@ const AdminDonations = () => {
 
   useEffect(() => {
     fetchDonations();
-  }, []);
+  }, [fetchDonations]);
 
   const pendingCount = donations.filter(d => (d.status || '').toUpperCase() !== 'COMPLETED').length;
 

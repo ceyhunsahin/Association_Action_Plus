@@ -53,7 +53,7 @@ const RegisterForm = () => {
       });
 
       // Kullanıcı bilgilerini ve token'ı kaydet
-      const { access_token, user } = response.data;
+      const { access_token } = response.data;
       localStorage.setItem('token', access_token);
       
       // AuthContext'i güncelle

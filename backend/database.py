@@ -27,9 +27,7 @@ def get_db() -> Connection:
         conn.row_factory = dict_factory
         return conn
     except Error as e:
-        print(f"Veritabanı bağlantı hatası: {e}")
-    
-    return conn
+        raise ConnectionError(f"Veritabanı bağlantı hatası: {e}")
 
 def init_db():
     """Veritabanını başlatır ve tabloları oluşturur"""

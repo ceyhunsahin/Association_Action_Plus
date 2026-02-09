@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import styles from './EditEvent.module.css';
-import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaImage, FaSave, FaArrowLeft, FaCheck } from 'react-icons/fa';
+import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaImage, FaSave, FaArrowLeft } from 'react-icons/fa';
 
 const EditEvent = () => {
   const { id } = useParams();
@@ -79,7 +79,7 @@ const EditEvent = () => {
     };
 
     fetchEvent();
-  }, [id]);
+  }, [id, baseUrl]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -249,7 +249,7 @@ const EditEvent = () => {
         videos: videoUrls
       };
       
-      const response = await axios.put(
+      await axios.put(
         `${baseUrl}/api/events/${id}`,
         eventData,
         {
@@ -493,7 +493,7 @@ const EditEvent = () => {
             <div className={styles.existingImagesGrid}>
               {existingImages.map((imageUrl, index) => (
                 <div key={index} className={styles.existingImageItem}>
-                  <img src={imageUrl.startsWith('/uploads/') ? `${baseUrl}${imageUrl}` : imageUrl} alt={`Image existante ${index + 1}`} />
+                  <img src={imageUrl.startsWith('/uploads/') ? `${baseUrl}${imageUrl}` : imageUrl} alt={`Visuel existant ${index + 1}`} />
                   <button 
                     type="button" 
                     className={styles.removeExistingButton}

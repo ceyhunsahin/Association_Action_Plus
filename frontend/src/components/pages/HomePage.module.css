@@ -1573,6 +1573,141 @@
       font-size: 0.8rem;
     }
   }
+
+  /* Mobile spacing + sizing cleanup */
+  @media (max-width: 768px) {
+    .statsSection {
+      padding: 1.2rem 0;
+    }
+
+    .statsContainer {
+      gap: 0.75rem;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .statItem {
+      min-width: 150px;
+      max-width: 150px;
+      padding: 0.9rem 0.75rem;
+      border-radius: 16px;
+    }
+
+    .statNumber {
+      font-size: 1.3rem;
+    }
+
+    .statLabel {
+      font-size: 0.75rem;
+    }
+
+    .eventsSection {
+      padding: 1.25rem 0;
+    }
+
+    .eventsSectionHeader {
+      margin-bottom: 0.75rem;
+    }
+
+    .sectionTitle {
+      font-size: 1.5rem;
+    }
+
+    .sectionSubtitle {
+      font-size: 0.9rem;
+    }
+
+    .eventCard {
+      min-width: 240px;
+      max-width: 240px;
+    }
+
+    .eventCardImageContainer {
+      height: 140px;
+    }
+
+    .eventCardContent {
+      padding: 0.9rem;
+    }
+
+    .eventCardTitle {
+      font-size: 1rem;
+    }
+
+    .eventCardDescription {
+      font-size: 0.85rem;
+    }
+
+    .viewAllEventsButton {
+      padding: 0.55rem 0.9rem;
+      font-size: 0.85rem;
+      border-radius: 24px;
+    }
+
+    .testimonialsSection {
+      padding: 1rem 0;
+    }
+
+    .testimonialCard {
+      min-width: 240px;
+      max-width: 240px;
+      padding: 1rem;
+    }
+
+    .testimonialContent p {
+      font-size: 0.85rem;
+    }
+
+    .joinSection {
+      padding: 1rem 0;
+    }
+
+    .joinTitle {
+      font-size: 1.4rem;
+    }
+
+    .joinText {
+      font-size: 0.9rem;
+    }
+
+    .joinButtons {
+      gap: 0.6rem;
+    }
+
+    .registerButton,
+    .loginButton {
+      padding: 0.6rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .statsContainer {
+      padding: 0.5rem 0.5rem;
+    }
+
+    .statItem {
+      min-width: 135px;
+      max-width: 135px;
+      padding: 0.75rem 0.6rem;
+    }
+
+    .eventCard {
+      min-width: 220px;
+      max-width: 220px;
+    }
+
+    .testimonialCard {
+      min-width: 220px;
+      max-width: 220px;
+    }
+
+    .viewAllEventsButton {
+      width: 100%;
+      justify-content: center;
+      padding: 0.55rem 0.8rem;
+      font-size: 0.82rem;
+    }
+  }
   
   /* iPhone 12 Pro Responsive */
   @media (max-width: 390px) {

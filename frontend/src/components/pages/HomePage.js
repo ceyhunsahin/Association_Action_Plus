@@ -3,11 +3,9 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import styles from './HomePage.module.css';
 import { Helmet } from 'react-helmet';
-import { FaCalendarAlt, FaUsers, FaGlobeAmericas, FaMapMarkerAlt, FaArrowRight, FaHandHoldingHeart, FaTicketAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { useAuth } from '../../context/AuthContext';
+import { FaCalendarAlt, FaUsers, FaGlobeAmericas, FaMapMarkerAlt, FaArrowRight, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const HomePage = () => {
-  const { isAuthenticated } = useAuth();
   const [latestEvents, setLatestEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -117,7 +115,7 @@ const HomePage = () => {
     return () => {
       document.body.classList.remove('home-page');
     };
-  }, []);
+  }, [baseUrl]);
 
   useEffect(() => {
     const trackAndFetchStats = async () => {
@@ -148,7 +146,7 @@ const HomePage = () => {
     };
 
     trackAndFetchStats();
-  }, [latestEvents]);
+  }, [latestEvents, baseUrl]);
 
   // Tarih formatını düzenleyen yardımcı fonksiyon
   const formatDate = (dateString) => {
