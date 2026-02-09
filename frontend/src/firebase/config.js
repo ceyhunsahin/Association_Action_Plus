@@ -3,13 +3,13 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 // Firebase yapılandırma bilgileri
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "AIzaSyBDAbFvTDb_P7-A2G_aiEjSnKgP2yLxSMM",
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "actionplusmetz.firebaseapp.com",
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "actionplusmetz",
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "actionplusmetz.firebasestorage.app",
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "237117945539",
-  appId: process.env.REACT_APP_FIREBASE_APP_ID || "1:237117945539:web:259a96b99a693aa1dfd476",
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || "G-GEVR2FTVKQ"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
 // Firebase'i başlat
