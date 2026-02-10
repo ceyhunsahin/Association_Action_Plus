@@ -2124,21 +2124,18 @@
   }
 
   .eventCards {
-    display: flex !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
     gap: 10px !important;
     padding: 2px 2px 8px !important;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
   }
 
   .eventCard {
-    flex: 0 0 calc(100vw - 48px) !important;
-    width: calc(100vw - 48px) !important;
-    max-width: calc(100vw - 48px) !important;
+    width: 100% !important;
+    max-width: 100% !important;
     min-width: 0 !important;
-    scroll-snap-align: start;
   }
 
   .eventCardFooter {

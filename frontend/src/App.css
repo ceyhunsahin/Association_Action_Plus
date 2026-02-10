@@ -178,6 +178,7 @@ body,
 
 body {
   overscroll-behavior-x: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Keep touch interactions vertical by default on mobile */
