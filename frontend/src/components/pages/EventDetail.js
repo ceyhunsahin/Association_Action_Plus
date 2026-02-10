@@ -8,7 +8,7 @@ import { FaCalendarAlt, FaUsers, FaChevronLeft, FaChevronRight, FaSignInAlt, FaS
 // Loader fonksiyonu
 export async function loader({ params }) {
   try {
-    const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
+    const baseUrl = process.env.REACT_APP_API_BASE_URL || window.location.origin;
     const response = await axios.get(`${baseUrl}/api/events/${params.id}`);
     return response.data;  // Backend'den gelen veriyi döndür
   } catch (error) {
@@ -20,7 +20,7 @@ const EventDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();  // navigate'i kullanacağız
   const { user, accessToken, isAdmin } = useAuth();
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || window.location.origin;
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

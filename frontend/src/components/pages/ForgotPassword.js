@@ -9,7 +9,7 @@ const ForgotPassword = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || window.location.origin;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

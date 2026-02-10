@@ -38,7 +38,7 @@ const Contact = () => {
     }
     
     try {
-              const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || ''}/api/contact`, {
+              const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || window.location.origin}/api/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

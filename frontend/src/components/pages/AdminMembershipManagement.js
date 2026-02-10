@@ -4,7 +4,7 @@ import styles from './AdminMembershipManagement.module.css';
 import { createUser, createMembership } from '../../services/membershipService';
 
 const AdminMembershipManagement = () => {
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || window.location.origin;
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');

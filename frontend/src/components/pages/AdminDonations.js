@@ -3,7 +3,7 @@ import styles from './AdminDonations.module.css';
 import { downloadDonationReceipt } from '../../services/donationService';
 
 const AdminDonations = () => {
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || window.location.origin;
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

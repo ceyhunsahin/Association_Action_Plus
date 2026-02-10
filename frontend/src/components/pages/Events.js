@@ -13,7 +13,7 @@ const Events = () => {
     const [error, setError] = useState(null);
     const { accessToken, user, isAdmin } = useAuth();
     const navigate = useNavigate();
-    const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
+    const baseUrl = process.env.REACT_APP_API_BASE_URL || window.location.origin;
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [eventToDelete, setEventToDelete] = useState(null);
     const [upcomingEvents, setUpcomingEvents] = useState([]);

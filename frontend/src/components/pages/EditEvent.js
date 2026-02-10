@@ -9,7 +9,7 @@ const EditEvent = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { accessToken, isAdmin } = useAuth();
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || window.location.origin;
   const [formData, setFormData] = useState({
     title: '',
     description: '',

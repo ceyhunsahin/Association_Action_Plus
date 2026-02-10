@@ -17,7 +17,7 @@ const RegisterForm = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login, loginWithGoogle } = useAuth();
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || window.location.origin;
 
   const handleChange = (e) => {
     const { name, value } = e.target;

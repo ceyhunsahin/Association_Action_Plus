@@ -17,7 +17,7 @@ import { getMyDonations, downloadDonationReceipt } from '../../services/donation
 
 const ProfilePage = () => {
   const { user, accessToken, logout, updateUserProfile } = useAuth();
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || window.location.origin;
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('overview'); // overview, events, settings, messages
   const [formData, setFormData] = useState({

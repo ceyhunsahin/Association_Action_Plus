@@ -9,7 +9,7 @@ const HomePage = () => {
   const [latestEvents, setLatestEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || window.location.origin;
   const [stats, setStats] = useState({
     events: 0,
     eventsUpcoming: 0,

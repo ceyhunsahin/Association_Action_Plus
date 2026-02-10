@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
   // Normal kayıt
   const register = async (userData) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || ''}/api/auth/register`, userData);
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || window.location.origin}/api/auth/register`, userData);
       
       if (response.data && response.data.access_token) {
         const { access_token, user } = response.data;
@@ -125,7 +125,7 @@ export const AuthProvider = ({ children }) => {
       
 
       
-              const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || ''}/api/auth/login`, {
+              const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || window.location.origin}/api/auth/login`, {
         email,
         password
       });
@@ -176,7 +176,7 @@ export const AuthProvider = ({ children }) => {
       
       try {
         // Backend'e gönder
-        const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || ''}/api/auth/google-login`, {
+        const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL || window.location.origin}/api/auth/google-login`, {
           userData: userData
         });
         
@@ -294,7 +294,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       const response = await axios.put(
-        `${process.env.REACT_APP_API_BASE_URL || ''}/api/users/me`,
+        `${process.env.REACT_APP_API_BASE_URL || window.location.origin}/api/users/me`,
         profileData,
         {
           headers: {

@@ -4,7 +4,7 @@ import styles from './Counter.module.css';
 const Counter = () => {
   const [count, setCount] = useState(0);
   const [ip, setIp] = useState('');
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || '';
+  const baseUrl = process.env.REACT_APP_API_BASE_URL || window.location.origin;
 
   // IP adresini al ve sayaç başlat
   useEffect(() => {
