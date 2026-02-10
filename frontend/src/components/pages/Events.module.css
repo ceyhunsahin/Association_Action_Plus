@@ -1122,3 +1122,72 @@
 .deleteButton:hover {
   background-color: #D32F2F;
 }
+
+/* Final mobile lock for Events page */
+@media (max-width: 900px) {
+  .container,
+  .eventsSection,
+  .carouselContainer,
+  .carouselBackground,
+  .headerSection {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: clip !important;
+  }
+
+  .container {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .carousel {
+    display: flex !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    gap: 10px !important;
+    padding-bottom: 8px !important;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .eventCard {
+    flex: 0 0 calc(100vw - 48px) !important;
+    width: calc(100vw - 48px) !important;
+    max-width: calc(100vw - 48px) !important;
+    min-width: 0 !important;
+    scroll-snap-align: start;
+  }
+
+  .eventTitle {
+    font-size: 1.1rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .eventDescription {
+    font-size: 0.92rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .eventActions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .eventButton,
+  .joinButton,
+  .leaveButton {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 9px 12px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .navButton {
+    width: 34px !important;
+    height: 34px !important;
+  }
+}

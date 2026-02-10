@@ -155,3 +155,15 @@ input, textarea, select {
 .dark-color {
   color: #333;
 }
+
+/* Global safety: never allow horizontal scroll on mobile */
+@media (max-width: 900px) {
+  html,
+  body,
+  #root,
+  .App {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important;
+  }
+}
