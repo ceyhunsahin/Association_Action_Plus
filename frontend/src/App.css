@@ -167,3 +167,38 @@ input, textarea, select {
     overflow-x: hidden !important;
   }
 }
+
+/* Hard mobile stability lock: prevent draggable horizontal page movement */
+html,
+body,
+#root {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+body {
+  overscroll-behavior-x: none;
+}
+
+/* Keep touch interactions vertical by default on mobile */
+@media (max-width: 900px) {
+  html,
+  body,
+  #root,
+  .App,
+  main {
+    touch-action: pan-y;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  img,
+  video,
+  iframe,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+}
