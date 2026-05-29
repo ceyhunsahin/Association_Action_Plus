@@ -1,1190 +1,547 @@
-/* Ana container stil */
-.container {
-    max-width: 1200px; /* Container'ın maksimum genişliği */
-    margin: 0 auto; /* Ortala */
-    padding: 1rem; /* İç boşluk */
-  }
-  
-  /* Etkinlik kartları container stil */
-  .eventsGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Her satırda 3 kart */
-    gap: 1rem; /* Kartlar arası boşluk */
-  }
-  
-  /* Etkinlik kartı stil - Tüm kartlar için standart boyut */
-  .eventCard {
-    flex: 0 0 auto;
-    width: 350px;
-    min-width: 350px;
-    max-width: 100%;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    background-color: white;
-    margin: 0.5rem 0;
-    height: 520px; /* Kartın yüksekliğini biraz daha artıralım */
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* Etkinlik resmi container */
-  .eventImageContainer {
-    position: relative;
-    overflow: hidden;
-    height: 280px; /* Resim konteynerinin yüksekliğini daha da artıralım */
-  }
-
-  .videoBadge {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: rgba(0, 0, 0, 0.7);
-    color: #fff;
-    padding: 0.25rem 0.6rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    z-index: 2;
-  }
-  
-  /* Etkinlik resmi stil */
-  .eventImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-  }
-  
-  /* Hover efekti - resmi büyüt */
-  .eventCard:hover .eventImage {
-    transform: scale(1.05);
-  }
-  
-  /* Etkinlik içerik stil */
-  .eventContent {
-    padding: 1.5rem;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    background-color: rgba(245, 245, 245, 0.9);
-  }
-  
-  /* Etkinlik başlığı stil */
-  .eventTitle {
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 0.8rem;
-    font-family: 'Poppins', sans-serif;
-    line-height: 1.3;
-    /* Başlık uzunluğunu sınırla */
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    height: 2.6em;
-  }
-  
-  /* Etkinlik tarihi stil */
-  .eventDate {
-    font-size: 1rem;
-    color: #666;
-    font-family: 'Poppins', sans-serif; 
-  }
-  
-  /* Etkinlik açıklaması stil */
-  .eventDescription {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 1rem;
-    line-height: 1.5;
-    flex-grow: 1;
-    /* Açıklama uzunluğunu sınırla */
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    height: 4.5em;
-  }
-  
-  /* Link stil */
-  .eventLink {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    height: 100%;
-  }
-  
-  /* Yükleniyor mesajı stil */
-  .loading {
-    text-align: center;
-    font-size: 1.5rem;
-    color: #333;
-    margin-top: 2rem;
-  }
-  
-  /* Hata mesajı stil */
-  .error {
-    text-align: center;
-    font-size: 1.5rem;
-    color: red;
-    margin-top: 2rem;
-    font-family: 'Poppins', sans-serif; 
-  }
-
-  /* Google Fonts'tan yazı tipi ekleyin */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-
-/* Ana container stil */
-.container {
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 1rem;
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Etkinlik kartları container stil */
-.eventsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Her satırda 3 kart */
-  gap: 2rem; /* Kartlar arası boşluk */
+:root {
+  --grape: #7c3aed;
+  --grape-lt: #ede9fe;
+  --orange: #f97316;
+  --orange-lt: #fff7ed;
+  --ink: #18181b;
+  --ink-soft: #3f3f46;
+  --muted: #71717a;
+  --border: rgba(120, 120, 120, 0.13);
+  --bg: #f8f7fc;
+  --white: #ffffff;
+  --ease: 0.26s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (max-width: 992px) {
-  .eventsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+/* ── Page wrapper ── */
+.eventsPage {
+  font-family: "Outfit", sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  min-height: 60vh;
 }
 
-@media (max-width: 768px) {
-  .eventsGrid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .eventCard {
-    width: 100%;
-    min-width: 0;
-    height: auto;
-  }
-
-  .eventImageContainer {
-    height: 200px;
-  }
-
-  .eventContent {
-    padding: 1rem;
-  }
-
-  .eventTitle {
-    font-size: 1.1rem;
-  }
-
-  .eventDescription {
-    font-size: 0.9rem;
-  }
-
-  .eventDate {
-    font-size: 0.85rem;
-  }
-
-  .actionButton {
-    width: auto;
-    min-width: 110px;
-    height: 36px;
-    padding: 0.5rem 0.9rem;
-    font-size: 0.85rem;
-  }
-
-  .buttonIcon {
-    font-size: 16px;
-  }
-
-  .buttonText,
-  .buttonHoverText {
-    font-size: 12px;
-  }
-}
-
-/* Etkinlik resmi stil */
-.eventImage {
-  width: 100%;
-  height: 70%;
-  object-fit: cover;
-}
-
-/* Etkinlik içerik stil */
-.eventContent {
-  padding: 1rem;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-/* Etkinlik başlığı stil */
-.eventTitle {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #374151;
-  margin-bottom: 0.5rem;
-  font-family: 'Poppins', sans-serif; 
-}
-
-/* Etkinlik tarihi stil */
-.eventDate {
-  font-size: 1rem;
-  color: #6F6F6F;
-  font-family: 'Poppins', sans-serif; 
-}
-
-/* Link stil */
-.eventLink {
-  text-decoration: none;
-  color: inherit;
-  display: block;
-  height: 100%;
-}
-
-/* Yükleniyor mesajı stil */
-.loading {
-  text-align: center;
-  font-size: 1.5rem;
-  color: #333;
-  margin-top: 2rem;
-}
-
-/* Hata mesajı stil */
-.error {
-  text-align: center;
-  font-size: 1.5rem;
-  color: red;
-  margin-top: 2rem;
-}
-
-.joinButtonContainer {
-  display: flex;
-  justify-content: center;
-  margin-top: auto; /* Butonu kartın altına yerleştir */
-}
-
-.joinButton {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-  font-size: 1.2rem;
-}
-
-.joinButton:hover {
-  transform: scale(1.15);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg, #5d4037 0%, #c8a97e 100%);
-}
-
-/* Kayıtlı etkinlik için farklı stil */
-.joinedButton {
-  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
-}
-
-.joinedButton:hover {
-  background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
-}
-
-/* Tooltip stil - düzeltilmiş */
-.joinButtonTooltip {
-  position: absolute;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%) translateY(10px);
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  white-space: nowrap;
-  opacity: 0;
-  transition: all 0.3s ease;
-  pointer-events: none;
-  z-index: 20;
-}
-
-.joinButton:hover .joinButtonTooltip {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-/* Tooltip ok */
-.joinButtonTooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
-}
-
-.deleteButton {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: #ff4d4d; /* Kırmızı renk */
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.deleteButton:hover {
-  background-color: #cc0000; /* Daha koyu kırmızı */
-}
-/* Mobil ve tablet için media query'ler */
-@media (max-width: 768px) {
-  .eventsGrid {
-    grid-template-columns: repeat(2, 1fr); /* Tablet boyutunda her satırda 2 kart */
-  }
-}
-
-@media (max-width: 480px) {
-  .eventsGrid {
-    grid-template-columns: 1fr; /* Mobil boyutunda her satırda 1 kart */
-  }
-
-  .eventCard {
-    margin-bottom: 1rem; /* Kartlar arası boşluk */
-  }
-
-  .eventTitle {
-    font-size: 1.1rem; /* Başlık boyutunu küçült */
-  }
-
-  .eventDate {
-    font-size: 0.9rem; /* Tarih boyutunu küçült */
-  }
-  .joinButtonContainer {
-    display: flex;
-    justify-content: center;
-    margin-top: auto; /* Butonu kartın altına yerleştir */
-  }
-
-  .joinButton {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .joinButton:hover {
-    background-color: #0056b3;
-  }
-}
-
-.eventsContainer {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
-.title {
-  font-size: 2.5rem;
-  color: #333;
-  margin-bottom: 2rem;
-  text-align: center;
+/* ══════════════════════════════
+   HERO
+══════════════════════════════ */
+.hero {
   position: relative;
-}
-
-.title::after {
-  content: '';
-  display: block;
-  width: 100px;
-  height: 4px;
-  background-color: #007bff;
-  margin: 0.5rem auto 0;
-  border-radius: 2px;
-}
-
-.adminActions {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 2rem;
-}
-
-.createButton {
-  background-color: #28a745;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: background-color 0.3s;
-  display: inline-flex;
-  align-items: center;
-}
-
-.createButton:hover {
-  background-color: #218838;
-}
-
-.noEvents {
-  text-align: center;
-  font-size: 1.2rem;
-  color: #6c757d;
-  margin: 3rem 0;
-}
-
-/* Carousel Styles - Yaratıcı tasarım */
-.carouselContainer {
-  position: relative;
-  margin: 2rem 0;
-  padding: 0 60px;
+  height: 470px;
   overflow: hidden;
-}
-
-.carousel {
   display: flex;
-  gap: 1.5rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none; /* Firefox için scrollbar'ı gizle */
-  -ms-overflow-style: none; /* IE ve Edge için scrollbar'ı gizle */
-  padding: 1rem 0;
+  align-items: flex-end;
 }
 
-.carousel::-webkit-scrollbar {
-  display: none; /* Chrome, Safari ve Opera için scrollbar'ı gizle */
-}
-
-.carousel > * {
-  scroll-snap-align: start;
-}
-
-/* Yaratıcı ok butonları */
-.navButton {
+.heroBg {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
-  border: none;
-  color: white;
-  font-size: 1.2rem;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translate(-50%, -50%);
+  filter: brightness(0.55);
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 8, 20, 0.72) 0%,
+    rgba(10, 8, 20, 0.45) 60%,
+    rgba(10, 8, 20, 0.3) 100%
+  );
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  padding: 0 80px 52px;
+  max-width: 680px;
+}
+
+.heroSubtitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--orange);
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+
+.heroTitle {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin: 0 0 14px;
+}
+
+.heroDesc {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 420px;
+}
+
+/* ══════════════════════════════
+   PAGE CONTENT
+══════════════════════════════ */
+.pageContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px 40px 80px;
+}
+
+/* ══════════════════════════════
+   SECTION
+══════════════════════════════ */
+.section {
+  margin-bottom: 64px;
+}
+
+.sectionTitle {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 28px;
+  letter-spacing: -0.02em;
+}
+
+.sectionTitleIcon {
+  width: 36px;
+  height: 36px;
+  background: var(--grape-lt);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  box-shadow: 0 5px 15px rgba(93, 64, 55, 0.3);
-  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.navButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+.sectionTitleIcon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--grape);
 }
 
-.navButton:hover {
-  transform: translateY(-50%) scale(1.1) rotate(5deg);
-  box-shadow: 0 8px 20px rgba(93, 64, 55, 0.4);
-}
-
-.navButton:hover::before {
-  opacity: 1;
-}
-
-.navButton:active {
-  transform: translateY(-50%) scale(0.95);
-}
-
-.navButton svg {
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
-  transition: transform 0.3s ease;
-}
-
-.prevButton {
-  left: 10px;
-}
-
-.prevButton:hover svg {
-  transform: translateX(-3px);
-}
-
-.nextButton {
-  right: 10px;
-}
-
-.nextButton:hover svg {
-  transform: translateX(3px);
-}
-
-.navButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: linear-gradient(135deg, #d1d1d1 0%, #9e9e9e 100%);
-  transform: translateY(-50%) scale(0.9);
-}
-
-.navButton:disabled:hover {
-  transform: translateY(-50%) scale(0.9);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Carousel göstergeleri */
-.carouselIndicators {
+/* ══════════════════════════════
+   EMPTY STATE
+══════════════════════════════ */
+.emptyState {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+  padding: 44px 52px;
   display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
+  align-items: center;
+  gap: 52px;
+  max-width: 780px;
 }
 
-.indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: #e0e0e0;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  position: relative;
-  overflow: hidden;
+.emptyIllustration {
+  flex-shrink: 0;
+  width: 160px;
+  height: 140px;
 }
 
-.indicator::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
+.emptyCalendarSvg {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  border-radius: 50%;
 }
 
-.indicator:hover {
-  transform: scale(1.2);
+.emptyText {
+  flex: 1;
 }
 
-.indicator:hover::after {
-  opacity: 0.5;
+.emptyTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
 }
 
-.activeIndicator {
-  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
-  transform: scale(1.3);
-  box-shadow: 0 2px 5px rgba(93, 64, 55, 0.3);
+.emptyDesc {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.65;
+  margin: 0;
 }
 
-.activeIndicator::after {
-  opacity: 1;
+/* ══════════════════════════════
+   PAST EVENTS HEADER (titre + filtres côte à côte)
+══════════════════════════════ */
+.pastHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
 }
 
-.moreIndicator {
-  color: #999;
-  font-size: 1.2rem;
-  line-height: 0.5;
-  margin: 0 5px;
-  animation: pulse 2s infinite;
+.pastHeader .sectionTitle {
+  margin-bottom: 0;
 }
 
-@keyframes pulse {
-  0% {
-    opacity: 0.5;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-  100% {
-    opacity: 0.5;
-    transform: scale(1);
-  }
+/* ══════════════════════════════
+   FILTERS
+══════════════════════════════ */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-/* Carousel arka planı */
-.carouselBackground {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to right, 
-    rgba(200, 169, 126, 0.1), 
-    rgba(200, 169, 126, 0.05), 
-    rgba(200, 169, 126, 0.1)
-  );
-  z-index: -1;
-  border-radius: 15px;
+.filterPill {
+  padding: 7px 18px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  color: var(--ink-soft);
+  font-family: "Outfit", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--ease);
+  white-space: nowrap;
 }
 
-/* Etkinlik kartları için gelişmiş stil */
+.filterPill:hover {
+  border-color: var(--grape);
+  color: var(--grape);
+  background: var(--grape-lt);
+}
+
+.filterActive {
+  background: var(--grape) !important;
+  color: #fff !important;
+  border-color: var(--grape) !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.28);
+}
+
+/* ══════════════════════════════
+   EVENTS GRID (2 colonnes)
+══════════════════════════════ */
+.eventsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+/* ══════════════════════════════
+   EVENT CARD (horizontal)
+══════════════════════════════ */
 .eventCard {
-  position: relative;
-  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  border-radius: 12px;
+  background: #fff;
+  border-radius: 16px;
+  border: 1.5px solid var(--border);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.055);
+  display: flex;
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition:
+    transform var(--ease),
+    box-shadow var(--ease);
+  will-change: transform;
 }
 
 .eventCard:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 30px rgba(93, 64, 55, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.11);
 }
 
-.eventCard::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 5px;
-  background: linear-gradient(90deg, #c8a97e, #5d4037);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.4s ease;
-}
-
-.eventCard:hover::after {
-  transform: scaleX(1);
-}
-
-/* Etkinlik tarihi stil */
-.eventDate {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  background: linear-gradient(135deg, #c8a97e 0%, #5d4037 100%);
-  color: white;
-  border-radius: 8px;
-  padding: 8px 12px;
-  text-align: center;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease;
-  z-index: 2;
-}
-
-.eventCard:hover .eventDate {
-  transform: scale(1.1) rotate(-3deg);
-}
-
-.day {
-  display: block;
-  font-size: 1.5rem;
-  font-weight: bold;
-  line-height: 1;
-}
-
-.month {
-  display: block;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-}
-
-/* Geçmiş etkinlik rozeti */
-.pastEventBadge {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 5px 10px;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  z-index: 2;
-  transform: rotate(3deg);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease;
-}
-
-.eventCard:hover .pastEventBadge {
-  transform: rotate(0deg) scale(1.1);
-}
-
-/* Etkinlik buton stil */
-.eventButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 16px;
-  border-radius: 30px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 3px 8px rgba(93, 64, 55, 0.2);
+/* Image côté gauche */
+.cardImageWrap {
   position: relative;
+  width: 185px;
+  min-width: 185px;
+  flex-shrink: 0;
   overflow: hidden;
-  z-index: 1;
-  margin: 0;
-  vertical-align: middle;
+  background: #f0edf8;
 }
 
-.eventButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
+.cardImage {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #5d4037 0%, #c8a97e 100%);
-  z-index: -1;
-  transition: opacity 0.3s ease;
-  opacity: 0;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
 }
 
-.eventButton:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(93, 64, 55, 0.3);
+.eventCard:hover .cardImage {
+  transform: scale(1.06);
 }
 
-.eventButton:hover::before {
-  opacity: 1;
+/* Badge date flottant */
+.dateBadge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
+  padding: 6px 10px;
+  text-align: center;
+  line-height: 1;
+  z-index: 2;
+  min-width: 48px;
 }
 
-.eventButton:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(93, 64, 55, 0.2);
+.dateBadgeDay {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
 }
 
-/* Responsive ayarlamalar */
-@media (max-width: 768px) {
-  .navButton {
-    width: 50px;
-    height: 50px;
-    font-size: 1rem;
-  }
-  
-  .carouselContainer {
-    padding: 0 40px;
-  }
-  
-  .eventDate {
-    padding: 6px 10px;
-  }
-  
-  .day {
-    font-size: 1.2rem;
-  }
-  
-  .month {
-    font-size: 0.8rem;
+.dateBadgeMonth {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+/* Corps de la carte */
+.cardBody {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Badge catégorie */
+.categoryBadge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  padding: 3px 10px;
+  border-radius: 100px;
+  width: fit-content;
+}
+
+.cat_rencontre {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+.cat_culture {
+  background: #fff3e0;
+  color: #e65100;
+}
+.cat_education {
+  background: #e0f2fe;
+  color: #0277bd;
+}
+.cat_solidarite {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.cat_sortie {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* Titre */
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.3;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Méta (lieu + date) */
+.cardMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cardMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.cardMetaRow svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  stroke: var(--orange);
+}
+
+/* Description */
+.cardDescription {
+  font-size: 0.83rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+/* Lien */
+.cardLink {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--grape);
+  text-decoration: none;
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition:
+    gap var(--ease),
+    color var(--ease);
+  width: fit-content;
+}
+
+.cardLink:hover {
+  color: var(--orange);
+  gap: 8px;
+}
+
+/* ══════════════════════════════
+   RESPONSIVE
+══════════════════════════════ */
+@media (max-width: 1100px) {
+  .pageContent {
+    padding: 48px 32px 64px;
   }
 }
 
-@media (max-width: 480px) {
-  .navButton {
-    width: 40px;
-    height: 40px;
-    font-size: 0.9rem;
-  }
-  
-  .carouselContainer {
-    padding: 0 30px;
-  }
-}
-
-/* iPhone 12 Pro Responsive */
-@media (max-width: 390px) {
-  .container {
-    padding: 0.5rem;
-  }
-  
+@media (max-width: 900px) {
   .eventsGrid {
-    display: flex;
-    overflow-x: auto;
-    gap: 0.8rem;
-    padding: 0.5rem 0;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
+    grid-template-columns: 1fr;
   }
-  
-  .eventsGrid::-webkit-scrollbar {
-    height: 4px;
+
+  .pastHeader {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  
-  .eventsGrid::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 2px;
+
+  .heroContent {
+    padding: 0 40px 44px;
   }
-  
-  .eventsGrid::-webkit-scrollbar-thumb {
-    background: #c8a97e;
-    border-radius: 2px;
+
+  .heroTitle {
+    font-size: 2.2rem;
   }
-  
+}
+
+@media (max-width: 680px) {
+  .hero {
+    height: 280px;
+  }
+
+  .heroContent {
+    padding: 0 24px 36px;
+  }
+
+  .heroTitle {
+    font-size: 1.8rem;
+  }
+
+  .pageContent {
+    padding: 36px 20px 56px;
+  }
+
+  .emptyState {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+    padding: 32px 28px;
+  }
+
+  .emptyIllustration {
+    width: 120px;
+    height: 105px;
+  }
+
   .eventCard {
-    min-width: 280px;
-    max-width: 280px;
-    height: 400px;
-    margin: 0;
-    flex-shrink: 0;
+    flex-direction: column;
   }
-  
-  .eventImageContainer {
+
+  .cardImageWrap {
+    width: 100%;
+    min-width: unset;
     height: 180px;
   }
-  
-  .eventContent {
-    padding: 1rem;
+
+  .filters {
+    gap: 6px;
   }
-  
-  .eventTitle {
-    font-size: 1.1rem;
-    margin-bottom: 0.6rem;
-    height: 2.2em;
-  }
-  
-  .eventDate {
+
+  .filterPill {
+    padding: 6px 14px;
     font-size: 0.8rem;
   }
-  
-  .eventDescription {
-    font-size: 0.8rem;
-    margin-bottom: 0.8rem;
-    height: 3.6em;
-  }
-  
-  .joinButtonContainer {
-    margin-top: 0.5rem;
-  }
-  
-  .joinButton {
-    padding: 0.6rem 1rem;
-    font-size: 0.8rem;
-  }
-  
-  .title {
+}
+
+@media (max-width: 400px) {
+  .heroTitle {
     font-size: 1.5rem;
-    margin-bottom: 1rem;
   }
-  
-  .createEventButton {
-    padding: 0.8rem 1.5rem;
-    font-size: 0.9rem;
+
+  .sectionTitle {
+    font-size: 1.2rem;
   }
-  
-  .adminActions {
-    gap: 0.5rem;
-  }
-  
-  .editButton, .deleteButton {
-    width: 30px;
-    height: 30px;
-    font-size: 12px;
-  }
-  
-  .actionButton {
-    padding: 0.6rem 1rem;
-    font-size: 0.8rem;
-    width: 100px;
-    height: 35px;
-  }
-  
-  .navButton {
-    width: 30px;
-    height: 30px;
-    font-size: 12px;
-  }
-  
-  .carouselContainer {
-    padding: 0 5px;
+
+  .pageContent {
+    padding: 28px 14px 48px;
   }
 }
-
-/* Yaratıcı Katıl/Ayrıl Butonu Stilleri */
-.actionButton {
-  margin: 0;
-  vertical-align: middle;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 16px;
-  border-radius: 30px;
-  border: none;
+/* Fotoğraf sayısı rozeti */
+.photoCountBadge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 0.68rem;
   font-weight: 600;
-  cursor: pointer;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 120px;
-  height: 40px;
-}
-
-.registerButton {
-  background: linear-gradient(135deg, #4a90e2, #5637d9);
-  color: white;
-}
-
-.registeredButton {
-  background: linear-gradient(135deg, #4caf50, #2e7d32);
-  color: white;
-}
-
-.buttonContent {
+  letter-spacing: 0.03em;
+  padding: 3px 8px;
+  border-radius: 20px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  transition: transform 0.3s ease;
+  gap: 4px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
 }
-
-.buttonIcon {
-  font-size: 18px;
-}
-
-.buttonText {
-  font-size: 14px;
-}
-
-.buttonHoverText {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
-  font-size: 14px;
-}
-
-.actionButton:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15);
-}
-
-.actionButton:hover .buttonContent {
-  transform: translateY(-100%);
-}
-
-.actionButton:hover .buttonHoverText {
-  transform: translateY(0);
-}
-
-.actionButton:active {
-  transform: translateY(-1px);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* Animasyon efekti */
-.actionButton::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 5px;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.5);
-  opacity: 0;
-  border-radius: 100%;
-  transform: scale(1, 1) translate(-50%);
-  transform-origin: 50% 50%;
-}
-
-.actionButton:hover::after {
-  animation: ripple 1s ease-out;
-}
-
-@keyframes ripple {
-  0% {
-    transform: scale(0, 0);
-    opacity: 0.5;
-  }
-  100% {
-    transform: scale(20, 20);
-    opacity: 0;
-  }
-}
-
-.eventActions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 15px;
-}
-
-/* Tüm butonlar için ortak stil */
-.eventActions button,
-.eventActions a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 36px; /* Sabit yükseklik */
-  vertical-align: middle; /* Dikey hizalama */
-}
-
-.eventsHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.createEventButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: #4CAF50;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: background-color 0.3s;
-}
-
-.createEventButton:hover {
-  background-color: #388E3C;
-}
-
-.adminActions {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  gap: 8px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.eventImageContainer {
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px 8px 0 0;
-}
-
-.eventImageContainer:hover .adminActions {
-  opacity: 1;
-}
-
-.editButton, .deleteButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.2s, background-color 0.2s;
-}
-
-.editButton {
-  background-color: #2196F3;
-  color: white;
-}
-
-.deleteButton {
-  background-color: #F44336;
-  color: white;
-}
-
-.editButton:hover, .deleteButton:hover {
-  transform: scale(1.1);
-}
-
-.editButton:hover {
-  background-color: #1976D2;
-}
-
-.deleteButton:hover {
-  background-color: #D32F2F;
-}
-
-/* Final mobile lock for Events page */
-@media (max-width: 900px) {
-  .container,
-  .eventsSection,
-  .carouselContainer,
-  .carouselBackground,
-  .headerSection {
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    overflow-x: clip !important;
-  }
-
-  .container {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-  }
-
-  .carousel {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    overflow-x: hidden !important;
-    overflow-y: visible !important;
-    gap: 10px !important;
-    padding-bottom: 8px !important;
-  }
-
-  .eventCard {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-  }
-
-  .eventTitle {
-    font-size: 1.1rem !important;
-    line-height: 1.2 !important;
-  }
-
-  .eventDescription {
-    font-size: 0.92rem !important;
-    line-height: 1.4 !important;
-  }
-
-  .eventActions {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
-    width: 100% !important;
-  }
-
-  .eventButton,
-  .joinButton,
-  .leaveButton {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    padding: 9px 12px !important;
-    font-size: 0.9rem !important;
-  }
-
-  .navButton {
-    width: 34px !important;
-    height: 34px !important;
-  }
+.photoCountBadge svg {
+  width: 14px;
+  height: 14px;
+  stroke: #fff;
 }

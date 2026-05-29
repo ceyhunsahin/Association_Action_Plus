@@ -1,59 +1,89 @@
-import React, { useEffect, useRef, useState } from 'react';
-import styles from './About.module.css';
-import { FaHandshake, FaGlobeEurope, FaUsers, FaHistory, FaLightbulb, FaHeart } from 'react-icons/fa';
+import React, { useEffect, useRef, useState } from "react";
+import { Helmet } from "react-helmet";
+import styles from "./About.module.css";
+import {
+  FaHandshake,
+  FaGlobeEurope,
+  FaUsers,
+  FaHistory,
+  FaLightbulb,
+  FaHeart,
+} from "react-icons/fa";
 
 const About = () => {
   const parallaxRef = useRef(null);
   const valuesRef = useRef(null);
   const [scrollY, setScrollY] = useState(0);
-  const [isVisible, setIsVisible] = useState({
-    values: false,
-    mission: false,
-    team: false
-  });
+  const [isVisible, setIsVisible] = useState({ values: false });
 
-  // Scroll olayını dinle
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
-      
-      // Bölümlerin görünürlüğünü kontrol et
-      const checkVisibility = (ref, section) => {
-        if (ref.current) {
-          const rect = ref.current.getBoundingClientRect();
-          if (rect.top < window.innerHeight * 0.75) {
-            setIsVisible(prev => ({ ...prev, [section]: true }));
-          }
+      if (valuesRef.current) {
+        const rect = valuesRef.current.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.78) {
+          setIsVisible((prev) => ({ ...prev, values: true }));
         }
-      };
-      
-      checkVisibility(valuesRef, 'values');
+      }
     };
-
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // İlk yükleme için kontrol et
-    
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Değerlerimiz
   const values = [
-    { icon: <FaHandshake />, title: 'Respect', description: 'Nous valorisons le respect mutuel et la dignité de chaque individu, indépendamment de son origine ou de sa culture.' },
-    { icon: <FaGlobeEurope />, title: 'Diversité', description: 'Nous célébrons la richesse de la diversité culturelle et encourageons le partage des traditions et des perspectives.' },
-    { icon: <FaUsers />, title: 'Inclusion', description: 'Nous nous efforçons de créer des espaces où chacun se sent bienvenu, valorisé et entendu.' },
-    { icon: <FaLightbulb />, title: 'Innovation', description: 'Nous recherchons constamment de nouvelles façons de connecter les communautés et de promouvoir la compréhension interculturelle.' },
-    { icon: <FaHeart />, title: 'Engagement', description: 'Nous sommes dévoués à notre mission et travaillons avec passion pour créer un impact positif dans la société.' }
+    {
+      icon: <FaHandshake />,
+      title: "Respect",
+      description:
+        "Nous valorisons la dignité de chaque individu, indépendamment de son origine ou de sa culture.",
+    },
+    {
+      icon: <FaGlobeEurope />,
+      title: "Diversité",
+      description:
+        "Nous célébrons la richesse culturelle et encourageons le partage des traditions et perspectives.",
+    },
+    {
+      icon: <FaUsers />,
+      title: "Inclusion",
+      description:
+        "Nous créons des espaces où chacun se sent bienvenu, valorisé et entendu.",
+    },
+    {
+      icon: <FaLightbulb />,
+      title: "Innovation",
+      description:
+        "Nous cherchons de nouvelles façons de connecter les communautés et promouvoir la compréhension.",
+    },
+    {
+      icon: <FaHeart />,
+      title: "Engagement",
+      description:
+        "Nous travaillons avec passion pour créer un impact positif et durable dans la société.",
+    },
   ];
 
   return (
     <div className={styles.aboutContainer}>
-      {/* Hero Section with Parallax */}
-      <div 
+      <Helmet>
+        <title>À Propos | Action Plus</title>
+        <meta
+          name="description"
+          content="Découvrez l'histoire, la mission et les valeurs d'Action Plus. Construire des ponts entre les cultures depuis 2025."
+        />
+        <meta
+          name="keywords"
+          content="histoire, mission, valeurs, association Action Plus, Metz"
+        />
+        <link rel="canonical" href="https://actionplusmetz.org/about" />
+      </Helmet>
+
+      {/* Hero */}
+      <div
         className={styles.heroSection}
         ref={parallaxRef}
-        style={{ 
-          backgroundPositionY: `calc(50% + ${scrollY * 0.5}px)` 
-        }}
+        style={{ backgroundPositionY: `calc(50% + ${scrollY * 0.45}px)` }}
       >
         <div className={styles.heroOverlay}>
           <h1 className={styles.heroTitle}>
@@ -63,110 +93,126 @@ const About = () => {
             Construire des ponts entre les cultures depuis 2025
           </p>
         </div>
+        <div className={styles.heroScrollHint}>Découvrir</div>
       </div>
 
-      {/* Mission Section */}
+      {/* Misyon */}
       <section className={styles.missionSection}>
         <div className={styles.container}>
           <div className={styles.missionContent}>
             <h2 className={styles.sectionTitle}>Notre Mission</h2>
-            <div className={styles.separator}></div>
+            <div className={styles.separator} />
             <p className={styles.missionText}>
-              Action Plus vise à promouvoir le dialogue interculturel, la diversité et la solidarité à travers des actions éducatives, culturelles et sociales. Nous organisons des activités pour transmettre les savoirs, renforcer les liens entre les générations, encourager la tolérance et la citoyenneté, et soutenir l'inclusion sociale.
+              Action Plus promeut le dialogue interculturel, la diversité et la
+              solidarité à travers des actions éducatives, culturelles et
+              sociales — soirées iftar, festivals gastronomiques, conférences et
+              rencontres intergénérationnelles.
             </p>
             <p className={styles.missionText}>
-              Nous collaborons avec des acteurs locaux pour construire une société plus solidaire et inclusive. Notre approche est basée sur le respect, l'ouverture d'esprit et l'engagement communautaire.
+              Nous collaborons avec des acteurs locaux pour bâtir une société
+              plus solidaire. Notre approche repose sur le respect, l'ouverture
+              et l'engagement communautaire.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Histoire Section */}
+      {/* Tarihçe */}
       <section className={styles.historySection}>
         <div className={styles.container}>
           <h2 className={styles.sectionTitle}>Notre Histoire</h2>
-          <div className={styles.separator}></div>
-          
+          <div className={styles.separator} />
           <div className={styles.timelineContainer}>
             <div className={styles.timelineItem}>
               <div className={styles.timelineIcon}>
                 <FaHistory />
               </div>
               <div className={styles.timelineContent}>
-                <h3>04/04/2025</h3>
+                <h3>04 / 04 / 2025</h3>
                 <p>Adoption des statuts de l'association Action Plus.</p>
               </div>
             </div>
-            
+
             <div className={styles.timelineItem}>
               <div className={styles.timelineIcon}>
                 <FaHistory />
               </div>
               <div className={styles.timelineContent}>
-                <h3>27/05/2025</h3>
-                <p>Inscription de l'association au Tribunal judiciaire de METZ - Registre des associations.</p>
+                <h3>27 / 05 / 2025</h3>
+                <p>
+                  Inscription au Tribunal judiciaire de Metz — Registre des
+                  associations.
+                </p>
               </div>
             </div>
-            
+
             <div className={styles.timelineItem}>
               <div className={styles.timelineIcon}>
                 <FaHistory />
               </div>
               <div className={styles.timelineContent}>
-                <h3>28/05/2025</h3>
-                <p>Émission de l'attestation d'inscription avec le numéro de référence R2025MET001009.</p>
+                <h3>28 / 05 / 2025</h3>
+                <p>
+                  Émission de l'attestation d'inscription — Réf. R2025MET001009.
+                </p>
               </div>
             </div>
-            
+
             <div className={styles.timelineItem}>
               <div className={styles.timelineIcon}>
                 <FaHistory />
               </div>
               <div className={styles.timelineContent}>
                 <h3>Aujourd'hui</h3>
-                <p>Action Plus commence ses activités avec une équipe dévouée et une vision claire pour promouvoir le dialogue interculturel.</p>
+                <p>
+                  Action Plus débute ses activités avec une équipe dévouée et
+                  une vision claire.
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Nos Valeurs Section */}
+      {/* Değerler */}
       <section className={styles.valuesSection} ref={valuesRef}>
         <div className={styles.container}>
-          <div>
-            <h2 className={styles.sectionTitle}>Nos Valeurs</h2>
-            <div className={styles.separator}></div>
-            
-            <div className={styles.valuesGrid}>
-              {values.map((value, index) => (
-                <div 
-                  key={index} 
-                  className={`${styles.valueCard} ${isVisible.values ? styles.valueCardVisible : ''}`}
-                  style={{ transitionDelay: `${index * 100}ms` }}
-                >
-                  <div className={styles.valueIcon}>
-                    {value.icon}
-                  </div>
-                  <h3 className={styles.valueTitle}>{value.title}</h3>
-                  <p className={styles.valueDescription}>{value.description}</p>
-                </div>
-              ))}
-            </div>
+          <h2 className={styles.sectionTitle}>Nos Valeurs</h2>
+          <div className={styles.separator} />
+          <div className={styles.valuesGrid}>
+            {values.map((v, i) => (
+              <div
+                key={i}
+                className={`${styles.valueCard} ${isVisible.values ? styles.valueCardVisible : ""}`}
+                style={{ animationDelay: `${i * 90}ms` }}
+              >
+                <div className={styles.valueIcon}>{v.icon}</div>
+                <h3 className={styles.valueTitle}>{v.title}</h3>
+                <p className={styles.valueDescription}>{v.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Call to Action Section */}
+      {/* CTA */}
       <section className={styles.ctaSection}>
         <div className={styles.container}>
-          <h2 className={styles.ctaTitle}>Rejoignez Notre Mouvement</h2>
+          <h2 className={styles.ctaTitle}>
+            Rejoignez <em>Notre Mouvement</em>
+          </h2>
           <p className={styles.ctaText}>
-            Ensemble, nous pouvons construire un monde plus inclusif et culturellement riche. Participez à nos événements, devenez bénévole ou soutenez notre mission.
+            Ensemble, construisons un espace où chaque culture trouve sa place.
+            Participez à nos événements, devenez bénévole ou soutenez notre
+            mission.
           </p>
           <div className={styles.ctaButtons}>
-            <a href="/events" className={styles.ctaButton}>Voir Nos Événements</a>
-            <a href="/contact" className={styles.ctaButtonOutline}>Nous Contacter</a>
+            <a href="/events" className={styles.ctaButton}>
+              Voir Nos Événements
+            </a>
+            <a href="/contact" className={styles.ctaButtonOutline}>
+              Nous Contacter
+            </a>
           </div>
         </div>
       </section>

@@ -1,3 +1,8 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 .footerLogo {
   text-align: center;
   margin-bottom: 20px;
@@ -17,22 +22,23 @@
   font-family: 'Playfair Display', serif;
   font-size: 24px;
   font-weight: 700;
-  color: #f8f4e9;
+  color: #E5E7EB;
   margin: 0;
 }
 
 .footerTagline {
-  color: #c8a97e;
+  color: #9CA3AF;
   font-style: italic;
   margin-top: 5px;
 }
 
 .footer {
   position: relative;
-  background-color: #5d4037;
+  background-color: #1F2937;
   color: #fff;
   padding: 0;
   margin-top: 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
   overflow: hidden;
 }
 
@@ -75,7 +81,7 @@
   margin-bottom: 0.9rem;
   position: relative;
   padding-bottom: 0.5rem;
-  color: #c8a97e;
+  color: #8B5CF6;
 }
 
 .footerSection h3::after {
@@ -85,13 +91,13 @@
   bottom: 0;
   width: 50px;
   height: 2px;
-  background-color: #c8a97e;
+  background-color: #8B5CF6;
 }
 
 .footerSection p {
   line-height: 1.4;
   margin-bottom: 0.9rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: #9CA3AF;
 }
 
 .socialIcons {
@@ -106,13 +112,13 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.06);
   color: #fff;
   transition: all 0.3s ease;
 }
 
 .socialIcons a:hover {
-  background-color: #c8a97e;
+  background-color: #60A5FA;
   transform: translateY(-3px);
 }
 

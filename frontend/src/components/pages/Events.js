@@ -1,643 +1,461 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import axios from 'axios';
-import { useAuth } from '../../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import styles from './Events.module.css';
-import { FaChevronLeft, FaChevronRight, FaCalendarAlt, FaUsers, FaMapMarkerAlt, FaClock, FaHistory, FaPlus, FaStar } from 'react-icons/fa';
-import ConfirmModal from '../Modal/ConfirmModal';
+import React, { useState, memo } from "react";
+import { Helmet } from "react-helmet";
+import styles from "./Events.module.css";
+import { PAST_EVENTS } from "../../data/events";
 
-const Events = () => {
-    const [events, setEvents] = useState([]);
-    const [userEvents, setUserEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const { accessToken, user, isAdmin } = useAuth();
-    const navigate = useNavigate();
-    const baseUrl = process.env.REACT_APP_API_BASE_URL || window.location.origin;
-    const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [eventToDelete, setEventToDelete] = useState(null);
-    const [upcomingEvents, setUpcomingEvents] = useState([]);
-    const [pastEvents, setPastEvents] = useState([]);
-    const [activeUpcomingIndex, setActiveUpcomingIndex] = useState(0);
-    const [activePastIndex, setActivePastIndex] = useState(0);
+const CATEGORIES = [
+  "Tous",
+  "Rencontres",
+  "Culture",
+  "Éducation",
+  "Solidarité",
+  "Sorties",
+];
 
-    const upcomingCarouselRef = useRef(null);
-    const pastCarouselRef = useRef(null);
+const CATEGORY_MAP = {
+  Rencontres: "rencontre",
+  Culture: "culture",
+  Éducation: "education",
+  Solidarité: "solidarite",
+  Sorties: "sortie",
+};
 
-    // Resim URL'sini düzgün formata çevir
-    const getImageUrl = (imagePath) => {
-        if (!imagePath) return null;
-        if (imagePath.startsWith('/uploads/')) {
-            return `${baseUrl}${imagePath}`;
-        }
-        return imagePath;
-    };
+const MONTH_INDEX = {
+  janvier: 0,
+  janv: 0,
+  février: 1,
+  fevrier: 1,
+  fevr: 1,
+  mars: 2,
+  avril: 3,
+  avr: 3,
+  mai: 4,
+  juin: 5,
+  juillet: 6,
+  juil: 6,
+  août: 7,
+  aout: 7,
+  septembre: 8,
+  sept: 8,
+  octobre: 9,
+  oct: 9,
+  novembre: 10,
+  nov: 10,
+  décembre: 11,
+  decembre: 11,
+  dec: 11,
+};
 
-    const getVideos = (event) => {
-        if (!event?.videos) return [];
-        if (Array.isArray(event.videos)) return event.videos;
-        try {
-            const parsed = JSON.parse(event.videos);
-            return Array.isArray(parsed) ? parsed : [];
-        } catch {
-            return [];
-        }
-    };
+const normalizeText = (value) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\./g, "")
+    .trim();
 
-    // Kullanıcının etkinliklerini getir
-    const fetchUserEvents = useCallback(async () => {
-        if (!user) return;
-        
-        try {
-            const token = localStorage.getItem('accessToken');
-            if (!token) return;
-            
-    
-            
-            const response = await axios.get(`${baseUrl}/api/users/me/events`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            
+const getEventTimestamp = (event) => {
+  if (!event?.date) return 0;
 
-            setUserEvents(response.data.events || []);
-        } catch (error) {
-            // 401 hatası için sessizce devam et
-            if (error.response?.status === 401) {
+  const parts = event.date.trim().split(/\s+/);
+  if (parts.length < 3) return 0;
 
-                return;
-            }
-            
-            console.error('Error fetching user events:', error);
-        }
-    }, [user, baseUrl]);
+  const day = Number.parseInt(parts[0], 10);
+  const year = Number.parseInt(parts[parts.length - 1], 10);
+  const monthKey = normalizeText(parts.slice(1, -1).join(" "));
+  const monthIndex = MONTH_INDEX[monthKey];
 
-    // Etkinlikleri getir fonksiyonu
-    const fetchEvents = useCallback(async () => {
-        try {
-            setLoading(true);
-            const response = await axios.get(`${baseUrl}/api/events`);
-            
-            if (response.data) {
-                const allEvents = Array.isArray(response.data) ? response.data : [];
-                setEvents(allEvents);
-                
-                // Gelecek ve geçmiş etkinlikleri ayır
-                const now = new Date();
-                const upcoming = allEvents.filter(event => new Date(event.date) >= now);
-                const past = allEvents.filter(event => new Date(event.date) < now);
-                
-                setUpcomingEvents(upcoming);
-                setPastEvents(past);
-            }
-            
-            setLoading(false);
-            
-        } catch (error) {
-            console.error('Error fetching events:', error);
-            setError('Erreur lors du chargement des événements. Veuillez réessayer.');
-            setLoading(false);
-        }
-    }, [baseUrl]);
+  if (
+    !Number.isFinite(day) ||
+    !Number.isFinite(year) ||
+    monthIndex === undefined
+  ) {
+    return 0;
+  }
 
-    // Tüm etkinlikleri çek - Component mount olduğunda çalışır
-    useEffect(() => {
-        fetchEvents();
-    }, [fetchEvents]);
+  return new Date(year, monthIndex, day).getTime();
+};
 
-    // Kullanıcının katıldığı etkinlikleri çek - User veya token değiştiğinde çalışır
-    useEffect(() => {
-        if (user) {
-            try {
-                fetchUserEvents();
-            } catch (error) {
-                console.error('Error fetching user events:', error);
-            }
-        }
-    }, [user, fetchUserEvents]);
+/* Kategori Rozeti */
+const CategoryBadge = ({ type }) => {
+  const labels = {
+    rencontre: "RENCONTRE",
+    culture: "CULTURE",
+    education: "ÉDUCATION",
+    solidarite: "SOLIDARITÉ",
+    sortie: "SORTIE",
+  };
+  return (
+    <span className={`${styles.categoryBadge} ${styles[`cat_${type}`]}`}>
+      {labels[type] || type.toUpperCase()}
+    </span>
+  );
+};
 
-    // Carousel kontrolleri - Gelecek etkinlikler
-    const scrollUpcoming = (direction) => {
-        if (upcomingCarouselRef.current) {
-            const { scrollLeft, clientWidth } = upcomingCarouselRef.current;
-            const scrollTo = direction === 'left' 
-                ? scrollLeft - clientWidth 
-                : scrollLeft + clientWidth;
-            
-            upcomingCarouselRef.current.scrollTo({
-                left: scrollTo,
-                behavior: 'smooth'
-            });
-            
-            // Aktif indeksi güncelle
-            const newIndex = direction === 'left' 
-                ? Math.max(0, activeUpcomingIndex - 1)
-                : Math.min(upcomingEvents.length - 1, activeUpcomingIndex + 1);
-            setActiveUpcomingIndex(newIndex);
-        }
-    };
-    
-    // Carousel kontrolleri - Geçmiş etkinlikler
-    const scrollPast = (direction) => {
-        if (pastCarouselRef.current) {
-            const { scrollLeft, clientWidth } = pastCarouselRef.current;
-            const scrollTo = direction === 'left' 
-                ? scrollLeft - clientWidth 
-                : scrollLeft + clientWidth;
-            
-            pastCarouselRef.current.scrollTo({
-                left: scrollTo,
-                behavior: 'smooth'
-            });
-            
-            // Aktif indeksi güncelle
-            const newIndex = direction === 'left' 
-                ? Math.max(0, activePastIndex - 1)
-                : Math.min(pastEvents.length - 1, activePastIndex + 1);
-            setActivePastIndex(newIndex);
-        }
-    };
+/* Etkinlik Kartı */
+const EventCard = memo(({ event }) => {
+  const photoCount = event.images?.length ? event.images.length + 1 : 0;
 
-    // Etkinliğe katıl veya çık
-    const joinEvent = async (eventId) => {
-        
-        try {
-            // Önce etkinliğin durumunu kontrol et
-            const event = events.find(e => String(e.id) === String(eventId) || String(e._id) === String(eventId));
-            const isAlreadyRegistered = event?.isParticipating;
-            
-
-            
-            // Token'ı al
-            const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
-            if (!token) {
-                console.error('No token found');
-                navigate('/login', { state: { from: '/events' } });
-                return;
-            }
-            
-            // Eğer zaten kayıtlıysa, kaydı sil
-            if (isAlreadyRegistered) {
-
-                
-                try {
-                    await axios({
-                        method: 'delete',
-                        url: `${baseUrl}/api/events/${eventId}/register`,
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    
-
-                    
-                    // Başarılı mesajı göster
-                    
-                    // Etkinliği güncelle
-                    setEvents(prevEvents => prevEvents.map(e => 
-                        (String(e.id) === String(eventId) || String(e._id) === String(eventId)) 
-                            ? { ...e, isParticipating: false } 
-                            : e
-                    ));
-                    
-                    // Gelecek ve geçmiş etkinlikleri de güncelle
-                    setUpcomingEvents(prevEvents => prevEvents.map(e => 
-                        (String(e.id) === String(eventId) || String(e._id) === String(eventId)) 
-                            ? { ...e, isParticipating: false } 
-                            : e
-                    ));
-                    
-                    setPastEvents(prevEvents => prevEvents.map(e => 
-                        (String(e.id) === String(eventId) || String(e._id) === String(eventId)) 
-                            ? { ...e, isParticipating: false } 
-                            : e
-                    ));
-                    
-                    // Sayfanın yukarı kaymasını engelle
-                    window.scrollTo(window.scrollX, window.scrollY);
-                    
-                    // Kullanıcının etkinliklerini güncelle
-                    await fetchUserEvents();
-                } catch (error) {
-                    console.error('Error leaving event:', error.response || error);
-                    setError(error.response?.data?.detail || 'Erreur lors de la désinscription');
-                    setTimeout(() => setError(null), 3000);
-                }
-            } 
-            // Değilse, etkinliğe katıl
-            else {
-
-                
-                try {
-                    await axios({
-                        method: 'post',
-                        url: `${baseUrl}/api/events/${eventId}/join`,
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        },
-                        data: {}
-                    });
-                    
-
-                    
-                    // Başarılı mesajı göster
-                    
-                    // Etkinliği güncelle
-                    setEvents(prevEvents => prevEvents.map(e => 
-                        (String(e.id) === String(eventId) || String(e._id) === String(eventId)) 
-                            ? { ...e, isParticipating: true } 
-                            : e
-                    ));
-                    
-                    // Gelecek ve geçmiş etkinlikleri de güncelle
-                    setUpcomingEvents(prevEvents => prevEvents.map(e => 
-                        (String(e.id) === String(eventId) || String(e._id) === String(eventId)) 
-                            ? { ...e, isParticipating: true } 
-                            : e
-                    ));
-                    
-                    setPastEvents(prevEvents => prevEvents.map(e => 
-                        (String(e.id) === String(eventId) || String(e._id) === String(eventId)) 
-                            ? { ...e, isParticipating: true } 
-                            : e
-                    ));
-                    
-                    // Sayfanın yukarı kaymasını engelle
-                    window.scrollTo(window.scrollX, window.scrollY);
-                    
-                    // Kullanıcının etkinliklerini güncelle
-                    await fetchUserEvents();
-                } catch (error) {
-                    console.error('Error joining event:', error.response || error);
-                    setError(error.response?.data?.detail || 'Erreur lors de l\'inscription');
-                    setTimeout(() => setError(null), 3000);
-                }
-            }
-        } catch (error) {
-            console.error('Error with event registration:', error.response || error);
-            setError(error.response?.data?.detail || 'Erreur lors de l\'opération');
-            setTimeout(() => setError(null), 3000);
-        }
-    };
-
-
-    // Etkinlik silme onayı
-    const confirmDeleteEvent = async () => {
-        if (!eventToDelete) return;
-
-        try {
-            await axios.delete(`${baseUrl}/api/events/${eventToDelete}`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                }
-            });
-            
-            // Etkinlik listesini güncelle
-            setEvents(prevEvents => prevEvents.filter(event => event._id !== eventToDelete));
-            setUpcomingEvents(prevEvents => prevEvents.filter(event => event._id !== eventToDelete));
-            setPastEvents(prevEvents => prevEvents.filter(event => event._id !== eventToDelete));
-            
-            // Modal'ı kapat
-            setShowConfirmModal(false);
-            setEventToDelete(null);
-            
-        } catch (error) {
-            console.error('Delete event error:', error.response || error);
-        }
-    };
-
-    // Tarih formatı
-    const formatDate = (dateString) => {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString('fr-FR', options);
-    };
-
-    // Kullanıcının etkinliğe katılıp katılmadığını kontrol et
-    // Etkinlik kartına tıklama işlemi için debug
-    const handleEventClick = (event) => {
-
-        // navigate(`/events/${event._id || event.id}`);
-    };
-
-    // Etkinlik kartlarında kullanılacak katılma butonu
-    const EventActionButton = ({ event }) => {
-        const isRegistered = userEvents.some(e => 
-            String(e._id || e.id) === String(event._id || event.id)
-        );
-        
-        return (
-            <button 
-                className={`${styles.actionButton} ${isRegistered ? styles.registeredButton : styles.registerButton}`}
-                onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    joinEvent(event._id || event.id);
-                }}
-            >
-                <div className={styles.buttonContent}>
-                    <span className={styles.buttonIcon}>
-                        {isRegistered ? '✓' : '+'}
-                    </span>
-                    <span className={styles.buttonText}>
-                        {isRegistered ? 'Inscrit' : 'Participer'}
-                    </span>
-                </div>
-                <div className={styles.buttonHoverText}>
-                    {isRegistered ? 'Se désinscrire' : 'S\'inscrire'}
-                </div>
-            </button>
-        );
-    };
-
-
-    if (loading) {
-        return (
-            <div className={styles.loadingContainer}>
-                <div className={styles.loader}></div>
-                <p>Chargement des événements...</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className={styles.errorContainer}>
-                <p className={styles.errorMessage}>{error}</p>
-                <button 
-                    className={styles.retryButton}
-                    onClick={() => window.location.reload()}
-                >
-                    Réessayer
-                </button>
-            </div>
-        );
-    }
-
-    return (
-        <div className={styles.container}>
-            <div className={styles.headerSection}>
-                <h1 className={styles.title}>
-                    <FaCalendarAlt className={styles.titleIcon} /> 
-                    Nos Événements
-                </h1>
-                
-                {isAdmin && (
-                    <Link to="/events/create" className={styles.createButton}>
-                        <FaPlus /> Créer un événement
-                    </Link>
-                )}
-            </div>
-            
-            {/* Gelecek Etkinlikler Carousel */}
-            <section className={styles.eventsSection}>
-                <h2 className={styles.sectionTitle}>
-                    <FaCalendarAlt /> Événements à venir
-                </h2>
-                
-                {upcomingEvents.length > 0 ? (
-                    <div className={styles.carouselContainer}>
-                        <div className={styles.carouselBackground}></div>
-                        <button 
-                            className={`${styles.navButton} ${styles.prevButton}`} 
-                            onClick={() => scrollUpcoming('left')}
-                            aria-label="Événements précédents"
-                            disabled={activeUpcomingIndex === 0}
-                        >
-                            <FaChevronLeft />
-                        </button>
-                        
-                        <div className={styles.carousel} ref={upcomingCarouselRef}>
-                            {upcomingEvents.map((event, index) => (
-                                <div 
-                                    key={event._id || event.id || `upcoming-${index}`} 
-                                    className={`${styles.eventCard} ${event.isFeatured ? styles.featuredEvent : ''}`}
-                                >
-                                    {event.isFeatured && (
-                                        <div className={styles.featuredBadge}>
-                                            <FaStar /> Événement spécial
-                                        </div>
-                                    )}
-                                    <div className={styles.eventImageContainer}>
-                                        <img 
-                                            src={getImageUrl(event.image) || '/assets/default-image.jpg'} 
-                                            alt={event.title} 
-                                            className={styles.eventImage}
-                                        />
-                                        {getVideos(event).length > 0 && (
-                                            <div className={styles.videoBadge}>
-                                                Video: {getVideos(event).length}
-                                            </div>
-                                        )}
-                                        <div className={styles.eventDate}>
-                                            <span className={styles.day}>
-                                                {new Date(event.date).getDate()}
-                                            </span>
-                                            <span className={styles.month}>
-                                                {new Date(event.date).toLocaleDateString('fr-FR', { month: 'short' })}
-                                            </span>
-                                        </div>
-                                        
-                                        <div className={styles.participantsInfo}>
-                                            <FaUsers /> {event.participants?.length || 0} / {event.maxParticipants || '∞'}
-                                        </div>
-                                    </div>
-                                    
-                                    <div className={styles.eventContent}>
-                                        <h3 className={styles.eventTitle}>{event.title}</h3>
-                                        
-                                        <div className={styles.eventDetails}>
-                                            <p className={styles.eventLocation}>
-                                                <FaMapMarkerAlt /> {event.location}
-                                            </p>
-                                            <p className={styles.eventTime}>
-                                                <FaClock /> {event.time || '19:00'}
-                                            </p>
-                                        </div>
-                                        
-                                        <p className={styles.eventDescription}>
-                                            {event.description.length > 100 
-                                                ? `${event.description.substring(0, 100)}` 
-                                                : event.description}
-                                        </p>
-                                        
-                                        <div className={styles.eventActions}>
-                                            <Link 
-                                                to={`/events/${event._id || event.id}`} 
-                                                className={styles.eventButton}
-                                                onClick={() => handleEventClick(event)}
-                                            >
-                                                Voir les détails
-                                            </Link>
-                                            
-                                            {(user || isAdmin) && <EventActionButton event={event} />}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        
-                        <button 
-                            className={`${styles.navButton} ${styles.nextButton}`} 
-                            onClick={() => scrollUpcoming('right')}
-                            aria-label="Événements suivants"
-                            disabled={activeUpcomingIndex >= upcomingEvents.length - 1}
-                        >
-                            <FaChevronRight />
-                        </button>
-                        
-                        <div className={styles.carouselIndicators}>
-                            {upcomingEvents.slice(0, Math.min(5, upcomingEvents.length)).map((_, index) => (
-                                <span 
-                                    key={index} 
-                                    className={`${styles.indicator} ${index === activeUpcomingIndex ? styles.activeIndicator : ''}`}
-                                    onClick={() => {
-                                        if (upcomingCarouselRef.current) {
-                                            upcomingCarouselRef.current.scrollTo({
-                                                left: index * upcomingCarouselRef.current.clientWidth,
-                                                behavior: 'smooth'
-                                            });
-                                            setActiveUpcomingIndex(index);
-                                        }
-                                    }}
-                                />
-                            ))}
-                            {upcomingEvents.length > 5 && <span className={styles.moreIndicator}></span>}
-                        </div>
-                    </div>
-                ) : (
-                    <p className={styles.noEvents}>
-                        Aucun événement à venir pour le moment. Revenez bientôt !
-                    </p>
-                )}
-            </section>
-            
-            {/* Geçmiş Etkinlikler Carousel */}
-            <section className={styles.eventsSection}>
-                <h2 className={styles.sectionTitle}>
-                    <FaHistory /> Événements passés
-                </h2>
-                
-                {pastEvents.length > 0 ? (
-                    <div className={styles.carouselContainer}>
-                        <div className={styles.carouselBackground}></div>
-                        <button 
-                            className={`${styles.navButton} ${styles.prevButton}`} 
-                            onClick={() => scrollPast('left')}
-                            aria-label="Événements précédents"
-                            disabled={activePastIndex === 0}
-                        >
-                            <FaChevronLeft />
-                        </button>
-                        
-                        <div className={styles.carousel} ref={pastCarouselRef}>
-                            {pastEvents.map((event, index) => (
-                                <div key={event._id || event.id || `past-${index}`} className={`${styles.eventCard} ${styles.pastEvent}`}>
-                                    <div className={styles.eventImageContainer}>
-                                        <img 
-                                            src={getImageUrl(event.image) || '/assets/default-image.jpg'} 
-                                            alt={event.title} 
-                                            className={styles.eventImage}
-                                        />
-                                        {getVideos(event).length > 0 && (
-                                            <div className={styles.videoBadge}>
-                                                Video: {getVideos(event).length}
-                                            </div>
-                                        )}
-                                        <div className={styles.eventDate}>
-                                            <span className={styles.day}>
-                                                {new Date(event.date).getDate()}
-                                            </span>
-                                            <span className={styles.month}>
-                                                {new Date(event.date).toLocaleDateString('fr-FR', { month: 'short' })}
-                                            </span>
-                                        </div>
-                                        <div className={styles.pastEventBadge}>Passé</div>
-                                    </div>
-                                    
-                                    <div className={styles.eventContent}>
-                                        <h3 className={styles.eventTitle}>{event.title}</h3>
-                                        
-                                        <div className={styles.eventDetails}>
-                                            <p className={styles.eventLocation}>
-                                                <FaMapMarkerAlt /> {event.location}
-                                            </p>
-                                            <p className={styles.eventTime}>
-                                                <FaClock /> {formatDate(event.date)}
-                                            </p>
-                                        </div>
-                                        
-                                        <p className={styles.eventDescription}>
-                                            {event.description.length > 100 
-                                                ? `${event.description.substring(0, 100)}` 
-                                                : event.description}
-                                        </p>
-                                        
-                                        <Link 
-                                            to={`/events/${event._id || event.id}`} 
-                                            className={styles.eventButton}
-                                            onClick={() => handleEventClick(event)}
-                                        >
-                                            Voir les détails
-                                        </Link>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        
-                        <button 
-                            className={`${styles.navButton} ${styles.nextButton}`} 
-                            onClick={() => scrollPast('right')}
-                            aria-label="Événements suivants"
-                            disabled={activePastIndex >= pastEvents.length - 1}
-                        >
-                            <FaChevronRight />
-                        </button>
-                        
-                        <div className={styles.carouselIndicators}>
-                            {pastEvents.slice(0, Math.min(5, pastEvents.length)).map((_, index) => (
-                                <span 
-                                    key={index} 
-                                    className={`${styles.indicator} ${index === activePastIndex ? styles.activeIndicator : ''}`}
-                                    onClick={() => {
-                                        if (pastCarouselRef.current) {
-                                            pastCarouselRef.current.scrollTo({
-                                                left: index * pastCarouselRef.current.clientWidth,
-                                                behavior: 'smooth'
-                                            });
-                                            setActivePastIndex(index);
-                                        }
-                                    }}
-                                />
-                            ))}
-                            {pastEvents.length > 5 && <span className={styles.moreIndicator}></span>}
-                        </div>
-                    </div>
-                ) : (
-                    <p className={styles.noEvents}>
-                        Aucun événement passé à afficher.
-                    </p>
-                )}
-            </section>
-
-            {showConfirmModal && (
-                <ConfirmModal 
-                    message="Êtes-vous sûr de vouloir supprimer cet événement ? Cette action est irréversible."
-                    onConfirm={confirmDeleteEvent}
-                    onCancel={() => {
-                        setShowConfirmModal(false);
-                        setEventToDelete(null);
-                    }}
-                    confirmText="Supprimer"
-                    cancelText="Annuler"
-                />
-            )}
+  return (
+    <div className={styles.eventCard}>
+      <div className={styles.cardImageWrap}>
+        <img
+          src={event.image}
+          alt={event.title}
+          className={styles.cardImage}
+          loading="lazy"
+          onError={(e) => {
+            e.target.src = "/assets/home-hero.png";
+          }}
+        />
+        <div className={styles.dateBadge}>
+          <span className={styles.dateBadgeDay}>{event.day}</span>
+          <span className={styles.dateBadgeMonth}>{event.month}</span>
         </div>
-    );
+        {photoCount > 0 && (
+          <div className={styles.photoCountBadge}>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              width="12"
+              height="12"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+            {photoCount} photos
+          </div>
+        )}
+      </div>
+      <div className={styles.cardBody}>
+        <CategoryBadge type={event.categoryColor} />
+        <h3 className={styles.cardTitle}>{event.title}</h3>
+        <div className={styles.cardMeta}>
+          <span className={styles.cardMetaRow}>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            {event.location}
+          </span>
+          <span className={styles.cardMetaRow}>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            {event.date}
+          </span>
+        </div>
+        <p className={styles.cardDescription}>{event.description}</p>
+        <a href={`/events/${event.slug}`} className={styles.cardLink}>
+          Voir les détails →
+        </a>
+      </div>
+    </div>
+  );
+});
+
+/* Ana Bileşen */
+const Events = () => {
+  const [activeCategory, setActiveCategory] = useState("Tous");
+
+  const filteredEvents =
+    activeCategory === "Tous"
+      ? PAST_EVENTS
+      : PAST_EVENTS.filter(
+          (e) => e.categoryColor === CATEGORY_MAP[activeCategory],
+        );
+
+  const sortedEvents = [...filteredEvents].sort(
+    (a, b) => getEventTimestamp(b) - getEventTimestamp(a),
+  );
+
+  return (
+    <div className={styles.eventsPage}>
+      <Helmet>
+        <title>Événements | Action Plus</title>
+        <meta
+          name="description"
+          content="Découvrez nos événements passés et à venir : rencontres, culture, éducation, solidarité et sorties avec Action Plus."
+        />
+        <meta
+          name="keywords"
+          content="événements, activités, rencontres, culture, Metz, Action Plus"
+        />
+        <link rel="canonical" href="https://actionplusmetz.org/events" />
+      </Helmet>
+
+      {/* Hero */}
+      <section className={styles.hero}>
+        <img
+          src="/assets/event-bg.png"
+          alt="Événements Action+"
+          className={styles.heroBg}
+        />
+        <div className={styles.heroOverlay} />
+        <div className={styles.heroContent}>
+          <p className={styles.heroSubtitle}>NOS ÉVÉNEMENTS</p>
+          <h1 className={styles.heroTitle}>Nos événements</h1>
+          <p className={styles.heroDesc}>
+            Découvrez les activités, rencontres et moments de partage organisés
+            par Action+.
+          </p>
+        </div>
+      </section>
+
+      <div className={styles.pageContent}>
+        {/* Gelecek Etkinlikler */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>
+            <span className={styles.sectionTitleIcon}>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            </span>
+            Événements à venir
+          </h2>
+
+          {/* Boş Durum */}
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIllustration}>
+              <svg
+                viewBox="0 0 160 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className={styles.emptyCalendarSvg}
+              >
+                {/* Shadow */}
+                <ellipse
+                  cx="80"
+                  cy="128"
+                  rx="48"
+                  ry="7"
+                  fill="#e8e0f7"
+                  opacity="0.7"
+                />
+                {/* Calendar body */}
+                <rect
+                  x="20"
+                  y="28"
+                  width="120"
+                  height="90"
+                  rx="10"
+                  fill="white"
+                  stroke="#ddd6fe"
+                  strokeWidth="2"
+                />
+                {/* Calendar header */}
+                <rect
+                  x="20"
+                  y="28"
+                  width="120"
+                  height="30"
+                  rx="10"
+                  fill="#7C3AED"
+                  opacity="0.15"
+                />
+                <rect
+                  x="20"
+                  y="48"
+                  width="120"
+                  height="10"
+                  rx="0"
+                  fill="#7C3AED"
+                  opacity="0.10"
+                />
+                {/* Rings */}
+                <rect
+                  x="50"
+                  y="20"
+                  width="8"
+                  height="18"
+                  rx="4"
+                  fill="#7C3AED"
+                />
+                <rect
+                  x="102"
+                  y="20"
+                  width="8"
+                  height="18"
+                  rx="4"
+                  fill="#7C3AED"
+                />
+                {/* Grid lines */}
+                <line
+                  x1="20"
+                  y1="68"
+                  x2="140"
+                  y2="68"
+                  stroke="#ede9fe"
+                  strokeWidth="1"
+                />
+                <line
+                  x1="20"
+                  y1="85"
+                  x2="140"
+                  y2="85"
+                  stroke="#ede9fe"
+                  strokeWidth="1"
+                />
+                <line
+                  x1="20"
+                  y1="102"
+                  x2="140"
+                  y2="102"
+                  stroke="#ede9fe"
+                  strokeWidth="1"
+                />
+                <line
+                  x1="53"
+                  y1="58"
+                  x2="53"
+                  y2="118"
+                  stroke="#ede9fe"
+                  strokeWidth="1"
+                />
+                <line
+                  x1="87"
+                  y1="58"
+                  x2="87"
+                  y2="118"
+                  stroke="#ede9fe"
+                  strokeWidth="1"
+                />
+                <line
+                  x1="121"
+                  y1="58"
+                  x2="121"
+                  y2="118"
+                  stroke="#ede9fe"
+                  strokeWidth="1"
+                />
+                {/* Dots */}
+                <circle cx="37" cy="76" r="4" fill="#ddd6fe" />
+                <circle cx="70" cy="76" r="4" fill="#ddd6fe" />
+                <circle cx="104" cy="76" r="4" fill="#7C3AED" opacity="0.4" />
+                <circle cx="37" cy="93" r="4" fill="#ddd6fe" />
+                <circle cx="70" cy="93" r="4" fill="#ddd6fe" />
+                <circle cx="104" cy="93" r="4" fill="#ddd6fe" />
+                <circle cx="37" cy="110" r="4" fill="#ddd6fe" />
+                {/* Flowers/leaves decoration */}
+                <ellipse
+                  cx="118"
+                  cy="112"
+                  rx="10"
+                  ry="5"
+                  fill="#a78bfa"
+                  opacity="0.5"
+                  transform="rotate(-30 118 112)"
+                />
+                <ellipse
+                  cx="128"
+                  cy="105"
+                  rx="10"
+                  ry="5"
+                  fill="#7C3AED"
+                  opacity="0.35"
+                  transform="rotate(20 128 105)"
+                />
+                <circle cx="122" cy="109" r="4" fill="#7C3AED" opacity="0.5" />
+                <ellipse
+                  cx="112"
+                  cy="118"
+                  rx="8"
+                  ry="4"
+                  fill="#c4b5fd"
+                  opacity="0.5"
+                  transform="rotate(10 112 118)"
+                />
+              </svg>
+            </div>
+            <div className={styles.emptyText}>
+              <h3 className={styles.emptyTitle}>Aucun événement à venir</h3>
+              <p className={styles.emptyDesc}>
+                De nouveaux événements sont en préparation.
+                <br />
+                Revenez bientôt pour découvrir nos prochaines rencontres.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Geçmiş Etkinlikler */}
+        <section className={styles.section}>
+          <div className={styles.pastHeader}>
+            <h2 className={styles.sectionTitle}>
+              <span className={styles.sectionTitleIcon}>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </span>
+              Événements passés
+            </h2>
+
+            {/* Filtreler */}
+            <div className={styles.filters}>
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  className={`${styles.filterPill} ${activeCategory === cat ? styles.filterActive : ""}`}
+                  onClick={() => setActiveCategory(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Etkinlik Listesi */}
+          <div className={styles.eventsGrid}>
+            {sortedEvents.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
 };
 
 export default Events;

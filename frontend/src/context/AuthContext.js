@@ -159,6 +159,13 @@ export const AuthProvider = ({ children }) => {
   // Google ile giriş
   const loginWithGoogle = async () => {
     try {
+      if (!auth) {
+        console.error(
+          "Google login skipped because Firebase auth is not initialized.",
+        );
+        return null;
+      }
+
       // Popup kullan (daha güvenilir)
       const result = await signInWithPopup(auth, googleProvider);
       
