@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, useMemo, memo } from "react";
 import axios from "axios";
 import { Helmet } from "react-helmet";
 import styles from "./Events.module.css";
@@ -160,6 +160,9 @@ const EventCard = memo(({ event }) => {
           alt={event.title}
           className={styles.cardImage}
           loading="lazy"
+          decoding="async"
+          width="400"
+          height="240"
           onError={(e) => {
             e.target.src = "/assets/home-hero.png";
           }}
@@ -266,13 +269,17 @@ const Events = () => {
     };
   }, []);
 
-  // En yeni en üstte; geçersiz tarihliler en sona
-  const sortedEvents = [...events].sort((a, b) => {
-    const ta = getEventTimestamp(a);
-    const tb = getEventTimestamp(b);
-    if (ta === tb) return 0;
-    return tb - ta;
-  });
+  // En yeni en üstte; geçersiz tarihliler en sona. Yalnızca events değişince hesapla.
+  const sortedEvents = useMemo(
+    () =>
+      [...events].sort((a, b) => {
+        const ta = getEventTimestamp(a);
+        const tb = getEventTimestamp(b);
+        if (ta === tb) return 0;
+        return tb - ta;
+      }),
+    [events],
+  );
 
   return (
     <div className={styles.eventsPage}>

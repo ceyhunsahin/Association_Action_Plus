@@ -131,6 +131,141 @@ button.navBtnSecondary {
   font-family: inherit;
 }
 
+/* ============================================
+   KULLANICI MENÜSÜ (avatar + isim + rol + ok)
+   ============================================ */
+.userMenu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.userTrigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 10px 0 6px;
+  background: #faf8fd;
+  border: 1px solid #ece6f5;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 150ms ease, border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.userTrigger:hover {
+  background: #f3eefa;
+  border-color: #d8c7ef;
+  box-shadow: 0 4px 12px rgba(107, 63, 160, 0.14);
+}
+
+.userAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #6b3fa0;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+}
+
+.userName {
+  color: #1a1a2e;
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userRole {
+  color: #9aa0ac;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.userChevron {
+  color: #9aa0ac;
+  font-size: 12px;
+  transition: transform 180ms ease;
+  flex-shrink: 0;
+}
+
+.userChevronOpen {
+  transform: rotate(180deg);
+}
+
+/* Dropdown */
+.userDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  background: #fff;
+  border: 1px solid #ece6f5;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(26, 26, 46, 0.14);
+  padding: 6px;
+  z-index: 120;
+  animation: userDropdownIn 140ms ease;
+}
+
+@keyframes userDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.userDropdownItem {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  text-decoration: none;
+  color: #3a3f4b;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.userDropdownItem:hover {
+  background: #f4f4f8;
+  color: #1a1a2e;
+}
+
+.userDropdownLogout {
+  color: #d64545;
+}
+
+.userDropdownLogout:hover {
+  background: #fdecec;
+  color: #d64545;
+}
+
 .navBtnPrimary {
   display: inline-flex;
   align-items: center;

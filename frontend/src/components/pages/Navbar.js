@@ -1,11 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import styles from "./Navbar.module.css";
 import { useAuth } from "../../context/AuthContext";
+import { FaChevronDown } from "react-icons/fa";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { isAuthenticated, isAdmin, logout } = useAuth();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+  const { isAuthenticated, isAdmin, logout, user } = useAuth();
+
+  // Profil avatarı için baş harfler
+  const displayName =
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+    user?.username ||
+    user?.email ||
+    "Mon compte";
+  const initials =
+    (displayName || "U")
+      .split(" ")
+      .map((p) => p[0])
+      .filter(Boolean)
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "U";
+  const roleLabel = isAdmin ? "Administrateur" : "Membre";
+  const panelTo = isAdmin ? "/admin/dashboard" : "/profile";
+  const panelLabel = isAdmin ? "Admin Panel" : "Mon profil";
+
+  // Dışarı tıklanınca dropdown'ı kapat
+  useEffect(() => {
+    if (!userMenuOpen) return undefined;
+    const handleClickOutside = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [userMenuOpen]);
 
   return (
     <header className={styles.navbar}>
@@ -65,28 +98,54 @@ const Navbar = () => {
               Connexion
             </Link>
           )}
-          {isAuthenticated && isAdmin && (
-            <Link to="/admin/dashboard" className={styles.navBtnSecondary}>
-              Admin
-            </Link>
-          )}
-          {isAuthenticated && !isAdmin && (
-            <Link to="/profile" className={styles.navBtnSecondary}>
-              Mon profil
-            </Link>
-          )}
-          {isAuthenticated && (
-            <button
-              type="button"
-              onClick={logout}
-              className={styles.navBtnSecondary}
-            >
-              Déconnexion
-            </button>
-          )}
           <Link to="/donate" className={styles.navBtnPrimary}>
             Faire un don
           </Link>
+
+          {isAuthenticated && (
+            <div className={styles.userMenu} ref={userMenuRef}>
+              <button
+                type="button"
+                className={styles.userTrigger}
+                onClick={() => setUserMenuOpen((o) => !o)}
+                aria-haspopup="true"
+                aria-expanded={userMenuOpen}
+              >
+                <span className={styles.userAvatar}>{initials}</span>
+                <span className={styles.userInfo}>
+                  <span className={styles.userName}>{displayName}</span>
+                  <span className={styles.userRole}>{roleLabel}</span>
+                </span>
+                <FaChevronDown
+                  className={`${styles.userChevron} ${
+                    userMenuOpen ? styles.userChevronOpen : ""
+                  }`}
+                />
+              </button>
+
+              {userMenuOpen && (
+                <div className={styles.userDropdown}>
+                  <Link
+                    to={panelTo}
+                    className={styles.userDropdownItem}
+                    onClick={() => setUserMenuOpen(false)}
+                  >
+                    {panelLabel}
+                  </Link>
+                  <button
+                    type="button"
+                    className={`${styles.userDropdownItem} ${styles.userDropdownLogout}`}
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      logout();
+                    }}
+                  >
+                    Déconnexion
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Mobil Menü */}

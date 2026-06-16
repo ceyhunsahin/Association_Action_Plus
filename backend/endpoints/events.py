@@ -123,7 +123,11 @@ async def get_events():
     cursor = conn.cursor()
     
     try:
-        cursor.execute("SELECT * FROM events WHERE COALESCE(status, 'active') = 'active'")
+        # En yeni eklenen üstte gelsin (frontend ayrıca etkinlik tarihine göre sıralar).
+        cursor.execute(
+            "SELECT * FROM events WHERE COALESCE(status, 'active') = 'active' "
+            "ORDER BY datetime(created_at) DESC, id DESC"
+        )
         events = cursor.fetchall()
 
         # SQLite Row'ları dictionary'e çevir
