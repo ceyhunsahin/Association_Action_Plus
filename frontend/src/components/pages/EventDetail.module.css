@@ -350,6 +350,18 @@
   box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
 }
 
+.registerButton:disabled {
+  cursor: default;
+  opacity: 0.85;
+  transform: none;
+  box-shadow: var(--shadow-md);
+}
+
+.registerButton:disabled:hover {
+  transform: none;
+  box-shadow: var(--shadow-md);
+}
+
 .registerButton::before {
   content: '';
   position: absolute;

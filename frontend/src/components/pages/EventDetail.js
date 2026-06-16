@@ -14,6 +14,8 @@ import {
   FaTrash,
   FaShareAlt,
   FaWhatsapp,
+  FaUserPlus,
+  FaCheck,
 } from "react-icons/fa";
 // Backend origin (yüklenen /uploads dosyaları backend tarafından servis edilir)
 const API_BASE_URL =
@@ -209,6 +211,7 @@ const EventDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [registering, setRegistering] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const carouselRef = useRef(null);
@@ -266,6 +269,46 @@ const EventDetail = () => {
   useEffect(() => {
     setCurrentImageIndex(0);
   }, [slug]);
+
+
+  // Kayıt Ol / Participer
+  const handleRegister = async () => {
+    // Login değilse login sayfasına yönlendir 
+    if (!user || !accessToken) {
+      navigate("/login", {
+        state: { from: `/events/${event?.slug || slug}` },
+      });
+      return;
+    }
+    if (!event?.id) return;
+    setRegistering(true);
+    try {
+      const baseUrl =
+        process.env.REACT_APP_API_BASE_URL || window.location.origin;
+      await axios.post(
+        `${baseUrl}/api/events/${event.id}/join`,
+        {},
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      setIsRegistered(true);
+      // Katılımcı sayısını anlık güncelle
+      setEvent((prev) =>
+        prev
+          ? { ...prev, participant_count: (prev.participant_count || 0) + 1 }
+          : prev,
+      );
+    } catch (err) {
+      //400
+      if (err.response?.status === 400) {
+        setIsRegistered(true);
+      } else {
+        console.error("Inscription error:", err);
+        alert("Une erreur s'est produite lors de l'inscription.");
+      }
+    } finally {
+      setRegistering(false);
+    }
+  };
 
   // Karusel Navigasyonu
   const prevImage = useCallback(() => {
@@ -467,6 +510,24 @@ const EventDetail = () => {
         )}
 
         <div className={styles.eventActions}>
+          {!user ? (
+            <button onClick={handleRegister} className={styles.loginButton}>
+              <FaUserPlus /> Participer
+            </button>
+          ) : isRegistered ? (
+            <button className={styles.registerButton} disabled>
+              <FaCheck /> Déjà inscrit
+            </button>
+          ) : (
+            <button
+              onClick={handleRegister}
+              className={styles.registerButton}
+              disabled={registering}
+            >
+              <FaUserPlus /> {registering ? "Inscription..." : "Participer"}
+            </button>
+          )}
+
           <button onClick={handleShare} className={styles.shareButton}>
             <FaShareAlt /> Partager
             <span className={styles.shareBadge}>

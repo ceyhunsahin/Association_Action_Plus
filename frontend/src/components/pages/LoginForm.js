@@ -13,8 +13,14 @@ const LoginForm = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Rol bazlı yönlendirme: admin -> admin panel, diğer -> profile
+    // Rol bazlı yönlendirme: önce geldiği sayfa (from) varsa oraya dön,
+    // yoksa admin -> admin panel, diğer -> profile
     const redirectByRole = () => {
+        const from = location.state?.from;
+        if (from) {
+            navigate(from, { replace: true });
+            return;
+        }
         let role = '';
         try {
             role = JSON.parse(localStorage.getItem('user') || '{}').role || '';

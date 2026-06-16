@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Fragment } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
 import styles from "./AdminPages.module.css";
-import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaUsers } from "react-icons/fa";
 
 const API_BASE_URL =
   process.env.REACT_APP_API_BASE_URL || window.location.origin;
@@ -17,6 +17,10 @@ const AdminEvents = () => {
   const { accessToken } = useAuth();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Katılımcılar: hangi event açık + cache + yükleniyor
+  const [expandedId, setExpandedId] = useState(null);
+  const [participants, setParticipants] = useState({});
+  const [loadingParticipants, setLoadingParticipants] = useState(false);
 
   const fetchEvents = useCallback(() => {
     setLoading(true);
@@ -34,12 +38,35 @@ const AdminEvents = () => {
     fetchEvents();
   }, [fetchEvents]);
 
+  const toggleParticipants = async (ev) => {
+    if (expandedId === ev.id) {
+      setExpandedId(null);
+      return;
+    }
+    setExpandedId(ev.id);
+    if (participants[ev.id]) return; // cache'te varsa tekrar çekme
+    setLoadingParticipants(true);
+    try {
+      const res = await axios.get(
+        `${API_BASE_URL}/api/events/${ev.slug || ev.id}`,
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      setParticipants((prev) => ({
+        ...prev,
+        [ev.id]: res.data?.participants || [],
+      }));
+    } catch (err) {
+      console.error("Katılımcılar yüklenemedi:", err);
+      setParticipants((prev) => ({ ...prev, [ev.id]: [] }));
+    } finally {
+      setLoadingParticipants(false);
+    }
+  };
+
   const handleDelete = async (ev) => {
     const identifier = ev.slug || ev.id;
     if (
-      !window.confirm(
-        `Supprimer l'événement « ${ev.title || "sans titre"} » ?`,
-      )
+      !window.confirm(`Supprimer l'événement « ${ev.title || "sans titre"} » ?`)
     )
       return;
     try {
@@ -70,9 +97,7 @@ const AdminEvents = () => {
       {loading ? (
         <div className={styles.stateMsg}>Chargement des événements…</div>
       ) : events.length === 0 ? (
-        <div className={styles.stateMsg}>
-          Aucun événement pour le moment.
-        </div>
+        <div className={styles.stateMsg}>Aucun événement pour le moment.</div>
       ) : (
         <div className={styles.tableWrap}>
           <table className={styles.table}>
@@ -81,52 +106,108 @@ const AdminEvents = () => {
                 <th>Événement</th>
                 <th>Date</th>
                 <th>Lieu</th>
+                <th>Participants</th>
                 <th style={{ textAlign: "right" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {events.map((ev) => (
-                <tr key={ev.id}>
-                  <td>
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 12 }}
-                    >
-                      <img
-                        className={styles.thumb}
-                        src={resolveMediaUrl(ev.image)}
-                        alt=""
-                        onError={(e) => {
-                          e.currentTarget.src = "/assets/home-hero.png";
-                        }}
-                      />
-                      <span className={styles.cellStrong}>
-                        {ev.title || "Sans titre"}
-                      </span>
-                    </div>
-                  </td>
-                  <td>{ev.date || "—"}</td>
-                  <td>{ev.location || "—"}</td>
-                  <td>
-                    <div
-                      className={styles.rowActions}
-                      style={{ justifyContent: "flex-end" }}
-                    >
-                      <Link
-                        to={`/events/edit/${ev.slug || ev.id}`}
-                        className={styles.iconBtn}
-                      >
-                        <FaEdit /> Modifier
-                      </Link>
-                      <button
-                        className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                        onClick={() => handleDelete(ev)}
-                      >
-                        <FaTrash /> Supprimer
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {events.map((ev) => {
+                const isOpen = expandedId === ev.id;
+                const list = participants[ev.id];
+                return (
+                  <Fragment key={ev.id}>
+                    <tr>
+                      <td>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 12,
+                          }}
+                        >
+                          <img
+                            className={styles.thumb}
+                            src={resolveMediaUrl(ev.image)}
+                            alt=""
+                            onError={(e) => {
+                              e.currentTarget.src = "/assets/home-hero.png";
+                            }}
+                          />
+                          <span className={styles.cellStrong}>
+                            {ev.title || "Sans titre"}
+                          </span>
+                        </div>
+                      </td>
+                      <td>{ev.date || "—"}</td>
+                      <td>{ev.location || "—"}</td>
+                      <td>
+                        <button
+                          className={`${styles.iconBtn} ${
+                            isOpen ? styles.iconBtnActive : ""
+                          }`}
+                          onClick={() => toggleParticipants(ev)}
+                        >
+                          <FaUsers /> {ev.participant_count || 0}
+                        </button>
+                      </td>
+                      <td>
+                        <div
+                          className={styles.rowActions}
+                          style={{ justifyContent: "flex-end" }}
+                        >
+                          <Link
+                            to={`/events/edit/${ev.slug || ev.id}`}
+                            className={styles.iconBtn}
+                          >
+                            <FaEdit /> Modifier
+                          </Link>
+                          <button
+                            className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                            onClick={() => handleDelete(ev)}
+                          >
+                            <FaTrash /> Supprimer
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {isOpen && (
+                      <tr>
+                        <td colSpan={5} className={styles.participantsCell}>
+                          {loadingParticipants && !list ? (
+                            <span className={styles.participantsEmpty}>
+                              Chargement des participants…
+                            </span>
+                          ) : list && list.length > 0 ? (
+                            <div className={styles.participantsList}>
+                              {list.map((p) => (
+                                <div key={p.id} className={styles.participantChip}>
+                                  <span className={styles.participantName}>
+                                    {[p.firstName, p.lastName]
+                                      .filter(Boolean)
+                                      .join(" ") ||
+                                      p.username ||
+                                      "Utilisateur"}
+                                  </span>
+                                  {p.email && (
+                                    <span className={styles.participantEmail}>
+                                      {p.email}
+                                    </span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className={styles.participantsEmpty}>
+                              Aucun participant inscrit pour le moment.
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
