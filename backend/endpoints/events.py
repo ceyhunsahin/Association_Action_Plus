@@ -4,6 +4,8 @@ from database import get_db
 from auth import get_current_user, get_current_admin, oauth2_scheme
 from models import Event, EventCreate, EventUpdate
 import sqlite3
+import re
+import secrets
 from jose import JWTError, jwt
 from datetime import datetime
 import json
@@ -14,6 +16,78 @@ router = APIRouter(
 # SECRET_KEY ve ALGORITHM değerlerini auth.py'den alın
 SECRET_KEY = 'ceyhunsahin'
 ALGORITHM = "HS256"
+
+# ISO ay numarası -> Fransızca kısaltma (kart tarih rozeti için)
+_FR_MONTHS = {
+    1: "JANV.", 2: "FÉVR.", 3: "MARS", 4: "AVR.", 5: "MAI", 6: "JUIN",
+    7: "JUIL.", 8: "AOÛT", 9: "SEPT.", 10: "OCT.", 11: "NOV.", 12: "DÉC.",
+}
+
+
+def _slugify(title: str) -> str:
+    """Başlıktan URL dostu, benzersiz bir slug üret"""
+    base = (title or "evenement").lower()
+    base = base.encode("ascii", "ignore").decode("ascii")
+    base = re.sub(r"[^a-z0-9]+", "-", base).strip("-")
+    if not base:
+        base = "evenement"
+    suffix = secrets.token_hex(4)
+    return f"{base}-{suffix}"
+
+
+def _derive_day_month(date_str: str):
+    """ISO tarihten (YYYY-MM-DD) gün ve Fransızca ay rozeti üret"""
+    if not date_str:
+        return None, None
+    try:
+        d = datetime.fromisoformat(str(date_str)[:10])
+        return f"{d.day:02d}", _FR_MONTHS.get(d.month)
+    except Exception:
+        return None, None
+
+
+def _resolve_event_id(cursor, identifier):
+    """slug veya sayısal id'den gerçek event id'sini döndür"""
+    cursor.execute("SELECT id FROM events WHERE slug = ?", (str(identifier),))
+    row = cursor.fetchone()
+    if row:
+        return row["id"]
+    if str(identifier).isdigit():
+        cursor.execute("SELECT id FROM events WHERE id = ?", (int(identifier),))
+        row = cursor.fetchone()
+        if row:
+            return row["id"]
+    return None
+
+
+def _normalize_event(event_dict):
+    """images/videos JSON çöz, eksik tasarım alanlarını doldur"""
+    if event_dict.get("images"):
+        try:
+            event_dict["images"] = json.loads(event_dict["images"]) if isinstance(event_dict["images"], str) else event_dict["images"]
+        except Exception:
+            event_dict["images"] = []
+    else:
+        event_dict["images"] = []
+    if event_dict.get("videos"):
+        try:
+            event_dict["videos"] = json.loads(event_dict["videos"]) if isinstance(event_dict["videos"], str) else event_dict["videos"]
+        except Exception:
+            event_dict["videos"] = []
+    else:
+        event_dict["videos"] = []
+    if event_dict.get("participant_count") is None:
+        event_dict["participant_count"] = 0
+    # Kart tasarımı için eksik alanları tarihten türet
+    if not event_dict.get("day") or not event_dict.get("month"):
+        day, month = _derive_day_month(event_dict.get("date"))
+        event_dict["day"] = event_dict.get("day") or day or ""
+        event_dict["month"] = event_dict.get("month") or month or ""
+    if not event_dict.get("categoryColor"):
+        event_dict["categoryColor"] = "rencontre"
+    if not event_dict.get("category"):
+        event_dict["category"] = "RENCONTRE"
+    return event_dict
 
 # Admin kontrolü için özel bir fonksiyon
 def check_admin_token(token: str = Depends(oauth2_scheme)):
@@ -49,31 +123,12 @@ async def get_events():
     cursor = conn.cursor()
     
     try:
-        cursor.execute("SELECT * FROM events")
+        cursor.execute("SELECT * FROM events WHERE COALESCE(status, 'active') = 'active'")
         events = cursor.fetchall()
-        
+
         # SQLite Row'ları dictionary'e çevir
-        events_list = []
-        for event in events:
-            event_dict = dict(event)
-            if event_dict.get("images"):
-                try:
-                    event_dict["images"] = json.loads(event_dict["images"])
-                except Exception:
-                    event_dict["images"] = []
-            else:
-                event_dict["images"] = []
-            if event_dict.get("videos"):
-                try:
-                    event_dict["videos"] = json.loads(event_dict["videos"])
-                except Exception:
-                    event_dict["videos"] = []
-            else:
-                event_dict["videos"] = []
-            if "participant_count" not in event_dict or event_dict["participant_count"] is None:
-                event_dict["participant_count"] = 0
-            events_list.append(event_dict)
-        
+        events_list = [_normalize_event(dict(event)) for event in events]
+
         return events_list
     except Exception as e:
         print(f"Error in get_events: {str(e)}")  # Hata mesajını logla
@@ -146,11 +201,18 @@ async def create_event(
         if isinstance(event.get("videos"), list):
             videos_value = json.dumps(event.get("videos"))
 
+        # Slug ve kart tasarımı alanlarını hazırla
+        slug = event.get("slug") or _slugify(event.get("title"))
+        day, month = _derive_day_month(event.get("date"))
+        category = event.get("category") or "RENCONTRE"
+        category_color = event.get("categoryColor") or "rencontre"
+
         cursor.execute("""
             INSERT INTO events (
-                title, description, date, location, 
-                image, images, videos, max_participants, participant_count, created_by
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                title, description, date, location,
+                image, images, videos, max_participants, participant_count, created_by,
+                slug, category, categoryColor, day, month
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             event.get("title"),
             event.get("description"),
@@ -161,33 +223,23 @@ async def create_event(
             videos_value,
             event.get("max_participants"),
             event.get("participant_count", 0),
-            current_user.get("id", 1)  # Admin ID'si varsayılan olarak 1
+            current_user.get("id", 1),  # Admin ID'si varsayılan olarak 1
+            slug,
+            category,
+            category_color,
+            day,
+            month,
         ))
-        
+
         conn.commit()
-        
+
         # Yeni oluşturulan etkinliği getir
         event_id = cursor.lastrowid
         cursor.execute("SELECT * FROM events WHERE id = ?", (event_id,))
         new_event = cursor.fetchone()
-        
+
         conn.close()
-        new_event_dict = dict(new_event)
-        if new_event_dict.get("images"):
-            try:
-                new_event_dict["images"] = json.loads(new_event_dict["images"])
-            except Exception:
-                new_event_dict["images"] = []
-        else:
-            new_event_dict["images"] = []
-        if new_event_dict.get("videos"):
-            try:
-                new_event_dict["videos"] = json.loads(new_event_dict["videos"])
-            except Exception:
-                new_event_dict["videos"] = []
-        else:
-            new_event_dict["videos"] = []
-        return new_event_dict
+        return _normalize_event(dict(new_event))
         
     except Exception as e:
         print(f"Error creating event: {str(e)}")
@@ -197,30 +249,28 @@ async def create_event(
         )
 
 # Etkinlik güncelleme (sadece admin)
-@router.put("/{event_id}", status_code=status.HTTP_200_OK)
+@router.put("/{identifier}", status_code=status.HTTP_200_OK)
 async def update_event(
-    event_id: int,
+    identifier: str,
     event: dict,
     current_user: dict = Depends(get_current_admin)
 ):
-    """Etkinliği güncelle (sadece admin)"""
+    """Etkinliği güncelle (sadece admin) - slug veya id ile"""
     try:
-        print(f"[DEBUG] Updating event {event_id} with data: {event}")
-        print(f"[DEBUG] Current user: {current_user}")
-        
+        print(f"[DEBUG] Updating event {identifier} with data: {event}")
+
         conn = get_db()
         cursor = conn.cursor()
-        
-        # Etkinliğin var olup olmadığını kontrol et
-        cursor.execute("SELECT * FROM events WHERE id = ?", (event_id,))
-        existing_event = cursor.fetchone()
-        
-        if not existing_event:
+
+        # slug veya id'den gerçek id'yi bul
+        event_id = _resolve_event_id(cursor, identifier)
+        if not event_id:
+            conn.close()
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Événement non trouvé"
             )
-        
+
         # Etkinliği güncelle - updated_at sütununu kaldırdık
         images_value = None
         if isinstance(event.get("images"), list):
@@ -228,6 +278,9 @@ async def update_event(
         videos_value = None
         if isinstance(event.get("videos"), list):
             videos_value = json.dumps(event.get("videos"))
+
+        # Tarih değiştiyse gün/ay rozetini yeniden türet
+        day, month = _derive_day_month(event.get("date"))
 
         cursor.execute("""
             UPDATE events SET
@@ -238,7 +291,9 @@ async def update_event(
                 image = ?,
                 images = ?,
                 videos = ?,
-                max_participants = ?
+                max_participants = ?,
+                day = COALESCE(?, day),
+                month = COALESCE(?, month)
             WHERE id = ?
         """, (
             event.get("title"),
@@ -249,32 +304,19 @@ async def update_event(
             images_value,
             videos_value,
             event.get("max_participants"),
+            day,
+            month,
             event_id
         ))
-        
+
         conn.commit()
-        
+
         # Güncellenmiş etkinliği getir
         cursor.execute("SELECT * FROM events WHERE id = ?", (event_id,))
         updated_event = cursor.fetchone()
-        
+
         conn.close()
-        updated_event_dict = dict(updated_event)
-        if updated_event_dict.get("images"):
-            try:
-                updated_event_dict["images"] = json.loads(updated_event_dict["images"])
-            except Exception:
-                updated_event_dict["images"] = []
-        else:
-            updated_event_dict["images"] = []
-        if updated_event_dict.get("videos"):
-            try:
-                updated_event_dict["videos"] = json.loads(updated_event_dict["videos"])
-            except Exception:
-                updated_event_dict["videos"] = []
-        else:
-            updated_event_dict["videos"] = []
-        return updated_event_dict
+        return _normalize_event(dict(updated_event))
         
     except Exception as e:
         print(f"Error updating event: {str(e)}")
@@ -284,20 +326,16 @@ async def update_event(
         )
 
 # Etkinliği sil (sadece admin)
-@router.delete("/{event_id}")
-async def delete_event(event_id: int, current_user: dict = Depends(get_current_admin)):
+@router.delete("/{identifier}")
+async def delete_event(identifier: str, current_user: dict = Depends(get_current_admin)):
     conn = get_db()
     cursor = conn.cursor()
-    
+
     try:
-        cursor.execute('''
-        SELECT * FROM events WHERE id = ?
-        ''', (event_id,))
-        existing_event = cursor.fetchone()
-        
-        if not existing_event:
+        event_id = _resolve_event_id(cursor, identifier)
+        if not event_id:
             raise HTTPException(status_code=404, detail="Événement non trouvé")
-        
+
         # Etkinliği sil
         cursor.execute('''
         DELETE FROM events WHERE id = ?
@@ -316,22 +354,26 @@ async def delete_event(event_id: int, current_user: dict = Depends(get_current_a
     finally:
         conn.close()
 
-# Belirli bir etkinliği getir
-@router.get("/{event_id}", response_model=Dict)
-async def get_event(event_id: int):
+# Belirli bir etkinliği getir (slug veya id ile)
+@router.get("/{identifier}", response_model=Dict)
+async def get_event(identifier: str):
     conn = get_db()
     cursor = conn.cursor()
-    
+
     try:
-        # Etkinliği bul
+        # Etkinliği slug veya id ile bul
+        event_id = _resolve_event_id(cursor, identifier)
+        if not event_id:
+            raise HTTPException(status_code=404, detail="Événement non trouvé")
+
         cursor.execute('''
         SELECT * FROM events WHERE id = ?
         ''', (event_id,))
         event = cursor.fetchone()
-        
+
         if not event:
             raise HTTPException(status_code=404, detail="Événement non trouvé")
-        
+
         # Katılımcıları bul
         cursor.execute('''
         SELECT u.id, u.firstName, u.lastName, u.username, u.email
@@ -368,6 +410,7 @@ async def get_event(event_id: int):
 
         event_dict = {
             "id": event["id"],
+            "slug": event["slug"] if "slug" in event.keys() else None,
             "title": event["title"],
             "date": event["date"],
             "description": event["description"],
@@ -375,12 +418,16 @@ async def get_event(event_id: int):
             "image": event["image"],
             "images": images,
             "videos": videos,
+            "category": event["category"] if "category" in event.keys() else None,
+            "categoryColor": event["categoryColor"] if "categoryColor" in event.keys() else None,
+            "day": event["day"] if "day" in event.keys() else None,
+            "month": event["month"] if "month" in event.keys() else None,
             "max_participants": event["max_participants"],
             "participant_count": len(participants_list),
             "participants": participants_list
         }
-        
-        return event_dict
+
+        return _normalize_event(event_dict)
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -503,12 +550,17 @@ async def unregister_event(event_id: int, current_user: dict = Depends(get_curre
         )
 
 # Kullanıcının etkinliğe kayıtlı olup olmadığını kontrol et
-@router.get("/{event_id}/check-registration")
-async def check_registration(event_id: int, current_user: dict = Depends(get_current_user)):
+@router.get("/{identifier}/check-registration")
+async def check_registration(identifier: str, current_user: dict = Depends(get_current_user)):
     try:
         conn = get_db()
         cursor = conn.cursor()
-        
+
+        event_id = _resolve_event_id(cursor, identifier)
+        if not event_id:
+            conn.close()
+            return {"registered": False}
+
         # Kullanıcının etkinliğe kayıtlı olup olmadığını kontrol et
         cursor.execute('''
         SELECT * FROM event_participants

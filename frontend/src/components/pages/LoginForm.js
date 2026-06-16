@@ -13,6 +13,17 @@ const LoginForm = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    // Rol bazlı yönlendirme: admin -> admin panel, diğer -> profile
+    const redirectByRole = () => {
+        let role = '';
+        try {
+            role = JSON.parse(localStorage.getItem('user') || '{}').role || '';
+        } catch {
+            role = '';
+        }
+        navigate(role === 'admin' ? '/admin/dashboard' : '/profile');
+    };
+
     useEffect(() => {
         // URL'den gelen mesajı kontrol et
         if (location.state && location.state.message) {
@@ -33,7 +44,7 @@ const LoginForm = () => {
         try {
             const ok = await login(email, password);
             if (ok) {
-                navigate('/profile');
+                redirectByRole();
             } else {
                 setError('Email, nom d\'utilisateur ou mot de passe incorrect');
             }
@@ -67,8 +78,8 @@ const LoginForm = () => {
             const result = await loginWithGoogle();
             
             if (result) {
-                // Başarılı giriş sonrası yönlendir
-                navigate('/profile');
+                // Başarılı giriş sonrası rol bazlı yönlendir
+                redirectByRole();
             } else {
                 // Kullanıcı popup'ı kapattı veya işlem iptal edildi
                 // Sessizce geç, hata gösterme

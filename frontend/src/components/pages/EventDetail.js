@@ -15,14 +15,24 @@ import {
   FaShareAlt,
   FaWhatsapp,
 } from "react-icons/fa";
-import { PAST_EVENTS } from "../../data/events";
+// Backend origin (yüklenen /uploads dosyaları backend tarafından servis edilir)
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL ||
+  (typeof window !== "undefined" ? window.location.origin : "");
 
-// Yükleyici
-export async function loader({ params }) {
-  const ev = PAST_EVENTS.find((e) => String(e.slug) === String(params.slug));
-  if (ev) return ev;
-  throw new Response("Event not found", { status: 404 });
-}
+// Resim/video path'ini gösterilebilir tam URL'e çevir
+const resolveMediaUrl = (rawUrl) => {
+  if (!rawUrl) return null;
+  const u = String(rawUrl).trim();
+  if (!u) return null;
+  // Zaten tam URL ise dokunma
+  if (/^https?:\/\//i.test(u) || u.startsWith("data:")) return u;
+  // Backend'in serve ettiği yüklemeler
+  if (u.startsWith("/uploads/")) return `${API_BASE_URL}${u}`;
+  if (u.startsWith("uploads/")) return `${API_BASE_URL}/${u}`;
+  // /assets/... gibi frontend public dosyaları olduğu gibi kalır
+  return u;
+};
 
 // Medya Listesi
 const buildMediaList = (event) => {
@@ -32,10 +42,8 @@ const buildMediaList = (event) => {
   const media = [];
 
   const push = (type, rawUrl) => {
-    if (!rawUrl) return;
-    const url = rawUrl.startsWith("/uploads/")
-      ? `${window.location.origin}${rawUrl}`
-      : rawUrl;
+    const url = resolveMediaUrl(rawUrl);
+    if (!url) return;
     if (seen.has(url)) return;
     seen.add(url);
     media.push({ type, url });
@@ -232,18 +240,7 @@ const EventDetail = () => {
       return;
     }
 
-    const localEvent = PAST_EVENTS.find(
-      (e) => String(e.slug).trim() === String(slug).trim(),
-    );
-
-    if (localEvent) {
-      setEvent(localEvent);
-      setLoading(false);
-      // Arka planda kayıt durumunu kontrol et
-      checkRegistration();
-      return;
-    }
-
+    setLoading(true);
     const baseUrl =
       process.env.REACT_APP_API_BASE_URL || window.location.origin;
     axios
@@ -256,7 +253,11 @@ const EventDetail = () => {
       })
       .catch((err) => {
         console.error("Error fetching event from API:", err);
-        setError("Impossible de charger les détails de l'événement");
+        if (err.response?.status === 404) {
+          setError("Événement non trouvé");
+        } else {
+          setError("Impossible de charger les détails de l'événement");
+        }
       })
       .finally(() => setLoading(false));
   }, [slug, accessToken, checkRegistration]);

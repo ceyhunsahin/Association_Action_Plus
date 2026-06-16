@@ -199,48 +199,18 @@
 }
 
 /* ══════════════════════════════
-   FILTERS
-══════════════════════════════ */
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.filterPill {
-  padding: 7px 18px;
-  border-radius: 100px;
-  border: 1.5px solid var(--border);
-  background: #fff;
-  color: var(--ink-soft);
-  font-family: "Outfit", sans-serif;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--ease);
-  white-space: nowrap;
-}
-
-.filterPill:hover {
-  border-color: var(--grape);
-  color: var(--grape);
-  background: var(--grape-lt);
-}
-
-.filterActive {
-  background: var(--grape) !important;
-  color: #fff !important;
-  border-color: var(--grape) !important;
-  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.28);
-}
-
-/* ══════════════════════════════
    EVENTS GRID (2 colonnes)
 ══════════════════════════════ */
 .eventsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
+}
+
+.eventsLoading {
+  color: #777;
+  font-size: 15px;
+  padding: 24px 4px;
 }
 
 /* ══════════════════════════════
@@ -317,6 +287,25 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-top: 2px;
+}
+
+.dateBadgeYear {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--muted);
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+.dateBadgeTbd {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  max-width: 60px;
 }
 
 /* Corps de la carte */
@@ -495,15 +484,6 @@
     width: 100%;
     min-width: unset;
     height: 180px;
-  }
-
-  .filters {
-    gap: 6px;
-  }
-
-  .filterPill {
-    padding: 6px 14px;
-    font-size: 0.8rem;
   }
 }
 

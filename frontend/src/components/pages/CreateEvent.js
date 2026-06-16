@@ -206,8 +206,8 @@ const CreateEvent = () => {
       // Başarılı mesajı göster
       alert('Événement créé avec succès!');
       
-      // Etkinlik detay sayfasına yönlendir
-      navigate(`/events/${response.data.id}`);
+      // Etkinlik detay sayfasına yönlendir (slug öncelikli)
+      navigate(`/events/${response.data.slug || response.data.id}`);
     } catch (err) {
       console.error('Error creating event:', err);
       console.error('Error response:', err.response);

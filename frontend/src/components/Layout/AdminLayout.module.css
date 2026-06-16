@@ -1,0 +1,290 @@
+/* ============================================
+   ADMIN LAYOUT — sabit sol sidebar + içerik
+   ============================================ */
+.adminShell {
+  --sidebar-w: 268px;
+  --accent: #6b3fa0;
+  --accent-soft: #f3eefa;
+  min-height: 100vh;
+  background: #f6f7fb;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid #e8eaf0;
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid #eef0f5;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
+}
+
+.brandLogo {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brandName {
+  color: #1a1a2e;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.3px;
+}
+
+.brandSub {
+  color: #9aa0ac;
+  font-size: 10.5px;
+  line-height: 1;
+}
+
+/* Profil kartı */
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px;
+  padding: 12px;
+  background: var(--accent-soft);
+  border-radius: 12px;
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.profileName {
+  color: #1a1a2e;
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileRole {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Menü */
+.nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 12px 12px;
+}
+
+.navGroup {
+  margin-bottom: 14px;
+}
+
+.navGroupTitle {
+  display: block;
+  padding: 6px 12px;
+  color: #aab0bd;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  margin-bottom: 2px;
+  color: #525868;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 9px;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.navLink:hover {
+  background: #f4f4f8;
+  color: #1a1a2e;
+}
+
+.navLinkActive {
+  background: var(--accent);
+  color: #fff !important;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(107, 63, 160, 0.28);
+}
+
+.navIcon {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+/* Alt aksiyonlar */
+.sidebarFooter {
+  padding: 12px;
+  border-top: 1px solid #eef0f5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.viewSiteBtn,
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  background: transparent;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.viewSiteBtn {
+  color: #525868;
+}
+
+.viewSiteBtn:hover {
+  background: #f4f4f8;
+  color: #1a1a2e;
+}
+
+.logoutBtn {
+  color: #d64545;
+}
+
+.logoutBtn:hover {
+  background: #fdecec;
+}
+
+/* ---------- İçerik ---------- */
+.content {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  padding: 28px 32px;
+}
+
+/* ---------- Mobil ---------- */
+.mobileTopbar {
+  display: none;
+  align-items: center;
+  gap: 14px;
+  height: 60px;
+  padding: 0 16px;
+  background: #fff;
+  border-bottom: 1px solid #e8eaf0;
+  position: sticky;
+  top: 0;
+  z-index: 150;
+}
+
+.hamburger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  color: #1a1a2e;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mobileTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1a2e;
+}
+
+.closeBtn {
+  display: none;
+  width: 36px;
+  height: 36px;
+  font-size: 17px;
+  color: #777;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 20, 40, 0.45);
+  z-index: 190;
+}
+
+@media (max-width: 1024px) {
+  .mobileTopbar {
+    display: flex;
+  }
+
+  .closeBtn {
+    display: inline-flex;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 240ms ease;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  .content {
+    margin-left: 0;
+    padding: 20px 16px;
+  }
+}

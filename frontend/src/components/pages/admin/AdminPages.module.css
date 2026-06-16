@@ -1,0 +1,334 @@
+/* ============================================
+   ORTAK ADMIN SAYFA STİLLERİ
+   ============================================ */
+.page {
+  max-width: 1200px;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0 0 4px;
+  letter-spacing: -0.4px;
+}
+
+.pageSubtitle {
+  font-size: 14px;
+  color: #777e8c;
+  margin: 0;
+}
+
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: #6b3fa0;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  text-decoration: none;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.primaryBtn:hover {
+  background: #5a3488;
+  transform: translateY(-1px);
+}
+
+/* ---------- İstatistik kartları ---------- */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.statCard {
+  background: #fff;
+  border: 1px solid #ebedf3;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.statIcon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  background: #f3eefa;
+  color: #6b3fa0;
+  flex-shrink: 0;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a1a2e;
+  line-height: 1.1;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: #828998;
+  margin-top: 2px;
+}
+
+/* ---------- Kart / panel ---------- */
+.card {
+  background: #fff;
+  border: 1px solid #ebedf3;
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 20px;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 16px;
+}
+
+/* Hızlı aksiyonlar */
+.quickGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.quickAction {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #ebedf3;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #1a1a2e;
+  font-weight: 600;
+  font-size: 14px;
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.quickAction:hover {
+  border-color: #6b3fa0;
+  box-shadow: 0 6px 18px rgba(107, 63, 160, 0.12);
+  transform: translateY(-2px);
+}
+
+.quickIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  background: #f3eefa;
+  color: #6b3fa0;
+  flex-shrink: 0;
+}
+
+/* ---------- Tablo ---------- */
+.tableWrap {
+  background: #fff;
+  border: 1px solid #ebedf3;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 14px 18px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #9aa0ac;
+  background: #fafbfd;
+  border-bottom: 1px solid #ebedf3;
+}
+
+.table td {
+  padding: 14px 18px;
+  font-size: 14px;
+  color: #3a3f4b;
+  border-bottom: 1px solid #f1f2f6;
+  vertical-align: middle;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tr:hover td {
+  background: #fafbfd;
+}
+
+.cellStrong {
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.thumb {
+  width: 46px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #f1f2f6;
+}
+
+.rowActions {
+  display: flex;
+  gap: 8px;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 8px;
+  border: 1px solid #e1e3ea;
+  background: #fff;
+  color: #525868;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 150ms ease;
+}
+
+.iconBtn:hover {
+  border-color: #6b3fa0;
+  color: #6b3fa0;
+}
+
+.iconBtnDanger:hover {
+  border-color: #d64545;
+  color: #d64545;
+  background: #fdecec;
+}
+
+/* Rozet */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  background: #f3eefa;
+  color: #6b3fa0;
+}
+
+.badgeMuted {
+  background: #f1f2f6;
+  color: #828998;
+}
+
+.badgeSuccess {
+  background: #e7f6ec;
+  color: #2c8a4b;
+}
+
+.badgeWarn {
+  background: #fff4e5;
+  color: #b9740a;
+}
+
+/* Durumlar */
+.stateMsg {
+  padding: 40px 20px;
+  text-align: center;
+  color: #828998;
+  font-size: 15px;
+}
+
+.messageItem {
+  border: 1px solid #ebedf3;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  background: #fff;
+}
+
+.messageItemUnread {
+  border-left: 3px solid #6b3fa0;
+  background: #fcfaff;
+}
+
+.messageHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.messageFrom {
+  font-weight: 700;
+  color: #1a1a2e;
+  font-size: 14px;
+}
+
+.messageEmail {
+  color: #828998;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.messageSubject {
+  font-size: 13.5px;
+  color: #6b3fa0;
+  font-weight: 600;
+  margin: 2px 0 6px;
+}
+
+.messageBody {
+  font-size: 14px;
+  color: #4a4f5b;
+  line-height: 1.5;
+  margin: 0 0 10px;
+  white-space: pre-wrap;
+}
+
+.messageMeta {
+  font-size: 12px;
+  color: #aab0bd;
+}
+
+@media (max-width: 640px) {
+  .table th:nth-child(3),
+  .table td:nth-child(3) {
+    display: none;
+  }
+}

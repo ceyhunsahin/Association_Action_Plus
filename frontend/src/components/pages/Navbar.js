@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import styles from "./Navbar.module.css";
+import { useAuth } from "../../context/AuthContext";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isAuthenticated, isAdmin, logout } = useAuth();
 
   return (
     <header className={styles.navbar}>
@@ -58,9 +60,30 @@ const Navbar = () => {
 
         {/* Butonlar */}
         <div className={styles.navRight}>
-          <Link to="/contact" className={styles.navBtnSecondary}>
-            Contact
-          </Link>
+          {!isAuthenticated && (
+            <Link to="/login" className={styles.navBtnSecondary}>
+              Connexion
+            </Link>
+          )}
+          {isAuthenticated && isAdmin && (
+            <Link to="/admin/dashboard" className={styles.navBtnSecondary}>
+              Admin
+            </Link>
+          )}
+          {isAuthenticated && !isAdmin && (
+            <Link to="/profile" className={styles.navBtnSecondary}>
+              Mon profil
+            </Link>
+          )}
+          {isAuthenticated && (
+            <button
+              type="button"
+              onClick={logout}
+              className={styles.navBtnSecondary}
+            >
+              Déconnexion
+            </button>
+          )}
           <Link to="/donate" className={styles.navBtnPrimary}>
             Faire un don
           </Link>
@@ -110,6 +133,45 @@ const Navbar = () => {
           >
             Contact
           </Link>
+          {!isAuthenticated && (
+            <Link
+              to="/login"
+              onClick={() => setMenuOpen(false)}
+              className={styles.mobileLink}
+            >
+              Connexion
+            </Link>
+          )}
+          {isAuthenticated && isAdmin && (
+            <Link
+              to="/admin/dashboard"
+              onClick={() => setMenuOpen(false)}
+              className={styles.mobileLink}
+            >
+              Admin
+            </Link>
+          )}
+          {isAuthenticated && !isAdmin && (
+            <Link
+              to="/profile"
+              onClick={() => setMenuOpen(false)}
+              className={styles.mobileLink}
+            >
+              Mon profil
+            </Link>
+          )}
+          {isAuthenticated && (
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                logout();
+              }}
+              className={`${styles.mobileLink} ${styles.mobileLogoutBtn}`}
+            >
+              Déconnexion
+            </button>
+          )}
           <Link
             to="/donate"
             onClick={() => setMenuOpen(false)}

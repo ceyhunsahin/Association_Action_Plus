@@ -1,24 +1,30 @@
-import React, { useState, memo } from "react";
+import React, { useState, useEffect, memo } from "react";
+import axios from "axios";
 import { Helmet } from "react-helmet";
 import styles from "./Events.module.css";
-import { PAST_EVENTS } from "../../data/events";
 
-const CATEGORIES = [
-  "Tous",
-  "Rencontres",
-  "Culture",
-  "Éducation",
-  "Solidarité",
-  "Sorties",
-];
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || window.location.origin;
 
-const CATEGORY_MAP = {
-  Rencontres: "rencontre",
-  Culture: "culture",
-  Éducation: "education",
-  Solidarité: "solidarite",
-  Sorties: "sortie",
+// /uploads/ ile başlayan görselleri backend origin'i ile çöz
+const resolveMediaUrl = (url) => {
+  if (!url) return url;
+  return url.startsWith("/uploads/") ? `${API_BASE_URL}${url}` : url;
 };
+
+// API'den gelen event'i render öncesi güvenli hale getir (eksik alan = crash engelle)
+const normalizeEvent = (ev = {}) => ({
+  ...ev,
+  slug: ev.slug ?? String(ev.id ?? ""),
+  title: ev.title || "Événement",
+  description: ev.description || "",
+  image: ev.image || "/assets/home-hero.png",
+  images: Array.isArray(ev.images) ? ev.images : [],
+  category: ev.category || "ÉVÉNEMENT",
+  categoryColor: ev.categoryColor || "rencontre",
+  day: ev.day || "",
+  month: ev.month || "",
+});
 
 const MONTH_INDEX = {
   janvier: 0,
@@ -54,26 +60,73 @@ const normalizeText = (value) =>
     .replace(/\./g, "")
     .trim();
 
-const getEventTimestamp = (event) => {
-  if (!event?.date) return 0;
+// Fransızca kısa ay isimleri (badge için)
+const FR_SHORT_MONTHS = [
+  "JAN", "FÉV", "MAR", "AVR", "MAI", "JUN",
+  "JUL", "AOÛ", "SEP", "OCT", "NOV", "DÉC",
+];
 
-  const parts = event.date.trim().split(/\s+/);
-  if (parts.length < 3) return 0;
+// Hem ISO (YYYY-MM-DD / ...THH:mm:ss) hem Fransızca ("6 février 2026")
+// tarihlerini güvenli şekilde Date'e çevir; geçersizse null döndür.
+const parseEventDate = (event) => {
+  const raw = event?.date;
+  if (!raw) return null;
+  const s = String(raw).trim();
 
-  const day = Number.parseInt(parts[0], 10);
-  const year = Number.parseInt(parts[parts.length - 1], 10);
-  const monthKey = normalizeText(parts.slice(1, -1).join(" "));
-  const monthIndex = MONTH_INDEX[monthKey];
-
-  if (
-    !Number.isFinite(day) ||
-    !Number.isFinite(year) ||
-    monthIndex === undefined
-  ) {
-    return 0;
+  // 1) ISO benzeri (admin create/edit date input'u bunu üretir)
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    const native = new Date(s);
+    if (!Number.isNaN(native.getTime())) return native;
   }
 
-  return new Date(year, monthIndex, day).getTime();
+  // 2) Fransızca metin tarih (seed verisi: "6 février 2026")
+  const parts = s.split(/\s+/);
+  if (parts.length >= 3) {
+    const day = Number.parseInt(parts[0], 10);
+    const year = Number.parseInt(parts[parts.length - 1], 10);
+    const monthKey = normalizeText(parts.slice(1, -1).join(" "));
+    const monthIndex = MONTH_INDEX[monthKey];
+    if (
+      Number.isFinite(day) &&
+      Number.isFinite(year) &&
+      monthIndex !== undefined
+    ) {
+      return new Date(year, monthIndex, day);
+    }
+  }
+
+  // 3) Son çare: native parse
+  const fallback = new Date(s);
+  return Number.isNaN(fallback.getTime()) ? null : fallback;
+};
+
+// Sıralama için timestamp; geçersiz tarih en sona düşsün diye -Infinity
+const getEventTimestamp = (event) => {
+  const d = parseEventDate(event);
+  return d ? d.getTime() : Number.NEGATIVE_INFINITY;
+};
+
+// Kart üzerindeki date badge için gün/ay/yıl üret
+const getDateBadge = (event) => {
+  const d = parseEventDate(event);
+  if (d) {
+    return {
+      day: String(d.getDate()).padStart(2, "0"),
+      month: FR_SHORT_MONTHS[d.getMonth()],
+      year: d.getFullYear(),
+      invalid: false,
+    };
+  }
+  // DB'de hazır gün/ay varsa onu kullan (eski kayıt fallback)
+  if (event?.day && event?.month) {
+    return {
+      day: event.day,
+      month: String(event.month).slice(0, 3).toUpperCase(),
+      year: null,
+      invalid: false,
+    };
+  }
+  return { invalid: true };
 };
 
 /* Kategori Rozeti */
@@ -85,9 +138,11 @@ const CategoryBadge = ({ type }) => {
     solidarite: "SOLIDARITÉ",
     sortie: "SORTIE",
   };
+  // category/categoryColor eksik gelirse güvenli varsayılan (tasarımı bozmadan)
+  const safeType = type || "rencontre";
   return (
-    <span className={`${styles.categoryBadge} ${styles[`cat_${type}`]}`}>
-      {labels[type] || type.toUpperCase()}
+    <span className={`${styles.categoryBadge} ${styles[`cat_${safeType}`] || ""}`}>
+      {labels[safeType] || safeType.toUpperCase()}
     </span>
   );
 };
@@ -95,12 +150,13 @@ const CategoryBadge = ({ type }) => {
 /* Etkinlik Kartı */
 const EventCard = memo(({ event }) => {
   const photoCount = event.images?.length ? event.images.length + 1 : 0;
+  const badge = getDateBadge(event);
 
   return (
     <div className={styles.eventCard}>
       <div className={styles.cardImageWrap}>
         <img
-          src={event.image}
+          src={resolveMediaUrl(event.image)}
           alt={event.title}
           className={styles.cardImage}
           loading="lazy"
@@ -109,8 +165,17 @@ const EventCard = memo(({ event }) => {
           }}
         />
         <div className={styles.dateBadge}>
-          <span className={styles.dateBadgeDay}>{event.day}</span>
-          <span className={styles.dateBadgeMonth}>{event.month}</span>
+          {badge.invalid ? (
+            <span className={styles.dateBadgeTbd}>Date à confirmer</span>
+          ) : (
+            <>
+              <span className={styles.dateBadgeDay}>{badge.day}</span>
+              <span className={styles.dateBadgeMonth}>{badge.month}</span>
+              {badge.year && (
+                <span className={styles.dateBadgeYear}>{badge.year}</span>
+              )}
+            </>
+          )}
         </div>
         {photoCount > 0 && (
           <div className={styles.photoCountBadge}>
@@ -178,18 +243,36 @@ const EventCard = memo(({ event }) => {
 
 /* Ana Bileşen */
 const Events = () => {
-  const [activeCategory, setActiveCategory] = useState("Tous");
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredEvents =
-    activeCategory === "Tous"
-      ? PAST_EVENTS
-      : PAST_EVENTS.filter(
-          (e) => e.categoryColor === CATEGORY_MAP[activeCategory],
-        );
+  useEffect(() => {
+    let mounted = true;
+    axios
+      .get(`${API_BASE_URL}/api/events`)
+      .then((res) => {
+        const list = Array.isArray(res.data) ? res.data.map(normalizeEvent) : [];
+        if (mounted) setEvents(list);
+      })
+      .catch((err) => {
+        console.error("Erreur lors du chargement des événements:", err);
+        if (mounted) setEvents([]);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
-  const sortedEvents = [...filteredEvents].sort(
-    (a, b) => getEventTimestamp(b) - getEventTimestamp(a),
-  );
+  // En yeni en üstte; geçersiz tarihliler en sona
+  const sortedEvents = [...events].sort((a, b) => {
+    const ta = getEventTimestamp(a);
+    const tb = getEventTimestamp(b);
+    if (ta === tb) return 0;
+    return tb - ta;
+  });
 
   return (
     <div className={styles.eventsPage}>
@@ -431,27 +514,22 @@ const Events = () => {
               </span>
               Événements passés
             </h2>
-
-            {/* Filtreler */}
-            <div className={styles.filters}>
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  className={`${styles.filterPill} ${activeCategory === cat ? styles.filterActive : ""}`}
-                  onClick={() => setActiveCategory(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* Etkinlik Listesi */}
-          <div className={styles.eventsGrid}>
-            {sortedEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
+          {loading ? (
+            <p className={styles.eventsLoading}>Chargement des événements...</p>
+          ) : sortedEvents.length > 0 ? (
+            <div className={styles.eventsGrid}>
+              {sortedEvents.map((event) => (
+                <EventCard key={event.id} event={event} />
+              ))}
+            </div>
+          ) : (
+            <p className={styles.eventsLoading}>
+              Aucun événement pour le moment.
+            </p>
+          )}
         </section>
       </div>
     </div>

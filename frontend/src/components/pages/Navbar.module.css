@@ -125,6 +125,12 @@
   color: #6B3FA0;
 }
 
+/* <button> elemanlarının link butonlarıyla aynı görünmesi için */
+button.navBtnSecondary {
+  cursor: pointer;
+  font-family: inherit;
+}
+
 .navBtnPrimary {
   display: inline-flex;
   align-items: center;
@@ -200,6 +206,17 @@
 .mobileLinkPrimary {
   color: #6B3FA0;
   font-weight: 700;
+}
+
+/* Mobil menüde logout <button>'ı link gibi göster */
+.mobileLogoutBtn {
+  background: none;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .mobileDivider {

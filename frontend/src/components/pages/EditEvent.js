@@ -6,7 +6,8 @@ import styles from './EditEvent.module.css';
 import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaImage, FaSave, FaArrowLeft } from 'react-icons/fa';
 
 const EditEvent = () => {
-  const { id } = useParams();
+  // Route parametresi :slug — mevcut kodla uyumlu olması için id olarak adlandır
+  const { slug: id } = useParams();
   const navigate = useNavigate();
   const { accessToken, isAdmin } = useAuth();
   const baseUrl = process.env.REACT_APP_API_BASE_URL || window.location.origin;
